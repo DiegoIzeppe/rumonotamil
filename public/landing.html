@@ -1,0 +1,2952 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redação Nota 1000 — Domine a redação do ENEM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ====== Tokens ====== */
+    :root {
+      --bg: #000f36;
+      --bg-2: #06143d;
+      --bg-3: #0a1a48;
+      --blue: #1cb0f8;
+      --blue-2: #4ec6ff;
+      --blue-dim: rgba(28, 176, 248, 0.18);
+      --blue-glow: rgba(28, 176, 248, 0.45);
+      --white: #ffffff;
+      --muted: rgba(255, 255, 255, 0.62);
+      --dim: rgba(255, 255, 255, 0.42);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-2: rgba(255, 255, 255, 0.14);
+      --card: rgba(255, 255, 255, 0.025);
+      --card-2: rgba(255, 255, 255, 0.04);
+      --radius: 16px;
+      --radius-lg: 22px;
+      --maxw: 1240px;
+      --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif;
+      --font-body: "Figtree", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: auto;
+      /* JS cuida do easing */
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    body {
+      opacity: 0;
+      transition: opacity 0.7s ease;
+    }
+
+    body.is-ready {
+      opacity: 1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    ::selection {
+      background: var(--blue);
+      color: var(--bg);
+    }
+
+    /* ====== Background layers ====== */
+    .bg-grid,
+    .bg-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse at 50% 30%, #000 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.2) 100%);
+    }
+
+    .bg-noise {
+      opacity: 0.06;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* ====== Custom cursor ====== */
+    .cursor,
+    .cursor-dot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      mix-blend-mode: screen;
+    }
+
+    .cursor {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--blue);
+      background: rgba(28, 176, 248, 0.08);
+      box-shadow: 0 0 24px var(--blue-glow), inset 0 0 8px rgba(28, 176, 248, 0.4);
+      transition: width 0.25s ease, height 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--blue);
+      box-shadow: 0 0 8px var(--blue);
+    }
+
+    .cursor.is-hover {
+      width: 56px;
+      height: 56px;
+      background: rgba(28, 176, 248, 0.16);
+    }
+
+    @media (hover: none),
+    (pointer: coarse) {
+
+      .cursor,
+      .cursor-dot {
+        display: none;
+      }
+
+      * {
+        cursor: auto !important;
+      }
+    }
+
+    body {
+      cursor: none;
+    }
+
+    a,
+    button,
+    .tilt,
+    [data-cursor="hover"] {
+      cursor: none;
+    }
+
+    /* ====== Container ====== */
+    .container {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        padding: 0 20px;
+      }
+    }
+
+    /* ====== Type ====== */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue-2);
+      padding: 8px 14px;
+      border: 1px solid var(--blue-dim);
+      border-radius: 999px;
+      background: rgba(28, 176, 248, 0.05);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 10px var(--blue);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(44px, 7vw, 96px);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      font-size: clamp(34px, 4.6vw, 64px);
+      letter-spacing: -0.03em;
+    }
+
+    h3 {
+      font-size: clamp(20px, 1.6vw, 26px);
+    }
+
+    p {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .lead {
+      font-size: clamp(16px, 1.25vw, 19px);
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.65;
+    }
+
+    /* ====== Buttons ====== */
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 52px;
+      padding: 0 26px;
+      border-radius: 999px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: -0.005em;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.3s ease, background 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+      isolation: isolate;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #00132e;
+      box-shadow: 0 8px 30px -8px var(--blue-glow), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(28, 176, 248, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 14px 40px -8px rgba(28, 176, 248, 0.55), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(28, 176, 248, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--white);
+      border: 1px solid var(--line-2);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--blue);
+      color: var(--blue-2);
+    }
+
+    .btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.45);
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripple 0.7s ease-out forwards;
+      z-index: -1;
+    }
+
+    .btn-primary .ripple {
+      background: rgba(0, 19, 46, 0.35);
+    }
+
+    @keyframes ripple {
+      to {
+        transform: translate(-50%, -50%) scale(8);
+        opacity: 0;
+      }
+    }
+
+    .btn-pulse {
+      animation: btnPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes btnPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 8px 30px -8px var(--blue-glow), 0 0 0 0 rgba(28, 176, 248, 0.45), 0 0 0 1px rgba(28, 176, 248, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 14px 50px -6px rgba(28, 176, 248, 0.7), 0 0 0 16px rgba(28, 176, 248, 0), 0 0 0 1px rgba(28, 176, 248, 0.7);
+      }
+    }
+
+    /* ====== Navbar ====== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      transition: padding 0.35s ease, background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    .nav.is-scrolled {
+      padding: 10px 0;
+      background: rgba(0, 15, 54, 0.65);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--blue) 0%, #0d7fc4 100%);
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px var(--blue-glow), inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .logo-mark::after {
+      content: "1k";
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 12px;
+      color: #00132e;
+      letter-spacing: -0.04em;
+    }
+
+    .logo-text {
+      color: var(--white);
+    }
+
+    .logo-text span {
+      color: var(--blue-2);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      transition: color 0.2s ease;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--white);
+    }
+
+    .nav-cta {
+      height: 42px;
+      padding: 0 18px;
+      font-size: 14px;
+    }
+
+    .nav-toggle {
+      display: none;
+    }
+
+    @media (max-width: 880px) {
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* ====== Hero ====== */
+    .hero {
+      position: relative;
+      padding: 180px 0 120px;
+      overflow: hidden;
+    }
+
+    .orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes float-1 {
+      0% {
+        transform: translate(0px, 0px) scale(1);
+      }
+
+      25% {
+        transform: translate(28px, -22px) scale(1.04);
+      }
+
+      50% {
+        transform: translate(14px, 32px) scale(0.97);
+      }
+
+      75% {
+        transform: translate(-20px, 16px) scale(1.02);
+      }
+
+      100% {
+        transform: translate(0px, 0px) scale(1);
+      }
+    }
+
+    @keyframes float-2 {
+      0% {
+        transform: translate(0px, 0px) scale(1);
+      }
+
+      30% {
+        transform: translate(-24px, 20px) scale(1.05);
+      }
+
+      60% {
+        transform: translate(18px, -28px) scale(0.96);
+      }
+
+      100% {
+        transform: translate(0px, 0px) scale(1);
+      }
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+
+    .orb-1 {
+      width: 520px;
+      height: 520px;
+      background: #1cb0f8;
+      left: -120px;
+      top: 80px;
+      opacity: 0.32;
+      animation: float-1 22s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 360px;
+      height: 360px;
+      background: #2a7fff;
+      right: -80px;
+      top: 220px;
+      opacity: 0.28;
+      animation: float-2 28s ease-in-out infinite;
+      animation-delay: -8s;
+    }
+
+    .orb-3 {
+      display: none;
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      margin: 26px 0 24px;
+    }
+
+    .hero h1 .accent {
+      background: linear-gradient(180deg, #6ed3ff 0%, var(--blue) 60%, #0a82c4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      position: relative;
+      display: inline-block;
+    }
+
+    .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(28px);
+      filter: blur(8px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.7s ease;
+    }
+
+    .word.is-in {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .hero-lead {
+      max-width: 640px;
+      margin: 0 auto 36px;
+      font-size: clamp(16px, 1.3vw, 19px);
+      color: var(--muted);
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 80px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 32px 0;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 0 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat:last-child {
+      border-right: 0;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(32px, 3.4vw, 46px);
+      letter-spacing: -0.03em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .stat-num .plus,
+    .stat-num .suffix {
+      color: var(--blue);
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+      }
+
+      .stat:nth-child(2) {
+        border-right: 0;
+      }
+
+      .stat:nth-child(1),
+      .stat:nth-child(2) {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 24px;
+      }
+
+      .stat:nth-child(3),
+      .stat:nth-child(4) {
+        padding-top: 24px;
+      }
+
+      .hero {
+        padding: 140px 0 80px;
+      }
+    }
+
+    /* ====== Section base ====== */
+    section {
+      position: relative;
+      z-index: 2;
+    }
+
+    .section {
+      padding: 120px 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin: 0 auto 64px;
+      text-align: center;
+    }
+
+    .section-head h2 {
+      margin: 18px 0 16px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal.is-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-stagger>* {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal-stagger.is-in>* {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-stagger.is-in>*:nth-child(1) {
+      transition-delay: 0.05s;
+    }
+
+    .reveal-stagger.is-in>*:nth-child(2) {
+      transition-delay: 0.15s;
+    }
+
+    .reveal-stagger.is-in>*:nth-child(3) {
+      transition-delay: 0.25s;
+    }
+
+    .reveal-stagger.is-in>*:nth-child(4) {
+      transition-delay: 0.35s;
+    }
+
+    .reveal-stagger.is-in>*:nth-child(5) {
+      transition-delay: 0.45s;
+    }
+
+    .reveal-stagger.is-in>*:nth-child(6) {
+      transition-delay: 0.55s;
+    }
+
+    /* ====== How it works ====== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .steps {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step {
+      position: relative;
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px 26px;
+      overflow: hidden;
+      transition: border-color 0.3s ease, background 0.3s ease, transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+
+    .step::before {
+      content: attr(data-num);
+      position: absolute;
+      top: -14px;
+      right: 8px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 140px;
+      line-height: 1;
+      color: rgba(28, 176, 248, 0.07);
+      letter-spacing: -0.06em;
+      pointer-events: none;
+    }
+
+    .step-ico {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(28, 176, 248, 0.1);
+      border: 1px solid var(--blue-dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+      margin-bottom: 24px;
+    }
+
+    .step h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 14.5px;
+      color: var(--muted);
+    }
+
+    .step:hover {
+      border-color: rgba(28, 176, 248, 0.35);
+      background: rgba(28, 176, 248, 0.04);
+    }
+
+    /* ====== Competências ====== */
+    .comp {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .comp {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .comp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comp-item {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      text-align: left;
+      transition: border-color 0.3s ease, background 0.3s ease;
+      width: 100%;
+    }
+
+    .comp-item:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .comp-item.is-active {
+      border-color: var(--blue);
+      background: rgba(28, 176, 248, 0.06);
+      box-shadow: 0 0 0 1px rgba(28, 176, 248, 0.3), 0 12px 40px -16px var(--blue-glow);
+    }
+
+    .comp-tag {
+      width: 56px;
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--blue);
+      background: rgba(28, 176, 248, 0.08);
+      padding: 8px 0;
+      border-radius: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .comp-item.is-active .comp-tag {
+      background: var(--blue);
+      color: #00132e;
+    }
+
+    .comp-meta h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      margin: 0 0 4px;
+      color: var(--white);
+    }
+
+    .comp-meta p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .comp-panel {
+      position: sticky;
+      top: 110px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(28, 176, 248, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      overflow: hidden;
+    }
+
+    .comp-panel::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: var(--radius-lg);
+      background: radial-gradient(600px 220px at 30% 0%, rgba(28, 176, 248, 0.18), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-head h4 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0 0 6px;
+    }
+
+    .panel-head p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .panel-total {
+      text-align: right;
+    }
+
+    .panel-total .num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 44px;
+      color: var(--blue);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .panel-total .lbl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 6px;
+    }
+
+    .bars {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 48px;
+      gap: 14px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .bar-row .bk {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--dim);
+      font-size: 12px;
+    }
+
+    .bar-row.is-active .bk {
+      color: var(--blue);
+    }
+
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue) 0%, #6ed3ff 100%);
+      border-radius: 999px;
+      transition: width 0.9s cubic-bezier(0.2, 0.9, 0.2, 1);
+      box-shadow: 0 0 12px rgba(28, 176, 248, 0.5);
+    }
+
+    .bar-val {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--white);
+    }
+
+    /* ====== Banco de redações ====== */
+    .essays {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .essays {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .essay {
+      position: relative;
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--line);
+      transition: transform 0.4s ease;
+    }
+
+    .essay::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: conic-gradient(from var(--ang, 0deg), transparent 0%, rgba(28, 176, 248, 0.55) 25%, transparent 50%, rgba(28, 176, 248, 0.55) 75%, transparent 100%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .essay:hover::before {
+      opacity: 1;
+      animation: spin 4s linear infinite;
+    }
+
+    @property --ang {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes spin {
+      to {
+        --ang: 360deg;
+      }
+    }
+
+    .essay-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .essay-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue-2);
+      background: rgba(28, 176, 248, 0.08);
+      border: 1px solid var(--blue-dim);
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+
+    .essay-year {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    .essay h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1.2;
+      margin: 0 0 14px;
+    }
+
+    .essay-excerpt {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 24px;
+      padding-left: 14px;
+      border-left: 2px solid var(--blue-dim);
+    }
+
+    .essay-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .badge-1000 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--blue-2);
+    }
+
+    .badge-1000::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 8px var(--blue);
+    }
+
+    .essay-link {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+
+    .essay-link:hover {
+      color: var(--blue-2);
+    }
+
+    /* ====== Correção IA ====== */
+    .ai {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    @media (max-width: 960px) {
+      .ai {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .ai-features {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .ai-feat {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .ai-feat .ic {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(28, 176, 248, 0.08);
+      border: 1px solid var(--blue-dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .ai-feat h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 17px;
+      margin: 0 0 4px;
+    }
+
+    .ai-feat p {
+      font-size: 14.5px;
+      color: var(--muted);
+    }
+
+    /* AI mockup */
+    .ai-mock {
+      position: relative;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #0a1a48 0%, #06143d 100%);
+      border: 1px solid var(--line-2);
+      box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6), 0 0 60px -20px var(--blue-glow);
+      overflow: hidden;
+    }
+
+    .mock-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .mock-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mock-dots span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .mock-dots span:first-child {
+      background: rgba(28, 176, 248, 0.7);
+    }
+
+    .mock-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+      margin-left: 12px;
+    }
+
+    .mock-body {
+      padding: 24px 26px 26px;
+    }
+
+    .mock-essay {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .mock-essay .hl {
+      background: rgba(28, 176, 248, 0.16);
+      border-bottom: 2px solid var(--blue);
+      color: var(--white);
+      padding: 0 2px;
+      border-radius: 3px;
+      cursor: help;
+    }
+
+    .mock-comment {
+      border-left: 2px solid var(--blue);
+      background: rgba(28, 176, 248, 0.06);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 22px;
+      font-size: 13px;
+      color: var(--white);
+    }
+
+    .mock-comment .who {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--blue-2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .mock-typing::after {
+      content: "▍";
+      color: var(--blue);
+      animation: blink 1s steps(2) infinite;
+      margin-left: 1px;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .mock-grades {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 22px;
+    }
+
+    .mock-grade {
+      text-align: center;
+      padding: 12px 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--line);
+    }
+
+    .mock-grade.total {
+      background: rgba(28, 176, 248, 0.08);
+      border-color: var(--blue-dim);
+    }
+
+    .mock-grade .k {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    .mock-grade .v {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--white);
+      margin-top: 4px;
+    }
+
+    .mock-grade.total .v {
+      color: var(--blue);
+    }
+
+    /* ====== Planos ====== */
+    .plans-toggle {
+      display: inline-flex;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px;
+      margin: 0 auto 56px;
+      position: relative;
+    }
+
+    .plans-toggle button {
+      position: relative;
+      height: 40px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      color: var(--muted);
+      transition: color 0.3s ease;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plans-toggle button.is-active {
+      color: #00132e;
+    }
+
+    .plans-toggle .toggle-pill {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      height: 40px;
+      background: var(--blue);
+      border-radius: 999px;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1), width 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+      z-index: 0;
+      box-shadow: 0 4px 20px -4px var(--blue-glow);
+    }
+
+    .plans-toggle .save {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(28, 176, 248, 0.15);
+      color: var(--blue-2);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .plans-toggle button.is-active .save {
+      background: rgba(0, 19, 46, 0.2);
+      color: #00132e;
+    }
+
+    .toggle-wrap {
+      text-align: center;
+    }
+
+    .plans {
+      display: flex;
+      justify-content: center;
+    }
+
+    .plans .plan {
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .plan {
+      position: relative;
+      border-radius: var(--radius-lg);
+      padding: 36px 30px 32px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .plan:hover {
+      border-color: rgba(28, 176, 248, 0.35);
+      box-shadow: 0 0 0 1px rgba(28, 176, 248, 0.2), 0 20px 60px -20px var(--blue-glow);
+    }
+
+    .plan.featured {
+      background: linear-gradient(180deg, rgba(28, 176, 248, 0.16) 0%, rgba(28, 176, 248, 0.04) 50%, var(--card) 100%);
+      border-color: var(--blue-dim);
+      box-shadow: 0 0 0 1px var(--blue-dim), 0 20px 60px -20px var(--blue-glow);
+    }
+
+    .plan-tag {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--blue);
+      color: #00132e;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      box-shadow: 0 6px 24px -8px var(--blue-glow);
+    }
+
+    .plan-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 22px;
+      margin: 0 0 6px;
+    }
+
+    .plan-desc {
+      color: var(--muted);
+      font-size: 13.5px;
+      margin-bottom: 24px;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price .currency {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--muted);
+    }
+
+    .plan-price .amount {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 58px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .plan-price .per {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    .plan-save {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--blue-2);
+      background: rgba(28, 176, 248, 0.1);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .plan-save.is-visible {
+      opacity: 1;
+    }
+
+    .plan-trial {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--dim);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--white);
+    }
+
+    .plan-features li.dis {
+      color: var(--dim);
+    }
+
+    .plan-features .chk {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .plan-features li:not(.dis) .chk {
+      background: rgba(28, 176, 248, 0.12);
+      color: var(--blue);
+    }
+
+    .plan-features li.dis .chk {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--dim);
+    }
+
+    /* ====== Depoimentos ====== */
+    .testis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .testis {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .testi {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 30px 28px;
+      transition: transform 0.4s ease, border-color 0.3s ease;
+    }
+
+    .stars {
+      display: flex;
+      gap: 3px;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
+
+    .testi-text {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 18px;
+      font-style: italic;
+      line-height: 1.45;
+      color: var(--white);
+      margin-bottom: 28px;
+      letter-spacing: -0.01em;
+    }
+
+    .testi-foot {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1cb0f8, #0d7fc4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: #00132e;
+      font-size: 14px;
+      box-shadow: 0 0 18px -4px var(--blue-glow);
+    }
+
+    .testi-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .testi-score {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--blue-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    /* ====== FAQ ====== */
+    .faq {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .faq {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+
+    .faq-left h2 {
+      margin: 16px 0 18px;
+    }
+
+    .faq-left p {
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--line);
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      padding: 24px 0;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      transition: color 0.2s ease;
+    }
+
+    .faq-q:hover {
+      color: var(--blue-2);
+    }
+
+    .faq-ico {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid var(--line-2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s ease, background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .faq-item.is-open .faq-ico {
+      background: var(--blue);
+      border-color: var(--blue);
+      transform: rotate(45deg);
+    }
+
+    .faq-item.is-open .faq-ico svg {
+      stroke: #00132e;
+    }
+
+    .faq-a {
+      overflow: hidden;
+      height: 0;
+      transition: height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease;
+      opacity: 0;
+    }
+
+    .faq-item.is-open .faq-a {
+      opacity: 1;
+    }
+
+    .faq-a-inner {
+      padding: 0 0 26px 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 640px;
+      line-height: 1.65;
+    }
+
+    /* ====== CTA Final ====== */
+    .cta-final {
+      position: relative;
+      padding: 140px 0 160px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cta-glow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(28, 176, 248, 0.35) 0%, rgba(28, 176, 248, 0.12) 30%, transparent 70%);
+      filter: blur(40px);
+      animation: glowPulse 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes glowPulse {
+
+      0%,
+      100% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+    }
+
+    .cta-final .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .cta-final h2 {
+      font-size: clamp(40px, 6vw, 80px);
+      margin: 20px 0 22px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-final p {
+      max-width: 560px;
+      margin: 0 auto 38px;
+      font-size: 18px;
+    }
+
+    .cta-final .btn-primary {
+      height: 60px;
+      padding: 0 36px;
+      font-size: 16px;
+    }
+
+    /* ====== Footer ====== */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 56px 0 36px;
+      background: rgba(0, 8, 28, 0.5);
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 720px) {
+      .footer-top {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .orb-1 {
+        opacity: 0.14;
+      }
+
+      .orb-2 {
+        opacity: 0.10;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .orb-1,
+      .orb-2 {
+        animation: none;
+      }
+    }
+
+    .footer-top h5 {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin: 0 0 18px;
+      font-weight: 500;
+    }
+
+    .footer-top ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-top a {
+      color: var(--muted);
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-top a:hover {
+      color: var(--white);
+    }
+
+    .footer-tag {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 18px;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    .footer-bot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    @media (max-width: 560px) {
+      .footer-bot {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+
+    /* ====== Tilt prep ====== */
+    .tilt {
+      transform-style: preserve-3d;
+      transform: perspective(900px);
+      will-change: transform;
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .tilt>* {
+      transform: translateZ(0);
+    }
+
+    /* Section heading common */
+    .center {
+      text-align: center;
+    }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      .word {
+        opacity: 1;
+        transform: none;
+        filter: none;
+      }
+
+      .reveal,
+      .reveal-stagger>* {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+
+  <!-- Custom cursor -->
+  <div class="cursor" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="logo" aria-label="Redação Nota 1000">
+        <span class="logo-text">Rumo à <span>Nota 1000</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#como">Como funciona</a></li>
+          <li><a href="#competencias">Competências</a></li>
+          <li><a href="#exemplos">Exemplos</a></li>
+          <li><a href="#planos">Planos</a></li>
+        </ul>
+      </nav>
+      <a href="/sign-in" class="btn-entrar"
+        style="height:42px;padding:0 18px;font-size:14px;display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(28,176,248,0.35);border-radius:999px;color:rgba(255,255,255,0.85);font-weight:600;transition:all .2s;background:rgba(28,176,248,0.06);"
+        onmouseover="this.style.background='rgba(28,176,248,0.14)';this.style.borderColor='rgba(28,176,248,0.7)';this.style.color='#fff'"
+        onmouseout="this.style.background='rgba(28,176,248,0.06)';this.style.borderColor='rgba(28,176,248,0.35)';this.style.color='rgba(255,255,255,0.85)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <polyline points="10 17 15 12 10 7" />
+          <line x1="15" y1="12" x2="3" y2="12" />
+        </svg>
+        Entrar
+      </a>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="orbs" id="orbs">
+      <div class="orb orb-1" data-depth="0.04"></div>
+      <div class="orb orb-2" data-depth="0.06"></div>
+      <div class="orb orb-3" data-depth="0.03"></div>
+    </div>
+    <div class="container hero-inner">
+      <span class="eyebrow">Preparação ENEM · Redação Nota 1000</span>
+      <h1 id="heroTitle">
+        <span class="word">Domine</span>
+        <span class="word">a</span>
+        <span class="word">redação</span>
+        <span class="word">do</span>
+        <span class="word">ENEM</span>
+        <span class="word">e</span>
+        <span class="word">conquiste</span>
+        <span class="word"><span class="accent">a nota 1000</span>.</span>
+      </h1>
+      <p class="hero-lead reveal">
+        Método estruturado, banco com mais de 200 redações reais nota 1000 e correção por
+        inteligência artificial treinada por especialistas do ENEM, analisando competência
+        por competência para transformar sua redação em um argumento forte, estratégico e nota máxima.
+      </p>
+      <div class="hero-ctas reveal-stagger">
+        <a href="#planos" class="btn btn-primary" data-ripple data-cursor="hover">Começar agora</a>
+        <a href="#como" class="btn btn-secondary" data-ripple data-cursor="hover">Como funciona</a>
+      </div>
+
+      <div class="stats reveal-stagger">
+        <div class="stat">
+          <div class="stat-num"><span class="count" data-target="900">0</span><span class="suffix">+</span></div>
+          <div class="stat-label">Média dos alunos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num"><span class="count" data-target="5">0</span></div>
+          <div class="stat-label">Competências do ENEM</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num"><span class="plus">+</span><span class="count" data-target="200">0</span></div>
+          <div class="stat-label">Redações reais 1000</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">IA<span class="suffix">.</span></div>
+          <div class="stat-label">Correção instantânea</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMO FUNCIONA ============ -->
+  <section class="section" id="como">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Método</span>
+        <h2>Quatro passos até a nota máxima.</h2>
+        <p>Um caminho objetivo — sem teoria de mais, sem prática de menos.</p>
+      </div>
+      <div class="steps reveal-stagger">
+        <article class="step tilt" data-num="01">
+          <div class="step-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 5a2 2 0 0 1 2-2h6v18H4a2 2 0 0 1-2-2V5Z" />
+              <path d="M14 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6V3Z" />
+            </svg>
+          </div>
+          <h3>Aprenda o método</h3>
+          <p>Aulas curtas e diretas com a estrutura da banca: tese, repertório, projeto de intervenção e coesão.</p>
+        </article>
+        <article class="step tilt" data-num="02">
+          <div class="step-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16v16H4z" />
+              <path d="M8 8h8M8 12h8M8 16h5" />
+            </svg>
+          </div>
+          <h3>Leia exemplos reais</h3>
+          <p>Mais de 200 redações reais nota 1000 anotadas por temática e competência, com análise da banca.</p>
+        </article>
+        <article class="step tilt" data-num="03">
+          <div class="step-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19l7-7 3 3-7 7-3-3z" />
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+              <path d="M2 2l7.586 7.586" />
+              <circle cx="11" cy="11" r="2" />
+            </svg>
+          </div>
+          <h3>Escreva e treine</h3>
+          <p>Editor com cronômetro de prova, temas semanais e propostas inéditas inspiradas no estilo INEP.</p>
+        </article>
+        <article class="step tilt" data-num="04">
+          <div class="step-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18" />
+              <path d="M7 14l4-4 4 4 5-5" />
+            </svg>
+          </div>
+          <h3>Evolua sua nota</h3>
+          <p>Dashboard com evolução por competência, metas e relatórios para você ver onde a nota está crescendo.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPETÊNCIAS ============ -->
+  <section class="section" id="competencias">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">5 Competências</span>
+        <h2>As regras do jogo, simplificadas.</h2>
+        <p>O ENEM avalia sua redação em cinco competências. Treine cada uma delas com foco cirúrgico.</p>
+      </div>
+
+      <div class="comp">
+        <div class="comp-list reveal-stagger" id="compList">
+          <button class="comp-item is-active" data-i="0">
+            <div class="comp-tag">C1</div>
+            <div class="comp-meta">
+              <h4>Norma culta</h4>
+              <p>Domínio da escrita formal: ortografia, acentuação, regência e concordância.</p>
+            </div>
+          </button>
+          <button class="comp-item" data-i="1">
+            <div class="comp-tag">C2</div>
+            <div class="comp-meta">
+              <h4>Compreensão do tema</h4>
+              <p>Entender a proposta, aplicar repertório sociocultural produtivo e estruturar texto
+                dissertativo-argumentativo.</p>
+            </div>
+          </button>
+          <button class="comp-item" data-i="2">
+            <div class="comp-tag">C3</div>
+            <div class="comp-meta">
+              <h4>Argumentação</h4>
+              <p>Selecionar, relacionar e organizar argumentos para defender um ponto de vista com consistência.</p>
+            </div>
+          </button>
+          <button class="comp-item" data-i="3">
+            <div class="comp-tag">C4</div>
+            <div class="comp-meta">
+              <h4>Coesão</h4>
+              <p>Articular partes do texto com conectivos variados, sem repetição e com fluidez.</p>
+            </div>
+          </button>
+          <button class="comp-item" data-i="4">
+            <div class="comp-tag">C5</div>
+            <div class="comp-meta">
+              <h4>Proposta de intervenção</h4>
+              <p>Apresentar solução completa: agente, ação, meio, efeito e detalhamento — respeitando os direitos
+                humanos.</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="comp-panel reveal">
+          <div class="panel-head">
+            <div>
+              <h4 id="panelTitle">Norma culta — Competência 1</h4>
+              <p id="panelDesc">Simulação de desempenho médio por competência em alunos da plataforma.</p>
+            </div>
+            <div class="panel-total">
+              <div class="num" id="totalScore">0</div>
+              <div class="lbl">Nota Total</div>
+            </div>
+          </div>
+          <div class="bars" id="bars">
+            <div class="bar-row" data-i="0"><span class="bk">C1</span><span class="bar-track"><span
+                  class="bar-fill"></span></span><span class="bar-val">0</span></div>
+            <div class="bar-row" data-i="1"><span class="bk">C2</span><span class="bar-track"><span
+                  class="bar-fill"></span></span><span class="bar-val">0</span></div>
+            <div class="bar-row" data-i="2"><span class="bk">C3</span><span class="bar-track"><span
+                  class="bar-fill"></span></span><span class="bar-val">0</span></div>
+            <div class="bar-row" data-i="3"><span class="bk">C4</span><span class="bar-track"><span
+                  class="bar-fill"></span></span><span class="bar-val">0</span></div>
+            <div class="bar-row" data-i="4"><span class="bk">C5</span><span class="bar-track"><span
+                  class="bar-fill"></span></span><span class="bar-val">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BANCO DE REDAÇÕES ============ -->
+  <section class="section" id="exemplos">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Banco de redações</span>
+        <h2>200+ redações reais nota 1000, dissecadas.</h2>
+        <p>Aprenda com quem já tirou 1000. Cada redação vem anotada por competência, com a tese e os repertórios
+          destacados.</p>
+      </div>
+
+      <div class="essays reveal-stagger">
+        <article class="essay tilt">
+          <div class="essay-meta">
+            <span class="essay-tag">Desigualdade</span>
+            <span class="essay-year">ENEM 2023</span>
+          </div>
+          <h3>Desafios para o enfrentamento da invisibilidade do trabalho de cuidados realizados pela mulher no Brasil
+          </h3>
+          <p class="essay-excerpt">
+            "Historicamente, mulheres foram destinadas ao cuidado doméstico invisível. No Brasil, desigualdade social e
+            patriarcalismo ainda sustentam essa desvalorização no trabalho das mulheres brasileiras atualmente..."
+          </p>
+          <div class="essay-foot">
+            <span class="badge-1000">1000 pontos</span>
+            <a href="#planos" class="essay-link">Ler completa →</a>
+          </div>
+        </article>
+
+        <article class="essay tilt">
+          <div class="essay-meta">
+            <span class="essay-tag">Envelhecimento</span>
+            <span class="essay-year">ENEM 2025</span>
+          </div>
+          <h3>Perspectivas acerca do envelhecimento na sociedade brasileira</h3>
+          <p class="essay-excerpt">
+            "O livro “A casa dos budas ditosos”, escrito pelo baiano João Ubaldo Ribeiro, conta a história de CLB, uma
+            idosa que, enfrentando estereótipos associados à velhice..."
+          </p>
+          <div class="essay-foot">
+            <span class="badge-1000">1000 pontos</span>
+            <a href="#planos" class="essay-link">Ler completa →</a>
+          </div>
+        </article>
+
+        <article class="essay tilt">
+          <div class="essay-meta">
+            <span class="essay-tag">Valorização</span>
+            <span class="essay-year">ENEM 2024</span>
+          </div>
+          <h3>Desafios para a valorização da herança africana no Brasil</h3>
+          <p class="essay-excerpt">
+            "O álbum “Duas Cidades”, da banda Baiana System, aborda o apagamento da influência africana no Brasil,
+            evidenciando sua desvalorização histórica e cultural atualmente..."
+          </p>
+          <div class="essay-foot">
+            <span class="badge-1000">1000 pontos</span>
+            <a href="#planos" class="essay-link">Ler completa →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CORREÇÃO IA ============ -->
+  <section class="section" id="ia">
+    <div class="container">
+      <div class="ai">
+        <div class="reveal">
+          <span class="eyebrow">Correção por IA</span>
+          <h2 style="margin: 20px 0 16px;">Sua redação devolvida em segundos — competência por competência.</h2>
+          <p class="lead">Uma inteligência artificial treinada por especialistas em redação do ENEM e alimentada com
+            milhares de redações reais nota 1000. Receba correção competência por competência, feedback detalhado em
+            cada trecho e um plano estratégico de melhoria para evoluir sua nota de forma prática.</p>
+
+          <div class="ai-features">
+            <div class="ai-feat">
+              <span class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12h4l3-8 4 16 3-8h4" />
+                </svg>
+              </span>
+              <div>
+                <h4>Nota por competência</h4>
+                <p>Avaliação detalhada de C1 a C5 nos mesmos critérios usados pela banca do INEP.</p>
+              </div>
+            </div>
+            <div class="ai-feat">
+              <span class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+              </span>
+              <div>
+                <h4>Feedback por trecho</h4>
+                <p>Comentários ancorados em cada parágrafo: o que funcionou, o que reescrever, e por quê.</p>
+              </div>
+            </div>
+            <div class="ai-feat">
+              <span class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 17 9 11 13 15 21 7" />
+                  <polyline points="14 7 21 7 21 14" />
+                </svg>
+              </span>
+              <div>
+                <h4>Histórico de evolução</h4>
+                <p>Veja sua nota crescer redação por redação, com gráficos por competência e metas semanais.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-mock reveal tilt">
+          <div class="mock-bar">
+            <div class="mock-dots"><span></span><span></span><span></span></div>
+            <div class="mock-title">redacao-2023-tecnologia.txt — análise IA</div>
+          </div>
+          <div class="mock-body">
+            <p class="mock-essay">
+              A obra <em>Vidas Secas</em>, de Graciliano Ramos, retrata personagens marginalizados pela indiferença
+              social.
+              <span class="hl">Hoje, essa exclusão encontra um novo cenário: o digital</span>, no qual milhões de
+              brasileiros
+              permanecem invisíveis por falta de acesso à internet de qualidade e a serviços públicos digitalizados…
+            </p>
+            <div class="mock-comment">
+              <div class="who">IA · C3 Argumentação</div>
+              <div id="aiTyping" class="mock-typing">Excelente ponte entre repertório literário e tese contemporânea.
+                Sugiro reforçar o segundo argumento com dado oficial (IBGE 2024) para elevar a sustentação.</div>
+            </div>
+            <div class="mock-grades">
+              <div class="mock-grade">
+                <div class="k">C1</div>
+                <div class="v">200</div>
+              </div>
+              <div class="mock-grade">
+                <div class="k">C2</div>
+                <div class="v">200</div>
+              </div>
+              <div class="mock-grade">
+                <div class="k">C3</div>
+                <div class="v">200</div>
+              </div>
+              <div class="mock-grade">
+                <div class="k">C4</div>
+                <div class="v">200</div>
+              </div>
+              <div class="mock-grade">
+                <div class="k">C5</div>
+                <div class="v">200</div>
+              </div>
+              <div class="mock-grade total">
+                <div class="k">Total</div>
+                <div class="v">1000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLANOS ============ -->
+  <section class="section" id="planos">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Planos</span>
+        <h2>Escolha como vai estudar.</h2>
+        <p>Garantia de 7 dias. Se não ficar satisfeito, devolvemos 100% do valor.</p>
+      </div>
+
+      <div class="toggle-wrap">
+        <div class="plans-toggle reveal" id="toggle">
+          <span class="toggle-pill" id="togglePill"></span>
+          <button class="is-active" data-cycle="monthly">Mensal</button>
+          <button data-cycle="semestral">Semestral <span class="save">–20%</span></button>
+          <button data-cycle="annual">Anual <span class="save">–41%</span></button>
+        </div>
+      </div>
+
+      <div class="plans reveal-stagger">
+        <article class="plan featured tilt" data-plan="pro" data-monthly="49" data-semestral="39" data-annual="29">
+          <span class="plan-tag">Acesso completo</span>
+          <h3 class="plan-name">Pro</h3>
+          <p class="plan-desc">Tudo que você precisa para tirar 1000 na redação do ENEM.</p>
+          <div class="plan-price">
+            <span class="currency">R$</span>
+            <span class="amount" data-price>49</span>
+            <span class="per">/mês</span>
+          </div>
+          <span class="plan-save"></span>
+          <span class="plan-trial">Cancele quando quiser</span>
+          <ul class="plan-features">
+            <li><span class="chk">✓</span> Método completo — C1 a C5</li>
+            <li><span class="chk">✓</span> Banco de redações nota 1000 com análise</li>
+            <li><span class="chk">✓</span> Correção por IA — ilimitada</li>
+            <li><span class="chk">✓</span> Assistente IA para dúvidas</li>
+            <li><span class="chk">✓</span> Simulado ENEM com cronômetro</li>
+            <li><span class="chk">✓</span> Biblioteca de repertórios</li>
+            <li><span class="chk">✓</span> Dashboard de evolução e ranking</li>
+            <li><span class="chk">✓</span> Plano de estudos personalizado</li>
+          </ul>
+          <a href="/api/stripe/checkout?plan=PRO" class="btn btn-primary" data-ripple style="width: 100%;">Assinar
+            Pro</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEPOIMENTOS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Depoimentos</span>
+        <h2>Histórias de quem tirou nota 1000.</h2>
+      </div>
+
+      <div class="testis reveal-stagger">
+        <article class="testi tilt">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">"Eu tinha pavor de redação. Em três meses com a Nota 1000, fui da 640 para 960. A
+            correção por IA me mostrou exatamente onde eu travava."</p>
+          <div class="testi-foot">
+            <div class="avatar">JM</div>
+            <div>
+              <div class="testi-name">Juliana Martins</div>
+              <div class="testi-score">980 · ENEM 2024</div>
+            </div>
+          </div>
+        </article>
+        <article class="testi tilt">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">"O banco de redações reais foi o que mudou o jogo. Comecei a entender qual era o padrão
+            da banca, não só repetir o que professor falava."</p>
+          <div class="testi-foot">
+            <div class="avatar">LP</div>
+            <div>
+              <div class="testi-name">Lucas Pereira</div>
+              <div class="testi-score">1000 · ENEM 2024</div>
+            </div>
+          </div>
+        </article>
+        <article class="testi tilt">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">"Estudo sozinha em casa. A plataforma me deu direcionamento, banco de exemplos e
+            feedback de
+            verdade. Passei em Medicina na federal."</p>
+          <div class="testi-foot">
+            <div class="avatar">AS</div>
+            <div>
+              <div class="testi-name">Ana Souza</div>
+              <div class="testi-score">960 · ENEM 2024</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="faq">
+        <div class="faq-left reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Perguntas frequentes.</h2>
+          <p>Não achou o que procurava? Nosso time responde rápido.</p>
+          <a href="mailto:suporte@rumonotamil.com" style="color:var(--blue-2);font-size:18px;font-weight:600;letter-spacing:-0.01em;">suporte@rumonotamil.com</a>
+        </div>
+
+        <div class="faq-list reveal">
+          <div class="faq-item is-open">
+            <button class="faq-q">Como funciona a correção por IA?
+              <span class="faq-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg></span>
+            </button>
+            <div class="faq-a">
+              <div class="faq-a-inner">Você envia sua redação no editor da plataforma e a IA devolve em segundos a nota
+                de C1 a C5, comentários por trecho destacado e sugestões de reescrita. O modelo é treinado com correções
+                reais alinhadas ao critério da banca do INEP.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">As redações nota 1000 são reais?
+              <span class="faq-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg></span>
+            </button>
+            <div class="faq-a">
+              <div class="faq-a-inner">Sim — todas são redações de candidatos que tiraram 1000 em edições oficiais do
+                ENEM, organizadas por tema, ano e competência destacada. Adicionamos análises da banca e comentários
+                sobre repertório e estrutura.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Funciona para o vestibular ou só ENEM?
+              <span class="faq-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg></span>
+            </button>
+            <div class="faq-a">
+              <div class="faq-a-inner">O foco é ENEM e a estrutura dissertativo-argumentativa exigida pela banca. Mas o
+                método e o treino servem para qualquer vestibular que use redação dissertativa — incluindo Fuvest,
+                UNICAMP e UERJ.</div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Tem aplicativo para celular?
+              <span class="faq-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg></span>
+            </button>
+            <div class="faq-a">
+              <div class="faq-a-inner">A plataforma é totalmente responsiva e roda no navegador do celular sem
+                instalação. Apps nativos para iOS e Android estão no roadmap para o segundo semestre.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="cta-final">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="container">
+      <span class="eyebrow reveal">Comece hoje</span>
+      <h2 class="reveal">Sua nota 1000 está a uma redação de distância.</h2>
+      <p class="reveal">Sete dias grátis. Sem cartão. Sem pegadinha. Só método, exemplos e IA do seu lado.</p>
+      <div class="reveal">
+        <a href="#planos" class="btn btn-primary btn-pulse" data-ripple data-cursor="hover">Começar agora →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <a href="#" class="logo">
+            <span class="logo-mark"></span>
+            <span class="logo-text">Redação <span>Nota 1000</span></span>
+          </a>
+          <p class="footer-tag">A plataforma de redação ENEM com método, banco de exemplos e correção por IA. Feita por
+            quem já tirou 1000.</p>
+        </div>
+        <div>
+          <h5>Produto</h5>
+          <ul>
+            <li><a href="#como">Como funciona</a></li>
+            <li><a href="#competencias">Competências</a></li>
+            <li><a href="#exemplos">Banco de redações</a></li>
+            <li><a href="#planos">Planos e preços</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Recursos</h5>
+          <ul>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Temas inéditos</a></li>
+            <li><a href="#">Guia da redação</a></li>
+            <li><a href="#">Calendário ENEM</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Empresa</h5>
+          <ul>
+            <li><a href="#">Sobre</a></li>
+            <li><a href="#">Contato</a></li>
+            <li><a href="#">Termos de uso</a></li>
+            <li><a href="#">Privacidade</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bot">
+        <div>© 2026 Redação Nota 1000. Feito no Brasil.</div>
+        <div>CNPJ 00.000.000/0001-00</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ===== Smooth scroll com easing personalizado =====
+      function easeInOutQuart(t) {
+        return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+      }
+      function smoothScrollTo(target, duration) {
+        const start = window.scrollY;
+        const navH = document.getElementById("nav")?.offsetHeight ?? 70;
+        const dest = target.getBoundingClientRect().top + start - navH - 16;
+        const diff = dest - start;
+        let startTime = null;
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          const elapsed = ts - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          window.scrollTo(0, start + diff * easeInOutQuart(progress));
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          const id = this.getAttribute("href").slice(1);
+          if (!id) return;
+          const el = document.getElementById(id);
+          if (!el) return;
+          e.preventDefault();
+          smoothScrollTo(el, 900);
+          history.pushState(null, "", "#" + id);
+        });
+      });
+
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+
+      // ===== Page fade in =====
+      requestAnimationFrame(() => document.body.classList.add("is-ready"));
+
+      // ===== Custom cursor =====
+      if (!isCoarse) {
+        const cursor = document.querySelector(".cursor");
+        const dot = document.querySelector(".cursor-dot");
+        let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+        let cx = mx, cy = my;
+        let dx = mx, dy = my;
+
+        window.addEventListener("mousemove", (e) => {
+          mx = e.clientX; my = e.clientY;
+          dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+        });
+        function tick() {
+          cx += (mx - cx) * 0.18;
+          cy += (my - cy) * 0.18;
+          cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%)`;
+          requestAnimationFrame(tick);
+        }
+        tick();
+
+        document.querySelectorAll("a, button, .tilt, [data-cursor='hover']").forEach((el) => {
+          el.addEventListener("mouseenter", () => cursor.classList.add("is-hover"));
+          el.addEventListener("mouseleave", () => cursor.classList.remove("is-hover"));
+        });
+
+        document.addEventListener("mouseleave", () => {
+          cursor.style.opacity = 0; dot.style.opacity = 0;
+        });
+        document.addEventListener("mouseenter", () => {
+          cursor.style.opacity = 1; dot.style.opacity = 1;
+        });
+      }
+
+      // ===== Navbar scroll glass =====
+      const nav = document.getElementById("nav");
+      function onScroll() {
+        nav.classList.toggle("is-scrolled", window.scrollY > 24);
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // ===== Hero parallax orbs =====
+      if (!prefersReduced && !isCoarse) {
+        const orbs = document.querySelectorAll("#orbs .orb");
+        const hero = document.querySelector(".hero");
+        hero.addEventListener("mousemove", (e) => {
+          const rect = hero.getBoundingClientRect();
+          const x = (e.clientX - rect.left - rect.width / 2);
+          const y = (e.clientY - rect.top - rect.height / 2);
+          orbs.forEach((o) => {
+            const d = parseFloat(o.dataset.depth || "0.04");
+            o.style.transform = `translate(${x * d}px, ${y * d}px)`;
+          });
+        });
+        hero.addEventListener("mouseleave", () => {
+          orbs.forEach((o) => { o.style.transform = ""; });
+        });
+      }
+
+      // ===== Hero word reveal =====
+      if (!prefersReduced) {
+        const words = document.querySelectorAll("#heroTitle .word");
+        words.forEach((w, i) => {
+          setTimeout(() => w.classList.add("is-in"), 250 + i * 80);
+        });
+      } else {
+        document.querySelectorAll(".word").forEach(w => w.classList.add("is-in"));
+      }
+
+      // ===== Scroll reveal =====
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+      document.querySelectorAll(".reveal, .reveal-stagger").forEach(el => io.observe(el));
+
+      // ===== Counters =====
+      const countIO = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target;
+          const target = parseInt(el.dataset.target, 10);
+          const dur = 1600;
+          const t0 = performance.now();
+          function step(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.floor(eased * target).toLocaleString("pt-BR");
+            if (p < 1) requestAnimationFrame(step);
+            else el.textContent = target.toLocaleString("pt-BR");
+          }
+          requestAnimationFrame(step);
+          countIO.unobserve(el);
+        });
+      }, { threshold: 0.4 });
+      document.querySelectorAll(".count").forEach(el => countIO.observe(el));
+
+      // ===== Tilt 3D =====
+      if (!prefersReduced && !isCoarse) {
+        document.querySelectorAll(".tilt").forEach((el) => {
+          el.addEventListener("mousemove", (e) => {
+            const r = el.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - 0.5;
+            const y = (e.clientY - r.top) / r.height - 0.5;
+            const rx = (-y * 7).toFixed(2);
+            const ry = (x * 9).toFixed(2);
+            el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+          });
+          el.addEventListener("mouseleave", () => {
+            el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+          });
+        });
+      }
+
+      // ===== Ripple on click =====
+      document.querySelectorAll("[data-ripple]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const r = btn.getBoundingClientRect();
+          const x = e.clientX - r.left;
+          const y = e.clientY - r.top;
+          const span = document.createElement("span");
+          span.className = "ripple";
+          span.style.left = x + "px";
+          span.style.top = y + "px";
+          span.style.width = span.style.height = Math.max(r.width, r.height) + "px";
+          btn.appendChild(span);
+          setTimeout(() => span.remove(), 700);
+        });
+      });
+
+      // ===== Particles (canvas, full viewport) =====
+      {
+        const canvas = document.getElementById("particles");
+        const ctx = canvas.getContext("2d");
+        const dpr = window.devicePixelRatio || 1;
+        function size() {
+          canvas.width = window.innerWidth * dpr;
+          canvas.height = window.innerHeight * dpr;
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        size();
+        window.addEventListener("resize", size);
+
+        function rndV() {
+          let v = (Math.random() - 0.5) * 0.5;
+          if (v > -0.06 && v < 0.06) v = v < 0 ? -0.06 : 0.06;
+          return v;
+        }
+
+        const N = Math.floor(70 + Math.random() * 31); // 70-100
+        const ps = [];
+        for (let i = 0; i < N; i++) {
+          const isBlue = Math.random() < 0.25;
+          ps.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: 1 + Math.random() * 2,
+            vx: rndV(),
+            vy: rndV(),
+            ox: 0, oy: 0,
+            blue: isBlue,
+            a: isBlue ? (0.35 + Math.random() * 0.45) : (0.2 + Math.random() * 0.45),
+          });
+        }
+
+        let mx = -9999, my = -9999;
+        window.addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; });
+        window.addEventListener("mouseleave", () => { mx = -9999; my = -9999; });
+
+        function animate() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (let i = 0; i < ps.length; i++) {
+            const p = ps[i];
+            {
+              p.x += p.vx;
+              p.y += p.vy;
+              // bounce on edges
+              if (p.x < 0) { p.x = 0; p.vx = -p.vx; }
+              else if (p.x > w) { p.x = w; p.vx = -p.vx; }
+              if (p.y < 0) { p.y = 0; p.vy = -p.vy; }
+              else if (p.y > h) { p.y = h; p.vy = -p.vy; }
+
+              // mouse repel within 120px (offset only, doesn't change velocity)
+              const dx = p.x - mx;
+              const dy = p.y - my;
+              const d2 = dx * dx + dy * dy;
+              if (d2 < 120 * 120) {
+                const d = Math.sqrt(d2) || 1;
+                const force = (1 - d / 120) * 1.6;
+                p.ox += (dx / d) * force;
+                p.oy += (dy / d) * force;
+              }
+              p.ox *= 0.88; p.oy *= 0.88;
+            }
+            const x = p.x + p.ox;
+            const y = p.y + p.oy;
+            ctx.beginPath();
+            if (p.blue) {
+              ctx.fillStyle = `rgba(28, 176, 248, ${p.a})`;
+              ctx.shadowColor = "rgba(28,176,248,0.6)";
+              ctx.shadowBlur = 6;
+            } else {
+              ctx.fillStyle = `rgba(255, 255, 255, ${p.a})`;
+              ctx.shadowBlur = 0;
+            }
+            ctx.arc(x, y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          requestAnimationFrame(animate);
+        }
+        animate();
+      }
+
+      // ===== Competências interactive =====
+      const compData = [
+        { title: "Norma culta — Competência 1", desc: "Domínio da modalidade escrita formal da língua portuguesa.", bars: [200, 180, 160, 180, 160], total: 880 },
+        { title: "Compreensão do tema — Competência 2", desc: "Aplicar conceitos das várias áreas para defender um ponto de vista.", bars: [180, 200, 180, 160, 180], total: 900 },
+        { title: "Argumentação — Competência 3", desc: "Selecionar, relacionar, organizar e interpretar informações.", bars: [180, 180, 200, 180, 200], total: 940 },
+        { title: "Coesão — Competência 4", desc: "Demonstrar conhecimento dos mecanismos linguísticos de coesão.", bars: [160, 180, 180, 200, 180], total: 900 },
+        { title: "Proposta de intervenção — Competência 5", desc: "Apresentar proposta de intervenção respeitando os direitos humanos.", bars: [180, 200, 200, 200, 200], total: 980 },
+      ];
+      const bars = document.querySelectorAll("#bars .bar-row");
+      const totalEl = document.getElementById("totalScore");
+      const panelTitle = document.getElementById("panelTitle");
+      const panelDesc = document.getElementById("panelDesc");
+
+      function setComp(i) {
+        const d = compData[i];
+        panelTitle.textContent = d.title;
+        panelDesc.textContent = d.desc;
+        bars.forEach((row, j) => {
+          const fill = row.querySelector(".bar-fill");
+          const val = row.querySelector(".bar-val");
+          const pct = (d.bars[j] / 200) * 100;
+          fill.style.width = pct + "%";
+          val.textContent = d.bars[j];
+          row.classList.toggle("is-active", j === i);
+        });
+        // animate total
+        const start = parseInt(totalEl.textContent.replace(/\D/g, ""), 10) || 0;
+        const end = d.total;
+        const dur = 700;
+        const t0 = performance.now();
+        function step(now) {
+          const p = Math.min(1, (now - t0) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          totalEl.textContent = Math.round(start + (end - start) * eased);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+
+        document.querySelectorAll("#compList .comp-item").forEach((b, k) => {
+          b.classList.toggle("is-active", k === i);
+        });
+      }
+
+      document.querySelectorAll("#compList .comp-item").forEach((btn) => {
+        btn.addEventListener("click", () => setComp(parseInt(btn.dataset.i, 10)));
+      });
+
+      // initial fill once panel comes into view
+      const compIO = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { setComp(0); compIO.disconnect(); }
+        });
+      }, { threshold: 0.3 });
+      compIO.observe(document.querySelector(".comp-panel"));
+
+      // ===== Plans toggle =====
+      const toggleBtns = document.querySelectorAll("#toggle button");
+      const togglePill = document.getElementById("togglePill");
+      function positionPill() {
+        const active = document.querySelector("#toggle button.is-active");
+        if (!active) return;
+        const r = active.getBoundingClientRect();
+        const pr = active.parentElement.getBoundingClientRect();
+        togglePill.style.width = r.width + "px";
+        togglePill.style.transform = `translateX(${r.left - pr.left - 6}px)`;
+      }
+      setTimeout(positionPill, 100);
+      window.addEventListener("resize", positionPill);
+
+      toggleBtns.forEach((b) => {
+        b.addEventListener("click", () => {
+          toggleBtns.forEach(x => x.classList.remove("is-active"));
+          b.classList.add("is-active");
+          positionPill();
+          const cycle = b.dataset.cycle;
+          document.querySelectorAll(".plan").forEach((plan) => {
+            const price = plan.dataset[cycle];
+            const monthly = parseInt(plan.dataset.monthly, 10);
+            const priceEl = plan.querySelector("[data-price]");
+            const saveEl = plan.querySelector(".plan-save");
+            // animate
+            const start = parseInt(priceEl.textContent, 10);
+            const end = parseInt(price, 10);
+            const t0 = performance.now();
+            function step(now) {
+              const p = Math.min(1, (now - t0) / 400);
+              priceEl.textContent = Math.round(start + (end - start) * p);
+              if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+
+            if (cycle === "monthly") {
+              saveEl.classList.remove("is-visible");
+              saveEl.textContent = "";
+            } else {
+              const save = Math.round((1 - end / monthly) * 100);
+              saveEl.textContent = `Economize ${save}%`;
+              saveEl.classList.add("is-visible");
+            }
+          });
+        });
+      });
+
+      // ===== FAQ accordion =====
+      document.querySelectorAll(".faq-item").forEach((item) => {
+        const q = item.querySelector(".faq-q");
+        const a = item.querySelector(".faq-a");
+        function set(open) {
+          if (open) {
+            item.classList.add("is-open");
+            a.style.height = a.scrollHeight === 0 ? a.querySelector(".faq-a-inner").offsetHeight + "px" : a.scrollHeight + "px";
+            // safer measure
+            a.style.height = a.querySelector(".faq-a-inner").offsetHeight + "px";
+          } else {
+            item.classList.remove("is-open");
+            a.style.height = "0px";
+          }
+        }
+        // init
+        set(item.classList.contains("is-open"));
+        q.addEventListener("click", () => set(!item.classList.contains("is-open")));
+      });
+
+      // ===== AI typing =====
+      const typing = document.getElementById("aiTyping");
+      if (typing) {
+        const full = typing.textContent;
+        typing.textContent = "";
+        const typeIO = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            let i = 0;
+            const id = setInterval(() => {
+              typing.textContent = full.slice(0, i++);
+              if (i > full.length) { clearInterval(id); typing.classList.remove("mock-typing"); }
+            }, 20);
+            typeIO.unobserve(e.target);
+          });
+        }, { threshold: 0.3 });
+        typeIO.observe(typing);
+      }
+
+    })();
+  </script>
+</body>
+
+</html>

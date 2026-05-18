@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Recurse \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\" -File | Where-Object { $_.Name -ne \"Redacao Nota 1000.html\" } | Measure-Object | Select-Object Count)",
+      "PowerShell($files = Get-ChildItem -Recurse \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\" -File | Where-Object { $_.Name -ne \"Redacao Nota 1000.html\" }; Write-Output \"Total files: $\\($files.Count\\)\"; $files | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\\", \"\"\\) })",
+      "PowerShell(node -e \"const l = require\\('./node_modules/lucide-react'\\); console.log\\('Filter:', !!l.Filter, 'Lock:', !!l.Lock, 'Layers:', !!l.Layers, 'BarChart3:', !!l.BarChart3\\)\" 2>&1)",
+      "PowerShell(Get-ChildItem -Recurse -Path \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\app\" | Where-Object {$_.Name -eq \"page.tsx\"} | ForEach-Object { $_.FullName })",
+      "PowerShell(cd \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\"; $job = Start-Job -ScriptBlock { Set-Location \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\"; node \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npm-cli.js\" run dev 2>&1 }; Start-Sleep -Seconds 15; Receive-Job $job; Stop-Job $job; Remove-Job $job)",
+      "PowerShell(Get-ChildItem -Recurse \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\app\\\\\\(auth\\)\" | ForEach-Object { $_.FullName })",
+      "Bash(rm -rf \"c:/Users/diego/Desktop/rumo-a-nota1000/app/\\(auth\\)/sign-in/[[...sign-in]]\" && echo \"Removed\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\public\")",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\Redacao Nota 1000.html\" \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\public\\\\landing.html\")",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\public\\\\landing.html\" \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\Redacao Nota 1000.html\" -Force)",
+      "PowerShell(vercel --version 2>&1)",
+      "Bash(rm -f \"c:/Users/diego/Desktop/rumo-a-nota1000/.git/index.lock\" && echo \"removed\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git reset *)",
+      "Bash(rm -rf .git)",
+      "Bash(git init *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\diego\\Desktop\\rumo-a-nota1000\\app\\(auth)\\sign-in\\[[...sign-in]]",
+      "c:\\Users\\diego\\Desktop\\rumo-a-nota1000\\.git"
+    ]
+  }
+}

@@ -1,0 +1,396 @@
+// Prisma Schema — Rumo à Nota 1000
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  clerkId        String   @unique
+  email          String   @unique
+  name           String?
+  avatarUrl      String?
+  role           Role     @default(STUDENT)
+  xp             Int      @default(0)
+  level          Int      @default(1)
+  streakDays     Int      @default(0)
+  lastActivityAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscription     Subscription?
+  essays           EssaySubmission[]
+  progress         LessonProgress[]
+  studyPlans       StudyPlan[]
+  notifications    Notification[]
+  achievements     UserAchievement[]
+  streaks          Streak[]
+  bookmarks        Bookmark[]
+  notes            Note[]
+  rankingEntries   RankingEntry[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  MODERATOR
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASICO
+  PRO
+  ELITE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  TRIALING
+}
+
+model Lesson {
+  id              String       @id @default(cuid())
+  title           String
+  slug            String       @unique
+  description     String?
+  content         String       @db.Text
+  category        LessonCategory
+  competency      Int?         // 1-5 for ENEM competencies
+  difficulty      Difficulty   @default(INTERMEDIATE)
+  readingTime     Int          @default(10) // minutes
+  order           Int          @default(0)
+  published       Boolean      @default(false)
+  featured        Boolean      @default(false)
+  thumbnailUrl    String?
+  tags            String[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  progress  LessonProgress[]
+  bookmarks Bookmark[]
+  notes     Note[]
+
+  @@index([slug])
+  @@index([category])
+}
+
+enum LessonCategory {
+  COMPETENCIA_1
+  COMPETENCIA_2
+  COMPETENCIA_3
+  COMPETENCIA_4
+  COMPETENCIA_5
+  REPERTORIO
+  INTRODUCAO
+  DESENVOLVIMENTO
+  CONCLUSAO
+  MODELOS
+  TECNICAS_AVANCADAS
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean  @default(false)
+  progress    Float    @default(0) // 0-100
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model ModelEssay {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  theme        String
+  enEmYear     Int?
+  score        Int      // 0-1000
+  competency1  Int      // 0-200
+  competency2  Int
+  competency3  Int
+  competency4  Int
+  competency5  Int
+  content      String   @db.Text
+  annotations  Json?    // JSON with paragraph-level annotations
+  repertoires  String[]
+  tags         String[]
+  published    Boolean  @default(false)
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  bookmarks Bookmark[]
+
+  @@index([slug])
+  @@index([score])
+  @@index([enEmYear])
+}
+
+model EssaySubmission {
+  id         String           @id @default(cuid())
+  userId     String
+  title      String?
+  content    String           @db.Text
+  theme      String?
+  wordCount  Int              @default(0)
+  status     SubmissionStatus @default(PENDING)
+  isSimMode  Boolean          @default(false)
+  timeTaken  Int?             // seconds
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiFeedback AIFeedback?
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum SubmissionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model AIFeedback {
+  id               String   @id @default(cuid())
+  submissionId     String   @unique
+  score            Int      // 0-1000
+  competency1Score Int      // 0-200
+  competency2Score Int
+  competency3Score Int
+  competency4Score Int
+  competency5Score Int
+  c1Feedback       String   @db.Text
+  c2Feedback       String   @db.Text
+  c3Feedback       String   @db.Text
+  c4Feedback       String   @db.Text
+  c5Feedback       String   @db.Text
+  generalFeedback  String   @db.Text
+  strengths        String[]
+  weaknesses       String[]
+  suggestions      String[]
+  paragraphNotes   Json?    // inline annotations per paragraph
+  rewriteSuggestion String? @db.Text
+  promptVersion    String   @default("v1")
+  modelUsed        String   @default("gpt-4o")
+  tokensUsed       Int?
+  createdAt        DateTime @default(now())
+
+  submission EssaySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+model StudyPlan {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+  aiGenerated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks StudyPlanTask[]
+}
+
+model StudyPlanTask {
+  id          String    @id @default(cuid())
+  planId      String
+  title       String
+  description String?
+  dueDate     DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  order       Int       @default(0)
+  type        TaskType  @default(LESSON)
+  referenceId String?
+  createdAt   DateTime  @default(now())
+
+  plan StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+enum TaskType {
+  LESSON
+  ESSAY
+  REVIEW
+  PRACTICE
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  description String
+  iconUrl     String?
+  xpReward    Int      @default(0)
+  rarity      Rarity   @default(COMMON)
+  createdAt   DateTime @default(now())
+
+  users UserAchievement[]
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model Streak {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  ACHIEVEMENT
+  ESSAY_CORRECTED
+}
+
+model Bookmark {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String?
+  modelEssayId String?
+  createdAt   DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson?     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  modelEssay  ModelEssay? @relation(fields: [modelEssayId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String?
+  content   String   @db.Text
+  highlight String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model RankingEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  period    String   // "2024-W01", "2024-01", "all-time"
+  xp        Int      @default(0)
+  essays    Int      @default(0)
+  avgScore  Float    @default(0)
+  position  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@index([period, xp])
+}
+
+model WeeklyTheme {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  week        String   // "2024-W01"
+  active      Boolean  @default(false)
+  tags        String[]
+  repertoires String[]
+  createdAt   DateTime @default(now())
+}
+
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  content     String   @db.Text
+  version     String   @default("v1")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
