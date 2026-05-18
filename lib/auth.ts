@@ -17,33 +17,45 @@ export interface AuthUser {
   name?: string;
 }
 
+const DEMO_USERS = [
+  { email: "admin@rumonotamil.com", password: "admin1234", name: "Administrador" },
+  { email: "aluno@rumonotamil.com", password: "aluno1234", name: "Ana Beatriz Silva" },
+];
+
+function isRealSupabaseUrl(url: string) {
+  return url && !url.includes("xxxx") && url.startsWith("https://") && url.includes(".supabase.co");
+}
+
 // ── Validate credentials ─────────────────────────────────────────────────────
 export async function validateCredentials(
   email: string,
   password: string
 ): Promise<{ user: AuthUser | null; error: string | null }> {
 
-  // Real auth via Supabase
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { user: null, error: "Email ou senha incorretos." };
-    return {
-      user: {
-        id: data.user.id,
-        email: data.user.email!,
-        name: data.user.user_metadata?.name,
-      },
-      error: null,
-    };
+  // Real auth via Supabase (only when properly configured)
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  if (isRealSupabaseUrl(url)) {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (!error && data.user) {
+          return {
+            user: {
+              id: data.user.id,
+              email: data.user.email!,
+              name: data.user.user_metadata?.name,
+            },
+            error: null,
+          };
+        }
+      } catch {
+        // Supabase unreachable — fall through to demo mode
+      }
+    }
   }
 
-  // Demo mode — hardcoded credentials when Supabase not configured
-  const DEMO_USERS = [
-    { email: "admin@rumonotamil.com", password: "admin1234", name: "Administrador" },
-    { email: "aluno@rumonotamil.com", password: "aluno1234", name: "Ana Beatriz Silva" },
-  ];
-
+  // Demo mode
   const found = DEMO_USERS.find(
     (u) => u.email === email.toLowerCase() && u.password === password
   );
