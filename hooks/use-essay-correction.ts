@@ -1,21 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import type { EssayCorrectionOutput } from "@/lib/claude";
 
-interface CorrectionResult {
-  submissionId: string;
-  feedback: {
-    score: number;
-    competency1: { score: number; feedback: string };
-    competency2: { score: number; feedback: string };
-    competency3: { score: number; feedback: string };
-    competency4: { score: number; feedback: string };
-    competency5: { score: number; feedback: string };
-    generalFeedback: string;
-    strengths: string[];
-    weaknesses: string[];
-    suggestions: string[];
-    paragraphNotes: Array<{ paragraph: number; note: string; type: string }>;
-  };
+export type { EssayCorrectionOutput };
+
+export interface CorrectionResult {
+  feedback: EssayCorrectionOutput;
 }
 
 export function useEssayCorrection() {
@@ -23,7 +13,7 @@ export function useEssayCorrection() {
   const [result, setResult] = useState<CorrectionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const correct = async (content: string, theme?: string) => {
+  const correct = async (content: string, theme?: string): Promise<CorrectionResult | null> => {
     setLoading(true);
     setError(null);
 
@@ -37,14 +27,16 @@ export function useEssayCorrection() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Erro ao corrigir redação");
-        toast.error(data.error ?? "Erro ao corrigir redação");
+        const msg = data.error ?? "Erro ao corrigir redação";
+        setError(msg);
+        toast.error(msg);
         return null;
       }
 
-      setResult(data);
+      const correctionResult = data as CorrectionResult;
+      setResult(correctionResult);
       toast.success("Redação corrigida com sucesso!");
-      return data as CorrectionResult;
+      return correctionResult;
     } catch {
       const msg = "Erro de conexão. Tente novamente.";
       setError(msg);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { correctEssay } from "@/lib/openai";
+import { correctEssayWithClaude } from "@/lib/claude";
 import { z } from "zod";
 
 const schema = z.object({
@@ -15,19 +15,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
     }
 
-    const { content, theme } = parsed.data;
-
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
-        { error: "OPENAI_API_KEY não configurada. Configure no arquivo .env" },
+        { error: "ANTHROPIC_API_KEY não configurada. Adicione no arquivo .env" },
         { status: 503 }
       );
     }
 
-    const result = await correctEssay({ content, theme });
+    const { content, theme } = parsed.data;
+    const result = await correctEssayWithClaude({ content, theme });
     return NextResponse.json({ feedback: result });
   } catch (error) {
     console.error("[AI Correct]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    return NextResponse.json({ error: "Erro interno ao corrigir redação" }, { status: 500 });
   }
 }
