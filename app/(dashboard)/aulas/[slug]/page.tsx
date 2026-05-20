@@ -563,11 +563,14 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <button
             onClick={handleMarkComplete}
+            disabled={!completed && !result}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all border",
               completed
                 ? "bg-green-500/15 border-green-500/25 text-green-300"
-                : "bg-gradient-to-r from-blue-500 to-cyan-500 border-transparent text-white hover:shadow-glow"
+                : result
+                ? "bg-gradient-to-r from-blue-500 to-cyan-500 border-transparent text-white hover:shadow-glow"
+                : "bg-white/5 border-white/5 text-white/25 cursor-not-allowed"
             )}
           >
             {markingDone ? (
@@ -575,7 +578,11 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
             ) : (
               <CheckCircle2 className="w-4 h-4" />
             )}
-            {completed ? "Aula concluída ✓" : "Marcar como concluída"}
+            {completed
+              ? "Aula concluída ✓"
+              : result
+              ? "Marcar como concluída"
+              : "Responda a questão para concluir"}
           </button>
 
           {/* Próxima aula — só aparece após concluir */}
