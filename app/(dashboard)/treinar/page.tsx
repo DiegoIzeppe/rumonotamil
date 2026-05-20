@@ -16,6 +16,8 @@ import { mockWeeklyTheme } from "@/lib/mock-data";
 import { getColetaneaForTheme } from "@/lib/coletanea-data";
 import { ColetaneaView } from "@/components/ui/coletanea";
 import { cn, wordCount } from "@/lib/utils";
+import { useAppStore } from "@/store/app-store";
+import toast from "react-hot-toast";
 
 const themes = [
   { title: "Crise da Saúde Mental na Era Digital", tags: ["saúde", "tecnologia", "juventude"] },
@@ -42,6 +44,7 @@ export default function TreinarPage() {
   const [showBrainstorm, setShowBrainstorm] = useState(false);
   const [sending, setSending] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<"analysis" | "tips">("tips");
+  const { setLastCorrectionResult, setCurrentTheme } = useAppStore();
 
   const editor = useEditor({
     extensions: [
@@ -87,9 +90,33 @@ export default function TreinarPage() {
   const handleSendForCorrection = async () => {
     if (!editor || words < 100) return;
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setSending(false);
-    window.location.href = "/correcao-ia";
+    try {
+      const content = editor.getText();
+      setCurrentTheme(theme);
+
+      if (!process.env.NEXT_PUBLIC_APP_URL && typeof window !== "undefined") {
+        // just navigate if no API key configured
+      }
+
+      const res = await fetch("/api/ai/correct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, theme }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Erro ao corrigir redação");
+        return;
+      }
+
+      setLastCorrectionResult({ feedback: data.feedback, essayText: content });
+      window.location.href = "/correcao-ia";
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const randomTheme = () => {

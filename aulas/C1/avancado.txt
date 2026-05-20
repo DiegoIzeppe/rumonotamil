@@ -1,0 +1,548 @@
+# C1 Avançado — Pontuação e Registros Formais
+
+# Objetivo da Aula
+
+Desenvolver domínio avançado da pontuação e dos registros formais da língua portuguesa, aprimorando a clareza, sofisticação e organização textual para alcançar níveis elevados na Competência 1 da redação do ENEM.
+
+---
+
+# Introdução
+
+Na redação do ENEM, estudantes que atingem notas altas na Competência 1 normalmente possuem:
+
+* Controle sólido da norma culta
+* Estrutura frasal organizada
+* Pontuação estratégica
+* Vocabulário formal
+* Clareza argumentativa
+* Escrita sofisticada e natural
+
+Nesta aula, você aprenderá como utilizar a pontuação de maneira inteligente e como manter um registro formal consistente durante toda a redação.
+
+---
+
+# O QUE É REGISTRO FORMAL?
+
+O registro formal é a forma de linguagem utilizada em contextos acadêmicos, profissionais e institucionais.
+
+Na redação do ENEM, espera-se:
+
+✅ Formalidade
+✅ Clareza
+✅ Objetividade
+✅ Precisão vocabular
+✅ Organização lógica
+
+---
+
+# Características do Registro Formal
+
+## 1. Ausência de gírias
+
+❌ Mano
+❌ Tipo assim
+❌ Tá ligado
+❌ Pra caramba
+
+✅ Dessa forma
+✅ Nesse contexto
+✅ Significativamente
+✅ Em virtude disso
+
+---
+
+## 2. Uso de vocabulário preciso
+
+❌ Coisa
+✅ Aspecto
+
+❌ Negócio
+✅ Questão
+
+❌ Problema
+✅ Impasse
+
+---
+
+## 3. Frases organizadas
+
+Evite:
+
+❌ Frases confusas
+❌ Repetições excessivas
+❌ Estruturas desorganizadas
+
+---
+
+# PONTUAÇÃO
+
+# O que é pontuação?
+
+A pontuação organiza as ideias do texto e orienta a leitura.
+
+Ela ajuda a:
+
+* Criar clareza
+* Separar informações
+* Organizar argumentos
+* Destacar relações entre ideias
+* Melhorar a fluidez textual
+
+Uma pontuação inadequada pode:
+
+* Gerar ambiguidade
+* Prejudicar a compreensão
+* Reduzir a nota
+
+---
+
+# A VÍRGULA
+
+# Funções principais da vírgula
+
+## 1. Separar termos deslocados
+
+✅ Atualmente, a sociedade enfrenta diversos desafios.
+
+✅ Nesse contexto, observa-se a persistência do problema.
+
+---
+
+## 2. Separar conectivos
+
+✅ Entretanto, o problema continua.
+
+✅ Além disso, o Estado demonstra negligência.
+
+✅ Portanto, medidas são necessárias.
+
+---
+
+## 3. Separar elementos de uma enumeração
+
+✅ Educação, saúde, segurança e moradia são direitos fundamentais.
+
+---
+
+## 4. Isolar expressões explicativas
+
+✅ A desigualdade social, problema histórico do Brasil, afeta milhões de indivíduos.
+
+---
+
+# ERRO MAIS COMUM COM VÍRGULA
+
+## Nunca separe sujeito e verbo.
+
+❌ A sociedade brasileira, enfrenta diversos problemas.
+
+✅ A sociedade brasileira enfrenta diversos problemas.
+
+---
+
+## Nunca separe verbo e complemento sem necessidade.
+
+❌ O governo deve, investir em educação.
+
+✅ O governo deve investir em educação.
+
+---
+
+# VÍRGULA EM ORAÇÕES
+
+## Oração subordinada adverbial deslocada
+
+✅ Quando o Estado se omite, a população sofre consequências.
+
+✅ Embora existam leis, o problema permanece.
+
+---
+
+# Uso estilístico da vírgula
+
+A vírgula pode tornar a leitura mais elegante e fluida.
+
+## Exemplo simples:
+
+❌ O problema social cresce porque o Estado é negligente.
+
+## Exemplo sofisticado:
+
+✅ O problema social cresce, sobretudo, devido à negligência estatal.
+
+---
+
+# PONTO FINAL
+
+O ponto final encerra uma ideia completa.
+
+## Dica importante:
+
+Evite períodos excessivamente longos.
+
+Frases menores:
+
+✅ Melhoram a clareza
+✅ Reduzem erros
+✅ Organizam o raciocínio
+
+---
+
+# PONTO E VÍRGULA
+
+O ponto e vírgula separa ideias relacionadas.
+
+Ele é muito útil em redações sofisticadas.
+
+## Exemplo:
+
+✅ O problema persiste há décadas; entretanto, poucas medidas foram tomadas.
+
+---
+
+# DOIS-PONTOS
+
+Os dois-pontos servem para:
+
+* Introduzir explicações
+* Apresentar exemplos
+* Enumerar elementos
+
+## Exemplos:
+
+✅ Existem três fatores principais: negligência estatal, desigualdade social e falta de conscientização.
+
+✅ O problema possui uma consequência grave: a exclusão social.
+
+---
+
+# TRAVESSÃO
+
+Pode ser usado para:
+
+* Inserir explicações
+* Destacar informações
+
+## Exemplo:
+
+✅ A educação — principal ferramenta de transformação social — deve ser valorizada.
+
+Uso moderado é recomendado.
+
+---
+
+# PARÊNTESES
+
+Devem ser utilizados com cautela.
+
+Na redação do ENEM, normalmente são desnecessários.
+
+Prefira:
+
+* vírgulas
+* travessões
+* orações explicativas
+
+---
+
+# AMBIGUIDADE
+
+# O que é?
+
+Ambiguidade ocorre quando a frase permite mais de uma interpretação.
+
+---
+
+# Exemplo ruim:
+
+❌ O governo informou aos cidadãos que combaterá a violência no rádio.
+
+Quem está no rádio?
+
+---
+
+# Exemplo corrigido:
+
+✅ Pelo rádio, o governo informou aos cidadãos que combaterá a violência.
+
+---
+
+# PARALELISMO
+
+# O que é?
+
+Paralelismo é manter equilíbrio estrutural entre elementos da frase.
+
+---
+
+# Exemplo incorreto:
+
+❌ O cidadão precisa estudar, trabalhar e da conscientização.
+
+---
+
+# Exemplo correto:
+
+✅ O cidadão precisa estudar, trabalhar e conscientizar-se.
+
+---
+
+# SOFISTICAÇÃO DA ESCRITA
+
+# Como elevar o nível da redação?
+
+## 1. Use conectivos variados
+
+### Introdução de argumento
+
+* Primeiramente
+* Sob essa perspectiva
+* Nesse contexto
+
+### Adição
+
+* Além disso
+* Ademais
+* Outrossim
+
+### Consequência
+
+* Portanto
+* Consequentemente
+* Dessa forma
+
+### Contraste
+
+* Entretanto
+* Todavia
+* Contudo
+
+---
+
+# 2. Evite repetições
+
+## Repetitivo:
+
+❌ O problema é um problema grave para a sociedade.
+
+## Melhor:
+
+✅ A questão representa um grave impasse social.
+
+---
+
+# 3. Use construções mais maduras
+
+## Simples:
+
+❌ Hoje em dia as pessoas usam muito celular.
+
+## Avançado:
+
+✅ Atualmente, observa-se um uso excessivo de dispositivos móveis pela população.
+
+---
+
+# ESTRUTURAS AVANÇADAS
+
+## Modelo 1
+
+✅ “Sob essa perspectiva, percebe-se que...”
+
+## Modelo 2
+
+✅ “Nesse viés, torna-se evidente que...”
+
+## Modelo 3
+
+✅ “Diante desse cenário, é possível observar que...”
+
+## Modelo 4
+
+✅ “Consequentemente, a problemática se intensifica.”
+
+---
+
+# COMO EVITAR ERROS EM PERÍODOS LONGOS
+
+## Divida ideias.
+
+## Use conectivos.
+
+## Revise a pontuação.
+
+## Evite excesso de informações na mesma frase.
+
+---
+
+# EXEMPLO DE EVOLUÇÃO
+
+# Versão simples
+
+❌ Hoje em dia o Brasil tem muitos problemas sociais porque o governo não ajuda muito e isso prejudica bastante a população.
+
+---
+
+# Versão avançada
+
+✅ Atualmente, o Brasil enfrenta diversos problemas sociais, sobretudo devido à negligência estatal, fator que prejudica significativamente a população.
+
+---
+
+# COMPARAÇÃO DE NÍVEIS
+
+| Nível básico | Nível avançado     |
+| ------------ | ------------------ |
+| tem          | apresenta          |
+| coisa        | aspecto            |
+| muito        | significativamente |
+| pessoas      | indivíduos         |
+| hoje em dia  | atualmente         |
+| porque       | em virtude de      |
+| ajuda        | promove suporte    |
+
+---
+
+# O QUE DIFERENCIA REDAÇÕES DE NÍVEL ALTO?
+
+## Redações nota alta normalmente possuem:
+
+✅ Frases organizadas
+✅ Pontuação correta
+✅ Boa fluidez
+✅ Vocabulário formal
+✅ Clareza argumentativa
+✅ Conectivos variados
+✅ Estrutura madura
+
+---
+
+# ERROS QUE MAIS PREJUDICAM
+
+❌ Vírgulas aleatórias
+❌ Frases sem sentido
+❌ Linguagem coloquial
+❌ Repetições constantes
+❌ Ambiguidade
+❌ Períodos gigantescos
+❌ Falta de coesão
+
+---
+
+# CHECKLIST AVANÇADO
+
+Antes de entregar a redação, pergunte:
+
+## Minha redação:
+
+✅ Está clara?
+✅ Está formal?
+✅ Possui boa fluidez?
+✅ Tem pontuação organizada?
+✅ Evita repetições?
+✅ Usa conectivos variados?
+✅ Possui frases equilibradas?
+✅ Demonstra domínio da escrita formal?
+
+---
+
+# EXERCÍCIOS PRÁTICOS
+
+# Exercício 1 — Corrija a pontuação
+
+1. Atualmente o Brasil enfrenta diversos desafios sociais.
+2. Entretanto o problema permanece.
+3. A sociedade brasileira principal vítima da desigualdade sofre diariamente.
+4. Quando o Estado é negligente a população sofre consequências.
+5. O governo deve investir em educação saúde e segurança.
+
+---
+
+# Exercício 2 — Reescreva de forma formal
+
+1. Hoje em dia tem muita coisa errada.
+2. A galera usa muito internet.
+3. Isso prejudica pra caramba.
+4. O governo não ajuda muito.
+
+---
+
+# Exercício 3 — Elimine ambiguidades
+
+1. O estudante comentou sobre o problema na escola.
+2. O governo informou aos cidadãos que reduziria a violência na televisão.
+
+---
+
+# Gabarito
+
+# Exercício 1
+
+1. Atualmente, o Brasil enfrenta diversos desafios sociais.
+2. Entretanto, o problema permanece.
+3. A sociedade brasileira, principal vítima da desigualdade, sofre diariamente.
+4. Quando o Estado é negligente, a população sofre consequências.
+5. O governo deve investir em educação, saúde e segurança.
+
+---
+
+# Exercício 2
+
+1. Atualmente, existem diversos problemas sociais.
+2. Muitos indivíduos utilizam excessivamente a internet.
+3. Isso prejudica significativamente a sociedade.
+4. O Estado demonstra insuficiência no enfrentamento da problemática.
+
+---
+
+# Exercício 3
+
+1. Na escola, o estudante comentou sobre o problema.
+2. Pela televisão, o governo informou aos cidadãos que reduziria a violência.
+
+---
+
+# RESUMO FINAL
+
+A pontuação e os registros formais são fundamentais para elevar a qualidade da redação e demonstrar domínio avançado da norma culta.
+
+Uma escrita sofisticada não depende de palavras difíceis, mas de:
+
+* Clareza
+* Organização
+* Precisão
+* Fluidez
+* Controle gramatical
+
+Quanto maior o domínio da estrutura formal da língua, maior será o desempenho na Competência 1.
+
+---
+
+# ENCERRAMENTO DA COMPETÊNCIA 1
+
+Ao concluir esta etapa, o estudante deve ser capaz de:
+
+✅ Escrever com formalidade
+✅ Utilizar pontuação corretamente
+✅ Construir frases organizadas
+✅ Evitar ambiguidades
+✅ Utilizar vocabulário adequado
+✅ Demonstrar domínio consistente da norma culta
+
+A Competência 1 funciona como a base estrutural da redação. Quando ela está sólida, todas as outras competências evoluem com maior facilidade.
+
+---
+
+# PRÓXIMA COMPETÊNCIA
+
+## Competência 2 — Compreensão do Tema e Repertório Sociocultural
+
+Nas próximas aulas, você aprenderá:
+
+* Interpretação temática
+* Recorte temático
+* Estratégias de repertório
+* Uso produtivo de referências
+* Relação entre repertório e argumentação
+* Como evitar fuga ao tema
+* Estruturas de contextualização avançada

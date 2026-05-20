@@ -64,28 +64,143 @@ Os módulos desta plataforma estão sendo elaborados com cuidado por especialist
   `;
 };
 
+function applyInlineMarkdown(text: string): string {
+  return text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white/90 font-semibold">$1</strong>');
+}
+
 function renderContent(raw: string) {
   const lines = raw.trim().split("\n");
   const elements: React.ReactNode[] = [];
   let i = 0;
+
   while (i < lines.length) {
     const line = lines[i].trimEnd();
-    if (!line) { i++; continue; }
+
+    if (!line.trim()) { i++; continue; }
+
+    // H1
+    if (line.startsWith("# ")) {
+      elements.push(
+        <h1 key={i} className="text-base font-black text-white mt-8 mb-2 uppercase tracking-wide">
+          {line.slice(2)}
+        </h1>
+      );
+      i++; continue;
+    }
+
+    // H2
     if (line.startsWith("## ")) {
-      elements.push(<h2 key={i} className="text-lg font-bold text-white mt-7 mb-3 pb-2 border-b border-blue-500/15">{line.slice(3)}</h2>);
-    } else if (line.startsWith("> ")) {
+      elements.push(
+        <h2 key={i} className="text-sm font-bold text-blue-400 mt-5 mb-2">
+          {line.slice(3)}
+        </h2>
+      );
+      i++; continue;
+    }
+
+    // Blockquote
+    if (line.startsWith("> ")) {
       elements.push(
         <blockquote key={i} className="border-l-2 border-blue-500 pl-4 py-2 my-3 text-white/60 italic text-sm bg-blue-500/5 rounded-r-xl pr-4">
           {line.slice(2)}
         </blockquote>
       );
-    } else if (line.trim()) {
-      elements.push(
-        <p key={i} className="text-sm text-white/65 leading-[1.85] my-2"
-          dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white/90 font-semibold">$1</strong>') }}
-        />
-      );
+      i++; continue;
     }
+
+    // Horizontal rule
+    if (line.trim() === "---") {
+      elements.push(<hr key={i} className="border-white/8 my-5" />);
+      i++; continue;
+    }
+
+    // Table — collect rows starting with |
+    if (line.startsWith("| ")) {
+      const rows: string[][] = [];
+      while (i < lines.length && lines[i].trimEnd().startsWith("| ")) {
+        const row = lines[i];
+        // Skip separator rows like |---|---|
+        if (!row.match(/^\|\s*[-:]+\s*\|/)) {
+          const cells = row.split("|").slice(1, -1).map((c) => c.trim());
+          rows.push(cells);
+        }
+        i++;
+      }
+      if (rows.length > 0) {
+        const isHeader = rows.length > 1;
+        elements.push(
+          <div key={`table-${i}`} className="my-4 overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <tbody>
+                {rows.map((cells, ri) => (
+                  <tr key={ri} className={ri === 0 && isHeader ? "border-b border-white/15" : ""}>
+                    {cells.map((cell, ci) => (
+                      <td
+                        key={ci}
+                        className={`px-3 py-2 text-left border border-white/8 ${
+                          ri === 0 && isHeader ? "font-semibold text-white/80 bg-white/5" : "text-white/60"
+                        }`}
+                        dangerouslySetInnerHTML={{ __html: applyInlineMarkdown(cell) }}
+                      />
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+      continue;
+    }
+
+    // Bullet list — collect consecutive * lines
+    if (line.startsWith("* ")) {
+      const items: string[] = [];
+      while (i < lines.length && lines[i].trimEnd().startsWith("* ")) {
+        items.push(lines[i].slice(2).trimEnd());
+        i++;
+      }
+      elements.push(
+        <ul key={`ul-${i}`} className="my-3 space-y-1.5 pl-4">
+          {items.map((item, j) => (
+            <li key={j} className="flex items-start gap-2 text-sm text-white/65 leading-relaxed">
+              <span className="text-blue-400 flex-shrink-0 mt-1.5 text-[8px]">●</span>
+              <span dangerouslySetInnerHTML={{ __html: applyInlineMarkdown(item) }} />
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Lines starting with ✅ — positive style
+    if (line.trimStart().startsWith("✅")) {
+      elements.push(
+        <p key={i} className="flex items-start gap-2 text-sm text-green-300/90 leading-relaxed my-1.5">
+          <span className="flex-shrink-0">✅</span>
+          <span dangerouslySetInnerHTML={{ __html: applyInlineMarkdown(line.trimStart().slice(2).trimStart()) }} />
+        </p>
+      );
+      i++; continue;
+    }
+
+    // Lines starting with ❌ — negative style
+    if (line.trimStart().startsWith("❌")) {
+      elements.push(
+        <p key={i} className="flex items-start gap-2 text-sm text-red-300/80 leading-relaxed my-1.5">
+          <span className="flex-shrink-0">❌</span>
+          <span dangerouslySetInnerHTML={{ __html: applyInlineMarkdown(line.trimStart().slice(2).trimStart()) }} />
+        </p>
+      );
+      i++; continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={i} className="text-sm text-white/65 leading-[1.85] my-2"
+        dangerouslySetInnerHTML={{ __html: applyInlineMarkdown(line) }}
+      />
+    );
     i++;
   }
   return elements;
@@ -100,6 +215,8 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
   const [correcting, setCorrecting] = useState(false);
   const [result, setResult] = useState<QuestionResult | null>(null);
   const [note, setNote] = useState("");
+  const [markingDone, setMarkingDone] = useState(false);
+  const [xpToast, setXpToast] = useState<number | null>(null);
 
   // Next lesson
   const currentIndex = mockLessons.findIndex((l) => l.slug === params.slug);
@@ -153,7 +270,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
     );
   }
 
-  const content = PLACEHOLDER_CONTENT(lesson);
+  const content = lesson.content ?? PLACEHOLDER_CONTENT(lesson);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -395,7 +512,27 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
         {/* Complete + Next */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <button
-            onClick={() => setCompleted(true)}
+            onClick={async () => {
+              if (completed || markingDone) return;
+              setMarkingDone(true);
+              try {
+                const res = await fetch("/api/lessons/progress", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ lessonSlug: params.slug, completed: true }),
+                });
+                const data = await res.json();
+                setCompleted(true);
+                if (data.xpAwarded > 0) {
+                  setXpToast(data.xpAwarded);
+                  setTimeout(() => setXpToast(null), 3000);
+                }
+              } catch {
+                setCompleted(true);
+              } finally {
+                setMarkingDone(false);
+              }
+            }}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all border",
               completed
@@ -403,9 +540,24 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                 : "bg-gradient-to-r from-blue-500 to-cyan-500 border-transparent text-white hover:shadow-glow"
             )}
           >
-            <CheckCircle2 className="w-4 h-4" />
+            {markingDone ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4" />
+            )}
             {completed ? "Aula concluída ✓" : "Marcar como concluída"}
           </button>
+          {xpToast !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="fixed bottom-6 right-6 z-50 glass border border-yellow-500/20 bg-yellow-500/10 text-yellow-300 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              +{xpToast} XP conquistados!
+            </motion.div>
+          )}
           {nextLesson && (
             <Link href={`/aulas/${nextLesson.slug}`} className="flex-1">
               <button className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm glass border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-all">

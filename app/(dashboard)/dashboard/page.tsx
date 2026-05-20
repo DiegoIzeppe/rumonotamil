@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -112,9 +113,39 @@ const contentTypeLabel = {
   essay: "Redação modelo",
 };
 
+interface UserStats {
+  user: { name: string; xp: number; level: number; streakDays: number; plan: string };
+  stats: { totalEssays: number; avgScore: number; lessonsCompleted: number; competencyAvgs: number[] };
+  weeklyProgress: Array<{ day: string; score: number }>;
+  recentEssays: Array<{ id: string; theme: string; score: number; createdAt: string }>;
+}
+
 export default function DashboardPage() {
+  const [realData, setRealData] = useState<UserStats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/user/stats")
+      .then((r) => r.json())
+      .then((d) => { if (d.data) setRealData(d.data); })
+      .catch(() => {});
+  }, []);
+
+  const userName = realData?.user.name ?? mockUser.name;
+  const streakDays = realData?.user.streakDays ?? mockUser.streakDays;
+  const userXp = realData?.user.xp ?? mockUser.xp;
+  const userLevel = realData?.user.level ?? mockUser.level;
+  const totalEssays = realData?.stats.totalEssays ?? mockEssays.length;
+  const avgScore = realData?.stats.avgScore ?? mockCompetencyScores.total;
+  const weeklyData = realData?.weeklyProgress?.length
+    ? realData.weeklyProgress.map((d) => ({ ...d, essays: 0 }))
+    : mockWeeklyProgress;
+  const competencyAvgs = realData?.stats.competencyAvgs ?? [1, 2, 3, 4, 5].map((c) => mockCompetencyScores[`c${c}` as keyof typeof mockCompetencyScores] as number);
+  const recentEssays = realData?.recentEssays?.length
+    ? realData.recentEssays.map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.createdAt }))
+    : mockEssays;
+
   // Weekly delta: last score vs first score this week
-  const weeklyDelta = mockWeeklyProgress[mockWeeklyProgress.length - 1].score - mockWeeklyProgress[0].score;
+  const weeklyDelta = weeklyData[weeklyData.length - 1].score - weeklyData[0].score;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -124,10 +155,10 @@ export default function DashboardPage() {
         <motion.div variants={stagger.item} className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Olá, {mockUser.name.split(" ")[0]} 👋
+              Olá, {userName.split(" ")[0]} 👋
             </h1>
             <p className="text-white/40 mt-1 text-sm">
-              {mockUser.streakDays} dias consecutivos de estudo. Continue assim!
+              {streakDays} dias consecutivos de estudo. Continue assim!
             </p>
           </div>
           <Link
@@ -142,10 +173,10 @@ export default function DashboardPage() {
         {/* Top stats */}
         <motion.div variants={stagger.item} className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: "Nota atual", value: mockCompetencyScores.total, sub: "Estimada ENEM", icon: Target, color: "blue" },
-            { label: "Streak", value: `${mockUser.streakDays} dias`, sub: "Consecutivos", icon: Flame, color: "orange" },
-            { label: "XP Total", value: mockUser.xp.toLocaleString("pt-BR"), sub: `Nível ${mockUser.level}`, icon: Zap, color: "yellow" },
-            { label: "Redações", value: mockEssays.length, sub: "Corrigidas", icon: Brain, color: "green" },
+            { label: "Nota atual", value: avgScore, sub: "Estimada ENEM", icon: Target, color: "blue" },
+            { label: "Streak", value: `${streakDays} dias`, sub: "Consecutivos", icon: Flame, color: "orange" },
+            { label: "XP Total", value: userXp.toLocaleString("pt-BR"), sub: `Nível ${userLevel}`, icon: Zap, color: "yellow" },
+            { label: "Redações", value: totalEssays, sub: "Corrigidas", icon: Brain, color: "green" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
@@ -179,14 +210,14 @@ export default function DashboardPage() {
               <h2 className="text-sm font-semibold text-white">Nota Estimada ENEM</h2>
             </div>
             <div className="flex justify-center mb-6">
-              <ScoreRing score={mockCompetencyScores.total} />
+              <ScoreRing score={avgScore} />
             </div>
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((c) => (
                 <CompetencyBar
                   key={c}
                   label={`C${c} — ${getCompetencyLabel(c)}`}
-                  score={mockCompetencyScores[`c${c}` as keyof typeof mockCompetencyScores] as number}
+                  score={competencyAvgs[c - 1]}
                 />
               ))}
             </div>
@@ -209,7 +240,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={mockWeeklyProgress}>
+              <AreaChart data={weeklyData}>
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -236,9 +267,9 @@ export default function DashboardPage() {
             {/* Mini stats da semana */}
             <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-3 gap-3">
               {[
-                { label: "Melhor nota", value: Math.max(...mockWeeklyProgress.map(d => d.score)), color: "text-green-400" },
-                { label: "Média", value: Math.round(mockWeeklyProgress.reduce((s, d) => s + d.score, 0) / mockWeeklyProgress.length), color: "text-blue-400" },
-                { label: "Redações", value: mockWeeklyProgress.reduce((s, d) => s + d.essays, 0), color: "text-cyan-400" },
+                { label: "Melhor nota", value: Math.max(...weeklyData.map(d => d.score)), color: "text-green-400" },
+                { label: "Média", value: Math.round(weeklyData.reduce((s, d) => s + d.score, 0) / weeklyData.length), color: "text-blue-400" },
+                { label: "Redações", value: totalEssays, color: "text-cyan-400" },
               ].map(s => (
                 <div key={s.label} className="text-center p-2.5 rounded-xl bg-white/8">
                   <p className={cn("text-lg font-black", s.color)}>{s.value}</p>
@@ -311,7 +342,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-2">
-              {mockEssays.map((essay) => (
+              {recentEssays.map((essay) => (
                 <div key={essay.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer">
                   <div className={cn(
                     "w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0",

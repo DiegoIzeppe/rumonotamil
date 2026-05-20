@@ -1,0 +1,632 @@
+# Competência 3 — C3 Iniciante
+
+# O Que é Argumentação no ENEM
+
+# Objetivo da Aula
+
+Compreender o que é argumentação na redação do ENEM, aprender como defender uma tese de forma lógica e entender como construir um projeto de texto organizado e coerente.
+
+---
+
+# O QUE É A COMPETÊNCIA 3?
+
+A Competência 3 avalia:
+
+> “Selecionar, relacionar, organizar e interpretar informações, fatos, opiniões e argumentos em defesa de um ponto de vista.”
+
+Na prática, o corretor analisa se:
+
+✅ O texto possui lógica
+✅ Os argumentos fazem sentido
+✅ Existe organização das ideias
+✅ A tese é defendida corretamente
+✅ O texto apresenta progressão argumentativa
+
+---
+
+# Quanto Vale?
+
+A Competência 3 vale até 200 pontos.
+
+Ela é uma das competências que mais diferencia redações medianas de redações nota alta.
+
+---
+
+# O QUE É ARGUMENTAÇÃO?
+
+Argumentar é:
+
+✅ Defender uma ideia
+✅ Convencer o leitor
+✅ Explicar um ponto de vista
+✅ Sustentar opiniões com lógica
+
+---
+
+# No ENEM
+
+Você precisa:
+
+✅ Mostrar um problema
+✅ Explicar causas
+✅ Demonstrar consequências
+✅ Defender uma tese
+✅ Convencer o corretor
+
+---
+
+# O QUE É TESE?
+
+A tese é a ideia principal defendida na redação.
+
+Ela normalmente aparece na introdução.
+
+---
+
+# Exemplo
+
+Tema:
+
+> “Desafios para combater a fome no Brasil.”
+
+---
+
+# Tese fraca
+
+❌ A fome é um problema.
+
+---
+
+# Tese forte
+
+✅ A insegurança alimentar no Brasil é agravada pela desigualdade social e pela insuficiência das políticas públicas.
+
+---
+
+# O QUE É PROJETO DE TEXTO?
+
+Projeto de texto é o planejamento lógico da redação.
+
+Ou seja:
+
+✅ Como as ideias serão organizadas
+✅ Qual argumento aparecerá em cada parágrafo
+✅ Como o texto evoluirá
+
+---
+
+# Redações fortes possuem:
+
+✅ Organização clara
+✅ Ideias conectadas
+✅ Progressão lógica
+✅ Desenvolvimento consistente
+
+---
+
+# ESTRUTURA BÁSICA DA ARGUMENTAÇÃO
+
+# Introdução
+
+Apresenta:
+
+* tema
+* contextualização
+* tese
+* possíveis argumentos
+
+---
+
+# Desenvolvimento 1
+
+Apresenta:
+
+* primeiro argumento
+* explicação
+* repertório
+* análise
+
+---
+
+# Desenvolvimento 2
+
+Apresenta:
+
+* segundo argumento
+* aprofundamento
+* consequências
+* repertório
+
+---
+
+# Conclusão
+
+Apresenta:
+
+* retomada do problema
+* proposta de intervenção
+
+---
+
+# O QUE É UM ARGUMENTO?
+
+Argumento é a ideia utilizada para defender a tese.
+
+---
+
+# Exemplo
+
+Tema:
+
+> “Desafios da educação no Brasil.”
+
+---
+
+# Tese:
+
+✅ A educação brasileira enfrenta dificuldades devido à desigualdade social e à precariedade estrutural.
+
+---
+
+# Argumentos:
+
+## Desenvolvimento 1
+
+✅ Desigualdade social.
+
+## Desenvolvimento 2
+
+✅ Falta de investimentos estruturais.
+
+---
+
+# O QUE É PROGRESSÃO ARGUMENTATIVA?
+
+É o avanço lógico das ideias.
+
+A redação precisa:
+
+✅ Evoluir
+✅ Aprofundar argumentos
+✅ Desenvolver raciocínio
+
+---
+
+# Erro comum
+
+❌ Repetir a mesma ideia em todos os parágrafos.
+
+---
+
+# Exemplo ruim
+
+Parágrafo 1:
+
+❌ O problema é grave.
+
+Parágrafo 2:
+
+❌ O problema continua sendo grave.
+
+Sem evolução.
+
+---
+
+# Exemplo melhor
+
+## Desenvolvimento 1
+
+✅ Explica causas.
+
+## Desenvolvimento 2
+
+✅ Explica consequências.
+
+Existe progressão.
+
+---
+
+# COMO CONSTRUIR ARGUMENTOS FORTES
+
+# Estrutura simples
+
+## 1. Afirmação
+
+Apresente a ideia principal.
+
+---
+
+## 2. Explicação
+
+Explique o argumento.
+
+---
+
+## 3. Exemplo ou repertório
+
+Use referência sociocultural.
+
+---
+
+## 4. Consequência
+
+Mostre impactos.
+
+---
+
+# EXEMPLO COMPLETO
+
+Tema:
+
+> “Desinformação no Brasil.”
+
+---
+
+✅ A baixa educação midiática contribui significativamente para a disseminação de fake news. Isso ocorre porque muitos indivíduos não possuem preparo crítico para verificar informações consumidas nas redes sociais. Nesse contexto, a circulação de conteúdos falsos intensifica processos de manipulação coletiva.
+
+---
+
+# O QUE É COERÊNCIA?
+
+Coerência é o sentido lógico do texto.
+
+A redação precisa:
+
+✅ Fazer sentido
+✅ Manter foco
+✅ Ter ideias conectadas
+
+---
+
+# Exemplo incoerente
+
+Tema:
+
+> “Desafios da saúde mental.”
+
+---
+
+❌ O aluno começa falando sobre saúde mental e termina discutindo apenas violência urbana.
+
+---
+
+# O QUE É COESÃO?
+
+Coesão é a ligação entre as partes do texto.
+
+Ela acontece através de:
+
+* conectivos
+* retomadas
+* organização textual
+
+---
+
+# Conectivos importantes
+
+## Adição
+
+* Além disso
+* Ademais
+* Outrossim
+
+---
+
+## Contraste
+
+* Entretanto
+* Todavia
+* Contudo
+
+---
+
+## Consequência
+
+* Portanto
+* Dessa forma
+* Consequentemente
+
+---
+
+## Explicação
+
+* Porque
+* Visto que
+* Em virtude de
+
+---
+
+# O QUE PREJUDICA A ARGUMENTAÇÃO?
+
+# 1. Generalização excessiva
+
+❌ “Tudo no Brasil é ruim.”
+
+---
+
+# 2. Falta de explicação
+
+❌ Afirma sem desenvolver.
+
+---
+
+# 3. Argumento superficial
+
+❌ Ideias rasas.
+
+---
+
+# 4. Contradição
+
+O texto diz uma coisa e depois contradiz a própria tese.
+
+---
+
+# 5. Falta de foco
+
+O estudante muda de assunto.
+
+---
+
+# COMO PENSAR ARGUMENTATIVAMENTE
+
+Pergunte:
+
+✅ Qual é a causa do problema?
+
+✅ Quais consequências existem?
+
+✅ Quem é afetado?
+
+✅ Por que isso acontece?
+
+✅ O que mantém esse problema?
+
+---
+
+# EXEMPLOS DE CAUSAS E CONSEQUÊNCIAS
+
+# Tema: Violência urbana
+
+## Causa:
+
+✅ Desigualdade social.
+
+## Consequência:
+
+✅ Insegurança coletiva.
+
+---
+
+# Tema: Saúde mental
+
+## Causa:
+
+✅ Pressão social.
+
+## Consequência:
+
+✅ Aumento de transtornos psicológicos.
+
+---
+
+# Tema: Desinformação
+
+## Causa:
+
+✅ Baixa educação midiática.
+
+## Consequência:
+
+✅ Manipulação social.
+
+---
+
+# COMO ESCREVER PARÁGRAFOS MAIS FORTES
+
+# Estrutura eficiente
+
+## 1. Tópico frasal
+
+Apresente o argumento.
+
+---
+
+## 2. Explicação
+
+Aprofunde a ideia.
+
+---
+
+## 3. Repertório
+
+Utilize referência sociocultural.
+
+---
+
+## 4. Fechamento crítico
+
+Conecte ao tema.
+
+---
+
+# EXEMPLO
+
+✅ A negligência estatal representa um dos principais fatores responsáveis pela permanência da desigualdade social brasileira. Isso ocorre devido à insuficiência de investimentos públicos em áreas essenciais, como educação e infraestrutura. Sob essa perspectiva, percebe-se a intensificação da exclusão econômica enfrentada por milhões de indivíduos.
+
+---
+
+# DIFERENÇA ENTRE OPINIÃO E ARGUMENTO
+
+# Opinião simples
+
+❌ A violência é ruim.
+
+---
+
+# Argumento desenvolvido
+
+✅ A violência urbana compromete a segurança coletiva e limita o exercício pleno da cidadania, especialmente em regiões socialmente vulneráveis.
+
+---
+
+# COMO EVITAR ARGUMENTAÇÃO RASA
+
+## Não apenas afirme.
+
+Explique:
+
+* como
+* por que
+* consequências
+* impactos
+
+---
+
+# CHECKLIST DA COMPETÊNCIA 3
+
+Antes de finalizar a redação:
+
+✅ Minha tese está clara?
+✅ Meus argumentos defendem a tese?
+✅ Existe lógica entre os parágrafos?
+✅ O texto possui progressão?
+✅ Estou aprofundando ideias?
+✅ Usei repertório de forma produtiva?
+✅ Existe coerência?
+
+---
+
+# EXERCÍCIOS PRÁTICOS
+
+# Exercício 1 — Identifique tese e argumentos
+
+Tema:
+
+> “Desafios da educação no Brasil.”
+
+Texto:
+
+✅ A educação brasileira enfrenta dificuldades estruturais relacionadas à desigualdade social e à insuficiência de investimentos públicos.
+
+Responda:
+
+1. Qual é a tese?
+2. Quais são os argumentos?
+
+---
+
+# Exercício 2 — Transforme opinião em argumento
+
+1. A fome é ruim.
+2. A violência prejudica o Brasil.
+3. A internet causa problemas.
+
+---
+
+# Exercício 3 — Desenvolva o argumento
+
+Tema:
+
+> “Desinformação.”
+
+Argumento:
+
+✅ Baixa educação midiática.
+
+Explique:
+
+* por que isso acontece
+* consequências
+* impactos sociais
+
+---
+
+# Exercício 4 — Organize o projeto de texto
+
+Tema:
+
+> “Desafios da saúde pública no Brasil.”
+
+Monte:
+
+* tese
+* argumento 1
+* argumento 2
+
+---
+
+# GABARITO
+
+# Exercício 1
+
+1. A educação brasileira enfrenta dificuldades estruturais.
+
+2. Argumentos:
+
+✅ Desigualdade social.
+✅ Insuficiência de investimentos públicos.
+
+---
+
+# Exercício 2
+
+1. A insegurança alimentar compromete a dignidade humana e evidencia falhas estruturais relacionadas à desigualdade social.
+
+2. A violência urbana prejudica a estabilidade social e intensifica a sensação de insegurança coletiva.
+
+3. O uso inadequado da internet favorece a disseminação de informações falsas e amplia processos de manipulação social.
+
+---
+
+# Exercício 3
+
+✅ A baixa educação midiática impede que muitos indivíduos verifiquem criticamente as informações consumidas nas redes digitais, realidade que favorece a disseminação de fake news e intensifica processos de manipulação coletiva.
+
+---
+
+# Exercício 4
+
+## Tese
+
+✅ A saúde pública brasileira enfrenta dificuldades estruturais relacionadas à desigualdade social e à insuficiência estatal.
+
+## Argumento 1
+
+✅ Falta de investimentos.
+
+## Argumento 2
+
+✅ Desigualdade no acesso aos serviços.
+
+---
+
+# RESUMO FINAL
+
+A Competência 3 avalia a capacidade do estudante de construir uma argumentação lógica, organizada e consistente.
+
+Uma boa argumentação depende de:
+
+✅ Tese clara
+✅ Argumentos fortes
+✅ Progressão lógica
+✅ Explicação aprofundada
+✅ Coerência textual
+✅ Projeto de texto organizado
+
+O estudante precisa convencer o corretor por meio da lógica, da análise crítica e da construção eficiente das ideias.
+
+---
+
+# PRÓXIMA AULA
+
+## C3 Intermediário — Estrutura de Desenvolvimento e Progressão Argumentativa
+
+Na próxima aula, você aprenderá:
+
+* Como construir parágrafos fortes
+* Estrutura completa do desenvolvimento
+* Progressão argumentativa avançada
+* Técnicas de aprofundamento
+* Estratégias de conexão entre parágrafos
+* Como evitar desenvolvimento superficial

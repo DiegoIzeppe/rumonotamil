@@ -1,0 +1,542 @@
+# C1 Intermediário — Ortografia, Concordância e Regência
+
+# Objetivo da Aula
+
+Aprofundar os conhecimentos sobre ortografia, concordância verbal e nominal, além da regência verbal e nominal, desenvolvendo uma escrita mais sofisticada, organizada e adequada aos critérios da redação do ENEM.
+
+---
+
+# Introdução
+
+Na Competência 1 do ENEM, não basta apenas evitar erros básicos. Para alcançar notas elevadas, o estudante precisa demonstrar domínio consistente da norma culta.
+
+Os erros de:
+
+* Ortografia
+* Concordância
+* Regência
+* Estrutura frasal
+
+são alguns dos principais responsáveis pela perda de pontos.
+
+Nesta aula, você aprenderá os padrões mais cobrados, os erros mais comuns e as formas práticas de evitar deslizes na escrita.
+
+---
+
+# ORTOGRAFIA
+
+## O que é ortografia?
+
+Ortografia é o conjunto de regras que determina a escrita correta das palavras.
+
+Ela envolve:
+
+* Letras corretas
+* Acentuação
+* Uso de hífen
+* Grafia oficial das palavras
+
+---
+
+# Erros Ortográficos Mais Comuns no ENEM
+
+## 1. Uso incorreto de “mas” e “mais”
+
+### MAS
+
+Indica oposição.
+
+Exemplo:
+
+✅ O problema é grave, mas pode ser solucionado.
+
+### MAIS
+
+Indica quantidade ou intensidade.
+
+✅ O Brasil precisa de mais investimentos.
+
+---
+
+## 2. “Mau” e “mal”
+
+### MAU
+
+Contrário de bom.
+
+✅ O mau comportamento prejudica o ambiente escolar.
+
+### MAL
+
+Contrário de bem.
+
+✅ O indivíduo foi mal interpretado.
+
+---
+
+## 3. “Onde” e “aonde”
+
+### ONDE
+
+Usado com ideia de permanência.
+
+✅ O país onde ocorreu o problema enfrenta dificuldades.
+
+### AONDE
+
+Usado com verbos que indicam movimento.
+
+✅ A sociedade precisa saber aonde deseja chegar.
+
+---
+
+## 4. “Há” e “a”
+
+### HÁ
+
+Indica tempo passado.
+
+✅ Há muitos anos o problema existe.
+
+### A
+
+Indica tempo futuro ou distância.
+
+✅ O evento ocorrerá daqui a dois anos.
+
+---
+
+## 5. Palavras frequentemente escritas de forma errada
+
+| Errado     | Correto     |
+| ---------- | ----------- |
+| Excessão   | Exceção     |
+| Concerteza | Com certeza |
+| Enchergar  | Enxergar    |
+| Previlegio | Privilégio  |
+| Atraz      | Atrás       |
+| Seje       | Seja        |
+| Agente     | A gente     |
+| Derrepente | De repente  |
+| Mecher     | Mexer       |
+| Susesso    | Sucesso     |
+
+---
+
+# Dicas para Melhorar a Ortografia
+
+## Leia constantemente
+
+A leitura ajuda o cérebro a memorizar padrões corretos da escrita.
+
+---
+
+## Crie um caderno de erros
+
+Anote:
+
+* Palavras que você erra
+* Expressões problemáticas
+* Regras importantes
+
+---
+
+## Revise sua redação lentamente
+
+Grande parte dos erros ocorre por falta de atenção.
+
+---
+
+# CONCORDÂNCIA VERBAL
+
+## O que é?
+
+A concordância verbal acontece quando o verbo concorda corretamente com o sujeito da frase.
+
+---
+
+# Regra Básica
+
+## Sujeito no singular → verbo no singular
+
+✅ A sociedade enfrenta desafios.
+
+## Sujeito no plural → verbo no plural
+
+✅ As sociedades enfrentam desafios.
+
+---
+
+# Casos Mais Cobrados
+
+## 1. Expressões partitivas
+
+Palavras como:
+
+* maioria
+* parte
+* grande parte
+* parcela
+
+permitem verbo no singular.
+
+✅ A maioria dos jovens utiliza redes sociais.
+
+Também é possível usar plural em alguns casos:
+
+✅ A maioria dos jovens utilizam redes sociais.
+
+No ENEM, prefira o singular para maior segurança.
+
+---
+
+## 2. Expressões com porcentagem
+
+✅ 30% da população vive em situação precária.
+
+✅ 30% dos estudantes vivem em situação precária.
+
+---
+
+## 3. Verbo “haver” com sentido de existir
+
+O verbo “haver” fica sempre no singular.
+
+❌ Haviam muitos problemas.
+✅ Havia muitos problemas.
+
+❌ Houveram manifestações.
+✅ Houve manifestações.
+
+---
+
+## 4. Verbo “fazer” indicando tempo
+
+Também permanece no singular.
+
+❌ Fazem anos que o problema existe.
+✅ Faz anos que o problema existe.
+
+---
+
+# CONCORDÂNCIA NOMINAL
+
+## O que é?
+
+É a concordância entre:
+
+* substantivos
+* adjetivos
+* artigos
+* numerais
+* pronomes
+
+---
+
+# Exemplos
+
+❌ Os problema social.
+✅ Os problemas sociais.
+
+❌ Muitas pessoa consciente.
+✅ Muitas pessoas conscientes.
+
+❌ Bastante alunos participaram.
+✅ Bastantes alunos participaram.
+
+---
+
+# Casos Importantes
+
+## “Mesmo”, “próprio”, “obrigado”
+
+Variam conforme gênero e número.
+
+✅ Elas mesmas resolveram.
+
+✅ Muito obrigadas.
+
+---
+
+## “Meio”
+
+### Como advérbio → invariável
+
+✅ Ela ficou meio cansada.
+
+### Como numeral → varia
+
+✅ Comprei meia dúzia de livros.
+
+---
+
+# REGÊNCIA VERBAL
+
+## O que é?
+
+A regência verbal mostra a relação entre o verbo e seus complementos.
+
+Alguns verbos exigem preposições específicas.
+
+---
+
+# Verbos Mais Importantes
+
+## 1. Assistir
+
+### No sentido de ver
+
+Exige preposição “a”.
+
+❌ Assistir o filme.
+✅ Assistir ao filme.
+
+---
+
+## 2. Obedecer
+
+Exige preposição “a”.
+
+❌ Obedecer as leis.
+✅ Obedecer às leis.
+
+---
+
+## 3. Chegar
+
+Exige preposição “a”.
+
+❌ Cheguei em São Paulo.
+✅ Cheguei a São Paulo.
+
+---
+
+## 4. Preferir
+
+Não se usa:
+
+❌ Prefiro mais estudar do que trabalhar.
+
+Forma correta:
+
+✅ Prefiro estudar a trabalhar.
+
+---
+
+## 5. Implicar
+
+### No sentido de causar
+
+Não exige preposição.
+
+✅ O problema implica consequências sociais.
+
+---
+
+# REGÊNCIA NOMINAL
+
+## O que é?
+
+É a relação entre nomes e complementos.
+
+---
+
+# Exemplos importantes
+
+✅ Necessário a
+✅ Favorável a
+✅ Respeito a
+✅ Acessível a
+✅ Prejudicial a
+
+---
+
+# Exemplos na prática
+
+✅ O acesso à educação é fundamental.
+
+✅ O debate é favorável à inclusão social.
+
+---
+
+# ERROS MAIS COMUNS EM REDAÇÕES
+
+## 1. Misturar linguagem informal com formal
+
+❌ A galera não respeita as leis.
+
+✅ Muitos indivíduos não respeitam as leis.
+
+---
+
+## 2. Repetição excessiva de palavras
+
+❌ O problema é um problema muito sério.
+
+✅ A questão representa um grave desafio social.
+
+---
+
+## 3. Frases gigantes
+
+Frases muito longas aumentam:
+
+* erros
+* confusão
+* falta de clareza
+
+---
+
+# COMO ESCREVER COM MAIS SOFISTICAÇÃO
+
+## Substituições inteligentes
+
+| Simples     | Sofisticado        |
+| ----------- | ------------------ |
+| muito       | significativamente |
+| coisa       | aspecto            |
+| problema    | impasse            |
+| pessoas     | indivíduos         |
+| hoje em dia | atualmente         |
+| porque      | em virtude de      |
+
+---
+
+# Estruturas que elevam o nível da redação
+
+## Modelo 1
+
+✅ “Nesse contexto, torna-se evidente que...”
+
+## Modelo 2
+
+✅ “Dessa forma, percebe-se que...”
+
+## Modelo 3
+
+✅ “Sob essa perspectiva, observa-se que...”
+
+## Modelo 4
+
+✅ “Consequentemente, o problema se intensifica.”
+
+---
+
+# EXEMPLOS DE EVOLUÇÃO
+
+## Frase simples
+
+❌ Hoje em dia tem muitos problemas sociais.
+
+## Frase melhorada
+
+✅ Atualmente, existem diversos problemas sociais que comprometem o desenvolvimento coletivo.
+
+---
+
+## Frase simples
+
+❌ As pessoas não respeita as leis.
+
+## Frase correta e sofisticada
+
+✅ Muitos indivíduos não respeitam as leis estabelecidas pelo Estado.
+
+---
+
+# Mini Checklist Antes de Entregar a Redação
+
+## Confira:
+
+✅ Ortografia
+✅ Concordância verbal
+✅ Concordância nominal
+✅ Regência
+✅ Pontuação
+✅ Repetições
+✅ Clareza
+✅ Formalidade
+
+---
+
+# Exercícios Práticos
+
+# Exercício 1 — Corrija os erros
+
+1. Haviam muitos problemas sociais.
+2. Fazem anos que a violência cresce.
+3. Os aluno participou do debate.
+4. Assisti o documentário ontem.
+5. A maioria dos jovens utilizam redes sociais.
+6. Cheguei em Brasília durante a manhã.
+7. O problema implica em consequências graves.
+
+---
+
+# Exercício 2 — Transforme para linguagem formal
+
+1. Hoje em dia tem muita coisa errada.
+2. A galera usa muito celular.
+3. Os cara não obedece as regras.
+4. Isso prejudica muito a sociedade.
+
+---
+
+# Exercício 3 — Complete corretamente
+
+1. ______ muitos anos o problema existe.
+2. O estudante assistiu ______ palestra.
+3. A sociedade chegou ______ um nível preocupante.
+4. A maioria da população ______ dificuldades financeiras.
+
+---
+
+# Gabarito
+
+# Exercício 1
+
+1. Havia muitos problemas sociais.
+2. Faz anos que a violência cresce.
+3. Os alunos participaram do debate.
+4. Assisti ao documentário ontem.
+5. A maioria dos jovens utiliza redes sociais.
+6. Cheguei a Brasília durante a manhã.
+7. O problema implica consequências graves.
+
+---
+
+# Exercício 2
+
+1. Atualmente, existem diversos problemas sociais.
+2. Muitos indivíduos utilizam excessivamente o celular.
+3. Muitos indivíduos não obedecem às regras.
+4. Isso prejudica significativamente a sociedade.
+
+---
+
+# Exercício 3
+
+1. Há
+2. à
+3. a
+4. enfrenta
+
+---
+
+# Resumo Final
+
+O domínio da ortografia, da concordância e da regência é essencial para alcançar notas altas na Competência 1 do ENEM.
+
+Os principais caminhos para evolução são:
+
+* Leitura constante
+* Escrita frequente
+* Revisão consciente
+* Correção dos próprios erros
+* Ampliação do vocabulário formal
+
+Pequenos erros isolados não eliminam uma boa nota, mas erros frequentes demonstram fragilidade no domínio da norma culta.
+
+Quanto maior a consistência da escrita formal, maior será a pontuação.
+
+---

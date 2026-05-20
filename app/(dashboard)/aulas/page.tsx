@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -34,14 +35,20 @@ const diffBadge: Record<LessonDifficulty, string> = {
   ADVANCED: "text-orange-400 bg-orange-500/10 border-orange-500/20",
 };
 
-// Overall progress per competency
-function getProgress(cat: LessonCategory) {
-  const lessons = mockLessons.filter((l) => l.category === cat);
-  const done = lessons.filter((l) => l.progress === 100).length;
-  return { done, total: lessons.length, pct: Math.round((done / lessons.length) * 100) };
-}
+// getProgress is computed inside the component using real data
 
 export default function AulasPage() {
+  const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/lessons/progress")
+      .then((r) => r.json())
+      .then((d) => { if (d.completedSlugs) setCompletedSlugs(new Set(d.completedSlugs)); })
+      .catch(() => {});
+  }, []);
+
+  const isCompleted = (slug: string) => completedSlugs.has(slug) || mockLessons.find((l) => l.slug === slug)?.progress === 100;
+
   const dicasLessons = mockLessons
     .filter((l) => l.category === "DICAS")
     .sort((a, b) => diffConfig[a.difficulty].order - diffConfig[b.difficulty].order);
@@ -60,10 +67,11 @@ export default function AulasPage() {
 
         {/* Competencies */}
         {competencies.map((comp, ci) => {
-          const progress = getProgress(comp.id);
           const lessons = mockLessons
             .filter((l) => l.category === comp.id)
             .sort((a, b) => diffConfig[a.difficulty].order - diffConfig[b.difficulty].order);
+          const doneLessons = lessons.filter((l) => isCompleted(l.slug)).length;
+          const progress = { done: doneLessons, total: lessons.length, pct: lessons.length > 0 ? Math.round((doneLessons / lessons.length) * 100) : 0 };
 
           return (
             <motion.section
@@ -98,7 +106,7 @@ export default function AulasPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {lessons.map((lesson, li) => {
                   const diff = diffConfig[lesson.difficulty];
-                  const isLocked = li > 0 && lessons[li - 1].progress < 100;
+                  const isLocked = li > 0 && !isCompleted(lessons[li - 1].slug);
 
                   return (
                     <Link
@@ -119,7 +127,7 @@ export default function AulasPage() {
                           </span>
                           {isLocked
                             ? <Lock className="w-4 h-4 text-white/20 flex-shrink-0" />
-                            : lesson.progress === 100
+                            : isCompleted(lesson.slug)
                               ? <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
                               : null
                           }

@@ -1,0 +1,437 @@
+# C1 Iniciante — Fundamentos da Norma Culta
+
+## Objetivo da Aula
+
+Compreender os princípios básicos da norma culta da língua portuguesa e aprender como utilizá-los na redação do ENEM para garantir clareza, organização e domínio da escrita formal.
+
+---
+
+# O que é a Norma Culta?
+
+A norma culta é o conjunto de regras e padrões da língua portuguesa utilizados em contextos formais, como:
+
+* Redações
+* Artigos
+* Trabalhos acadêmicos
+* Notícias
+* Documentos oficiais
+* Provas como o ENEM e vestibulares
+
+Ela representa a forma considerada adequada da língua em situações formais de comunicação.
+
+## Importante entender:
+
+Falar de forma informal no dia a dia não significa falar “errado”. Existem diferentes variedades linguísticas.
+
+Exemplo:
+
+| Linguagem informal     | Norma culta          |
+| ---------------------- | -------------------- |
+| A gente vai            | Nós vamos            |
+| Pra mim fazer          | Para eu fazer        |
+| Tinha bastante pessoas | Havia muitas pessoas |
+| Os menino chegou       | Os meninos chegaram  |
+
+No ENEM, o estudante deve demonstrar domínio da modalidade formal da língua portuguesa.
+
+---
+
+# O que a Competência 1 avalia?
+
+A Competência 1 da redação do ENEM avalia:
+
+> “Demonstrar domínio da modalidade escrita formal da língua portuguesa.”
+
+Isso significa que o corretor observa:
+
+* Ortografia
+* Acentuação
+* Pontuação
+* Concordância
+* Regência
+* Uso adequado das palavras
+* Organização das frases
+* Estrutura formal
+
+## Quanto vale?
+
+A Competência 1 vale até 200 pontos.
+
+---
+
+# Principais Erros de Norma Culta
+
+## 1. Erros de Ortografia
+
+São erros relacionados à escrita correta das palavras.
+
+### Exemplos:
+
+❌ Comcerteza
+✅ Com certeza
+
+❌ Agente precisa estudar
+✅ A gente precisa estudar
+
+❌ Excessão
+✅ Exceção
+
+❌ Menas pessoas
+✅ Menos pessoas
+
+## Dica prática:
+
+Leia frequentemente e revise palavras que você costuma errar.
+
+---
+
+# 2. Problemas de Concordância Verbal
+
+O verbo precisa concordar com o sujeito.
+
+### Exemplos:
+
+❌ As pessoas precisa estudar.
+✅ As pessoas precisam estudar.
+
+❌ Os alunos foi aprovados.
+✅ Os alunos foram aprovados.
+
+❌ A maioria dos jovens utilizam redes sociais.
+✅ A maioria dos jovens utiliza redes sociais.
+
+## Regra básica:
+
+* Singular → verbo no singular
+* Plural → verbo no plural
+
+---
+
+# 3. Problemas de Concordância Nominal
+
+Os termos da frase devem concordar entre si.
+
+### Exemplos:
+
+❌ Muitas pessoa inteligente.
+✅ Muitas pessoas inteligentes.
+
+❌ Os problema social.
+✅ Os problemas sociais.
+
+❌ Bastante alunos participaram.
+✅ Bastantes alunos participaram.
+
+---
+
+# 4. Uso Incorreto da Pontuação
+
+A pontuação organiza as ideias e evita ambiguidades.
+
+## Erros comuns:
+
+### Vírgula separando sujeito e verbo
+
+❌ A sociedade brasileira, enfrenta diversos problemas.
+✅ A sociedade brasileira enfrenta diversos problemas.
+
+### Falta de vírgula em conectivos
+
+❌ Entretanto o problema continua.
+✅ Entretanto, o problema continua.
+
+---
+
+# 5. Problemas de Regência
+
+A regência está relacionada à ligação correta entre palavras.
+
+### Exemplos:
+
+❌ Assistir o filme.
+✅ Assistir ao filme.
+
+❌ Cheguei em São Paulo.
+✅ Cheguei a São Paulo.
+
+❌ Obedecer as leis.
+✅ Obedecer às leis.
+
+---
+
+# 6. Uso inadequado da linguagem informal
+
+A redação do ENEM exige formalidade.
+
+## Evite:
+
+* Gírias
+* Abreviações
+* Emojis
+* Expressões muito coloquiais
+
+### Exemplos:
+
+❌ Tipo assim
+❌ Mano
+❌ Tá ligado
+❌ Pra caramba
+❌ vc
+❌ pq
+
+### Prefira:
+
+✅ Dessa forma
+✅ Portanto
+✅ Além disso
+✅ Em virtude disso
+
+---
+
+# Estrutura Formal das Frases
+
+Uma boa frase na redação deve:
+
+* Ser clara
+* Ser objetiva
+* Ter sentido completo
+* Evitar repetições
+* Evitar frases muito longas
+
+## Exemplo ruim:
+
+❌ Atualmente a sociedade possui muitos problemas que afetam muitas pessoas e isso acontece porque existem diversos fatores sociais econômicos e políticos que contribuem muito para isso.
+
+## Exemplo melhor:
+
+✅ Atualmente, a sociedade enfrenta diversos problemas sociais. Isso ocorre devido a fatores econômicos, políticos e culturais.
+
+---
+
+# Diferença entre Linguagem Oral e Escrita
+
+## Linguagem Oral
+
+* Mais espontânea
+* Pode ter interrupções
+* Usa expressões informais
+* Aceita repetições
+
+## Linguagem Escrita Formal
+
+* Mais organizada
+* Mais planejada
+* Segue regras gramaticais
+* Exige clareza e precisão
+
+---
+
+# Palavras e Expressões que Elevam o Nível da Redação
+
+## Em vez de “muito”:
+
+* extremamente
+* significativamente
+* intensamente
+* amplamente
+
+## Em vez de “coisa”:
+
+* questão
+* fator
+* elemento
+* aspecto
+* problema
+
+## Em vez de “tem”:
+
+* possui
+* apresenta
+* existe
+* há
+
+---
+
+# Como Melhorar a Norma Culta na Prática
+
+## 1. Leia diariamente
+
+Leia:
+
+* Notícias
+* Artigos
+* Redações nota 1000
+* Livros
+* Revistas
+
+A leitura melhora:
+
+* Vocabulário
+* Ortografia
+* Estrutura das frases
+* Pontuação
+
+---
+
+## 2. Escreva frequentemente
+
+Treinar escrita é essencial.
+
+Quanto mais você escreve:
+
+* Mais percebe erros
+* Mais melhora sua construção textual
+* Mais desenvolve repertório linguístico
+
+---
+
+## 3. Revise sua redação
+
+Antes de finalizar:
+
+### Confira:
+
+* Ortografia
+* Pontuação
+* Repetições
+* Concordância
+* Clareza
+
+---
+
+## 4. Evite períodos gigantes
+
+Frases muito longas aumentam:
+
+* Erros gramaticais
+* Confusão
+* Falta de clareza
+
+Prefira frases organizadas e diretas.
+
+---
+
+# Erros que MAIS tiram pontos no ENEM
+
+## Muito graves:
+
+* Erros constantes de ortografia
+* Falta de concordância frequente
+* Linguagem extremamente informal
+* Frases sem sentido
+* Pontuação caótica
+
+## Menos graves:
+
+* Um ou outro deslize isolado
+* Pequenos problemas de vírgula
+* Repetições pontuais
+
+O corretor analisa a frequência e gravidade dos erros.
+
+---
+
+# Exemplo de Evolução
+
+## Antes:
+
+❌ Hoje em dia as pessoas tá muito dependente da internet e isso prejudica bastante a sociedade.
+
+## Depois:
+
+✅ Atualmente, muitas pessoas estão excessivamente dependentes da internet, fator que prejudica significativamente a sociedade.
+
+---
+
+# Mini Guia de Ouro da Competência 1
+
+## Faça:
+
+✅ Use linguagem formal
+✅ Revise a ortografia
+✅ Utilize conectivos
+✅ Organize as frases
+✅ Leia bastante
+✅ Evite gírias
+✅ Use pontuação corretamente
+
+## Não faça:
+
+❌ Use abreviações
+❌ Misture fala com escrita formal
+❌ Faça frases enormes
+❌ Ignore acentuação
+❌ Repita palavras o tempo todo
+
+---
+
+# Exercícios Práticos
+
+## Exercício 1 — Corrija as frases
+
+1. As pessoa precisa de educação.
+2. A sociedade brasileira, enfrenta desafios.
+3. Pra mim fazer isso é difícil.
+4. Os jovem utiliza muito a internet.
+5. Tinha muitas pessoa no local.
+
+---
+
+## Exercício 2 — Transforme para linguagem formal
+
+1. A galera hoje tá muito presa no celular.
+2. Tem muita coisa errada no Brasil.
+3. Os cara não respeita as leis.
+4. Isso aí prejudica pra caramba.
+
+---
+
+# Gabarito
+
+## Exercício 1
+
+1. As pessoas precisam de educação.
+2. A sociedade brasileira enfrenta desafios.
+3. Para eu fazer isso é difícil.
+4. Os jovens utilizam muito a internet.
+5. Havia muitas pessoas no local.
+
+---
+
+## Exercício 2
+
+1. Atualmente, muitas pessoas estão excessivamente dependentes do celular.
+2. Existem diversos problemas no Brasil.
+3. Muitos indivíduos não respeitam as leis.
+4. Isso prejudica significativamente a sociedade.
+
+---
+
+# Resumo Final
+
+A norma culta é fundamental para conquistar uma boa nota na Competência 1 do ENEM. O domínio da escrita formal demonstra clareza, organização e maturidade linguística.
+
+Para evoluir:
+
+* Leia constantemente
+* Escreva frequentemente
+* Revise seus textos
+* Aprenda com seus erros
+* Desenvolva vocabulário formal
+
+A prática contínua é o principal caminho para atingir notas altas na redação.
+
+---
+
+# Próxima Aula
+
+## C1 Intermediário — Concordância, Regência e Pontuação Avançada
+
+Nessa aula, você aprenderá:
+
+* Concordância verbal avançada
+* Casos especiais de concordância
+* Regência verbal e nominal
+* Crase
+* Pontuação estratégica para elevar a nota
+* Erros mais cobrados pelo ENEM

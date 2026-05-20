@@ -67,6 +67,8 @@ export const mockEssays = [
 ];
 
 export type LessonDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+import { lessonContent } from "./lesson-content";
+
 export type LessonCategory = "C1" | "C2" | "C3" | "C4" | "C5" | "DICAS";
 
 export interface Lesson {
@@ -80,6 +82,7 @@ export interface Lesson {
   readingTime: number;
   progress: number; // 0-100
   practicalQuestion: string;
+  content?: string;
 }
 
 export const mockLessons: Lesson[] = [
@@ -95,6 +98,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 10,
     progress: 100,
     practicalQuestion: "Reescreva a frase corrigindo os erros gramaticais: 'Os jovens brasileiros é cada vez mais expostos às redes sociais, o que comprometem seu desenvolvimento crítico.'",
+    content: lessonContent["c1-iniciante"],
   },
   {
     id: "c1-m",
@@ -107,6 +111,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 15,
     progress: 60,
     practicalQuestion: "Identifique e corrija todos os desvios da norma culta no trecho: 'Mediante a isso, o governo deveria de implementar políticas que visem combater a desinformação, visto que a mesma prejudica a democracia.'",
+    content: lessonContent["c1-intermediario"],
   },
   {
     id: "c1-a",
@@ -119,6 +124,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 20,
     progress: 0,
     practicalQuestion: "Pontue corretamente o parágrafo a seguir, justificando cada escolha: 'Os dados do IBGE divulgados em 2022 revelam que a desigualdade social no Brasil permanece alta apesar das políticas públicas implementadas ao longo das últimas décadas o que exige uma revisão profunda das estratégias adotadas.'",
+    content: lessonContent["c1-avancado"],
   },
 
   // ── C2 ──
@@ -133,6 +139,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 10,
     progress: 100,
     practicalQuestion: "Leia o tema: 'Desafios para a valorização dos povos indígenas no Brasil'. Escreva um parágrafo de introdução que demonstre compreensão plena da proposta sem fugir do tema.",
+    content: lessonContent["c2-iniciante"],
   },
   {
     id: "c2-m",
@@ -145,6 +152,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 18,
     progress: 0,
     practicalQuestion: "Para o tema 'Impactos da desinformação na democracia brasileira', apresente três repertórios socioculturais (filósofo, dado estatístico e obra cultural) e explique como cada um se relaciona com o tema.",
+    content: lessonContent["c2-intermediario"],
   },
   {
     id: "c2-a",
@@ -157,6 +165,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 22,
     progress: 0,
     practicalQuestion: "Escreva um parágrafo de desenvolvimento que conecte pelo menos dois repertórios de áreas distintas (ex: filosofia + ciência) ao tema 'Crise climática e responsabilidade individual'.",
+    content: lessonContent["c2-avancado"],
   },
 
   // ── C3 ──
@@ -171,6 +180,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 12,
     progress: 100,
     practicalQuestion: "Escreva um argumento (não uma opinião) para defender a seguinte tese: 'O uso excessivo de redes sociais é prejudicial à saúde mental dos jovens'. Use dados ou exemplos concretos.",
+    content: lessonContent["c3-iniciante"],
   },
   {
     id: "c3-m",
@@ -183,6 +193,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 18,
     progress: 0,
     practicalQuestion: "Desenvolva um parágrafo argumentativo completo usando a estrutura: contexto → argumento central → evidência concreta → análise crítica → conexão com a tese. Tema livre.",
+    content: lessonContent["c3-intermediario"],
   },
   {
     id: "c3-a",
@@ -195,6 +206,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 25,
     progress: 0,
     practicalQuestion: "Reescreva o argumento abaixo, transformando-o de senso comum em argumento analítico sofisticado: 'A violência aumentou porque as pessoas perderam os valores morais e a família está desestruturada.'",
+    content: lessonContent["c3-avancado"],
   },
 
   // ── C4 ──
@@ -209,6 +221,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 10,
     progress: 30,
     practicalQuestion: "Conecte os dois parágrafos abaixo usando conectivos adequados, evitando repetir 'além disso': P1: 'A tecnologia transformou a comunicação humana.' P2: 'Muitas pessoas se sentem mais solitárias do que antes.'",
+    content: lessonContent["c4-iniciante"],
   },
   {
     id: "c4-m",
@@ -221,6 +234,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 16,
     progress: 0,
     practicalQuestion: "Reescreva o trecho substituindo TODOS os 'além disso' por conectivos variados e adequados ao contexto: 'O desmatamento destrói habitats. Além disso, causa mudanças climáticas. Além disso, afeta comunidades indígenas. Além disso, prejudica a economia local.'",
+    content: lessonContent["c4-intermediario"],
   },
   {
     id: "c4-a",
@@ -233,6 +247,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 20,
     progress: 0,
     practicalQuestion: "Analise a coesão do texto abaixo e reescreva-o garantindo progressão temática clara entre os parágrafos: 'A educação é fundamental. Os professores ganham pouco. O Brasil tem problemas econômicos. A desigualdade é grande. As crianças precisam de atenção.'",
+    content: lessonContent["c4-avancado"],
   },
 
   // ── C5 ──
@@ -247,6 +262,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 12,
     progress: 0,
     practicalQuestion: "Escreva uma proposta de intervenção para o tema 'Combate à desinformação nas redes sociais'. Identifique explicitamente: agente, ação, modo/meio, finalidade e detalhamento.",
+    content: lessonContent["c5-iniciante"],
   },
   {
     id: "c5-m",
@@ -259,6 +275,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 18,
     progress: 0,
     practicalQuestion: "Compare as duas propostas abaixo e explique qual seria mais bem avaliada pelo ENEM e por quê: A) 'O governo deve combater a violência.' B) 'O Ministério da Justiça deve implementar programas de mediação de conflitos em periferias, em parceria com ONGs, por meio de centros comunitários, com o objetivo de reduzir índices de violência sem criminalizar a pobreza.'",
+    content: lessonContent["c5-intermediario"],
   },
   {
     id: "c5-a",
@@ -271,6 +288,7 @@ export const mockLessons: Lesson[] = [
     readingTime: 22,
     progress: 0,
     practicalQuestion: "Para o tema 'Invisibilidade do trabalho doméstico feminino no Brasil', elabore uma proposta de intervenção completa (mínimo 5 linhas) que: seja viável, respeite direitos humanos, articule-se aos argumentos desenvolvidos no texto e apresente todos os elementos exigidos.",
+    content: lessonContent["c5-avancado"],
   },
 
   // ── DICAS PRÁTICAS ──
