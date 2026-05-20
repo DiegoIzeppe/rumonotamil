@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { getWeeklyTheme } from "@/lib/weekly-theme";
 import {
   LayoutDashboard,
   BookOpen,
@@ -113,7 +114,7 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
           <div className="px-3 py-2.5 rounded-lg glass-blue">
             <p className="text-[11px] text-white/40 uppercase tracking-wider font-semibold mb-1">Tema da Semana</p>
             <p className="text-xs text-white/70 leading-snug line-clamp-2">
-              Crise da Saúde Mental na Era Digital
+              {getWeeklyTheme().title}
             </p>
             <Link
               href="/treinar"
