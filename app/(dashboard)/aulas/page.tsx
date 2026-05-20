@@ -58,9 +58,12 @@ export default function AulasPage() {
 
   const isLocked = (slug: string) => {
     const idx = UNLOCK_ORDER.indexOf(slug);
-    if (idx <= 0) return false; // first lesson always unlocked, DICAS always unlocked
-    const prev = UNLOCK_ORDER[idx - 1];
-    return !isCompleted(prev);
+    if (idx <= 0) return false; // first lesson or DICAS — always unlocked
+    // Every lesson before this one in the chain must be completed
+    for (let i = 0; i < idx; i++) {
+      if (!isCompleted(UNLOCK_ORDER[i])) return true;
+    }
+    return false;
   };
 
   const dicasLessons = mockLessons
