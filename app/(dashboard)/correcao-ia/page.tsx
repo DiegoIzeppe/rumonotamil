@@ -152,7 +152,7 @@ function UploadMode({
   const [theme, setTheme] = useState("");
   const [checklist, setChecklist] = useState<boolean[]>(CHECKLIST.map(() => false));
   const { correct, loading } = useEssayCorrection();
-  const { currentTheme } = useAppStore();
+  const { currentTheme, addEssayToHistory } = useAppStore();
 
   useEffect(() => {
     if (currentTheme && !theme) setTheme(currentTheme);
@@ -176,6 +176,7 @@ function UploadMode({
   const handleCorrect = async () => {
     const result = await correct(text, theme);
     if (result?.feedback) {
+      addEssayToHistory({ theme: theme || "Sem tema", score: result.feedback.score, feedback: result.feedback });
       onResult(result.feedback, text);
     }
   };

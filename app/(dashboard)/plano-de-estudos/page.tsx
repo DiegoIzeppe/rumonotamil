@@ -6,7 +6,7 @@ import {
   CalendarDays, CheckCircle2, Circle, ChevronRight, Sparkles,
   Target, Clock, BookOpen, PenLine, RotateCcw, Zap, Plus, ArrowRight,
 } from "lucide-react";
-import { mockStudyPlan } from "@/lib/mock-data";
+import { useAppStore } from "@/store/app-store";
 import { cn, formatDate } from "@/lib/utils";
 
 const taskTypeIcons: Record<string, React.ElementType> = {
@@ -27,7 +27,8 @@ const weekDays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 const months = ["Nov 2024"];
 
 export default function PlanoDeEstudosPage() {
-  const [tasks, setTasks] = useState(mockStudyPlan.tasks);
+  const { completedLessonSlugs, essayHistory } = useAppStore();
+  const [tasks, setTasks] = useState<typeof import("@/lib/mock-data").mockStudyPlan.tasks>([]);
   const [generating, setGenerating] = useState(false);
 
   const toggleTask = (id: string) => {

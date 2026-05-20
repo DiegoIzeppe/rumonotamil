@@ -7,7 +7,7 @@ import {
   User, Bell, CreditCard, Shield, Smartphone, LogOut,
   ChevronRight, Check, ExternalLink, Star, Zap, Crown,
 } from "lucide-react";
-import { mockUser } from "@/lib/mock-data";
+import { useAppStore } from "@/store/app-store";
 import { PLANS } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,7 @@ export default function ConfiguracoesPage() {
     streak: false,
     newsletter: false,
   });
+  const { userInfo } = useAppStore();
   const router = useRouter();
   const signOut = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -82,7 +83,7 @@ export default function ConfiguracoesPage() {
                 {/* Avatar */}
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl font-black text-white">
-                    {mockUser.name[0]}
+                    {(userInfo?.name ?? "E")[0].toUpperCase()}
                   </div>
                   <div>
                     <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Alterar foto</button>
@@ -91,8 +92,8 @@ export default function ConfiguracoesPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { label: "Nome completo", value: mockUser.name },
-                    { label: "Email", value: mockUser.email },
+                    { label: "Nome completo", value: userInfo?.name ?? "—" },
+                    { label: "Email", value: userInfo?.email ?? "—" },
                   ].map((field) => (
                     <div key={field.label}>
                       <label className="block text-xs text-white/40 mb-1.5 font-medium">{field.label}</label>
@@ -148,7 +149,7 @@ export default function ConfiguracoesPage() {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-base font-semibold text-white">Plano Atual</h2>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-300 uppercase">
-                      {mockUser.plan}
+                      FREE
                     </span>
                   </div>
                   <div className="flex items-end gap-1 mb-4">

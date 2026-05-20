@@ -10,13 +10,10 @@ import {
 import {
   Brain, TrendingUp, Flame, Zap, PenLine, ChevronRight, Target,
   Sparkles, AlertCircle, CheckCircle2, ArrowUpRight, Clock,
-  CalendarDays, BookOpen, FileText, Layers,
+  CalendarDays, Layers,
 } from "lucide-react";
-import {
-  mockUser, mockCompetencyScores, mockWeeklyProgress,
-  mockEssays, mockDailyTheme, mockAIInsights, mockCompetencyRadar,
-  mockRecommendedContents,
-} from "@/lib/mock-data";
+import { useAppStore } from "@/store/app-store";
+import { getWeeklyTheme } from "@/lib/weekly-theme";
 import { cn, formatDate, getScoreColor, getScoreLabel, getCompetencyLabel } from "@/lib/utils";
 
 const stagger = {
@@ -103,15 +100,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const contentTypeIcon = {
-  lesson: <BookOpen className="w-3.5 h-3.5" />,
-  essay: <FileText className="w-3.5 h-3.5" />,
-};
-
-const contentTypeLabel = {
-  lesson: "Aula",
-  essay: "Redação modelo",
-};
 
 interface UserStats {
   user: { name: string; xp: number; level: number; streakDays: number; plan: string };
@@ -120,32 +108,46 @@ interface UserStats {
   recentEssays: Array<{ id: string; theme: string; score: number; createdAt: string }>;
 }
 
+const EMPTY_WEEKLY = [
+  { day: "Seg", score: 0, essays: 0 },
+  { day: "Ter", score: 0, essays: 0 },
+  { day: "Qua", score: 0, essays: 0 },
+  { day: "Qui", score: 0, essays: 0 },
+  { day: "Sex", score: 0, essays: 0 },
+  { day: "Sáb", score: 0, essays: 0 },
+  { day: "Dom", score: 0, essays: 0 },
+];
+
 export default function DashboardPage() {
-  const [realData, setRealData] = useState<UserStats | null>(null);
+  const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs } = useAppStore();
+  const weeklyTheme = getWeeklyTheme();
+
+  const [dbData, setDbData] = useState<UserStats | null>(null);
 
   useEffect(() => {
     fetch("/api/user/stats")
       .then((r) => r.json())
-      .then((d) => { if (d.data) setRealData(d.data); })
+      .then((d) => { if (d.data) setDbData(d.data); })
       .catch(() => {});
   }, []);
 
-  const userName = realData?.user.name ?? mockUser.name;
-  const streakDays = realData?.user.streakDays ?? mockUser.streakDays;
-  const userXp = realData?.user.xp ?? mockUser.xp;
-  const userLevel = realData?.user.level ?? mockUser.level;
-  const totalEssays = realData?.stats.totalEssays ?? mockEssays.length;
-  const avgScore = realData?.stats.avgScore ?? mockCompetencyScores.total;
-  const weeklyData = realData?.weeklyProgress?.length
-    ? realData.weeklyProgress.map((d) => ({ ...d, essays: 0 }))
-    : mockWeeklyProgress;
-  const competencyAvgs = realData?.stats.competencyAvgs ?? [1, 2, 3, 4, 5].map((c) => mockCompetencyScores[`c${c}` as keyof typeof mockCompetencyScores] as number);
-  const recentEssays = realData?.recentEssays?.length
-    ? realData.recentEssays.map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.createdAt }))
-    : mockEssays;
+  const userName = dbData?.user.name ?? userInfo?.name ?? "Estudante";
+  const streakDays = dbData?.user.streakDays ?? 0;
+  const userXp = dbData?.user.xp ?? getXP();
+  const userLevel = dbData?.user.level ?? getLevel();
+  const totalEssays = dbData?.stats.totalEssays ?? essayHistory.length;
+  const avgScore = dbData?.stats.avgScore ?? (essayHistory.length > 0
+    ? Math.round(essayHistory.reduce((s, e) => s + e.score, 0) / essayHistory.length)
+    : 0);
+  const weeklyData = dbData?.weeklyProgress?.length
+    ? dbData.weeklyProgress.map((d) => ({ ...d, essays: 0 }))
+    : EMPTY_WEEKLY;
+  const competencyAvgs = dbData?.stats.competencyAvgs ?? [0, 0, 0, 0, 0];
+  const recentEssays = dbData?.recentEssays?.length
+    ? dbData.recentEssays.map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.createdAt }))
+    : essayHistory.slice(0, 5).map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.date }));
 
-  // Weekly delta: last score vs first score this week
-  const weeklyDelta = weeklyData[weeklyData.length - 1].score - weeklyData[0].score;
+  const weeklyDelta = 0;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -278,54 +280,50 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {/* Radar */}
+            {/* Radar — built from real competency averages */}
             <div className="mt-6 pt-6 border-t border-white/5">
               <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-4">Radar por Competência</p>
-              <ResponsiveContainer width="100%" height={180}>
-                <RadarChart data={mockCompetencyRadar}>
-                  <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }} />
-                  <Radar name="Você" dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} strokeWidth={2} />
-                </RadarChart>
-              </ResponsiveContainer>
+              {competencyAvgs.every((v) => v === 0) ? (
+                <div className="flex items-center justify-center h-[120px] text-white/20 text-xs text-center">
+                  Faça sua primeira redação para ver o radar
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={180}>
+                  <RadarChart data={[1,2,3,4,5].map((c,i) => ({ subject: `C${c}`, value: (competencyAvgs[i] / 200) * 100 }))}>
+                    <PolarGrid stroke="rgba(255,255,255,0.06)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }} />
+                    <Radar name="Você" dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} strokeWidth={2} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </motion.div>
         </div>
 
-        {/* AI Insights */}
-        <motion.div variants={stagger.item} className="glass rounded-2xl p-6 border border-blue-500/10">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-blue-400" />
+        {/* Tips / first essay CTA */}
+        {essayHistory.length === 0 && (
+          <motion.div variants={stagger.item} className="glass rounded-2xl p-6 border border-blue-500/10 bg-blue-500/3">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-blue-400" />
+              </div>
+              <h2 className="text-sm font-semibold text-white">Comece agora</h2>
             </div>
-            <h2 className="text-sm font-semibold text-white">Insights da IA</h2>
-            <span className="ml-auto text-[11px] text-blue-400/60 border border-blue-500/15 rounded-full px-2 py-0.5">
-              Atualizado hoje
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {mockAIInsights.map((insight, i) => {
-              const icons = {
-                weakness: <AlertCircle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />,
-                strength: <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />,
-                tip: <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />,
-                progress: <TrendingUp className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />,
-              };
-              const borders = {
-                weakness: "border-orange-500/10 bg-orange-500/3",
-                strength: "border-green-500/10 bg-green-500/3",
-                tip: "border-blue-500/10 bg-blue-500/3",
-                progress: "border-cyan-500/10 bg-cyan-500/3",
-              };
-              return (
-                <div key={i} className={cn("flex items-start gap-2.5 p-3 rounded-xl border", borders[insight.type as keyof typeof borders] ?? "border-white/10 bg-white/8")}>
-                  {icons[insight.type as keyof typeof icons]}
-                  <p className="text-sm text-white/70 leading-relaxed">{insight.text}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { icon: <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />, text: "Escreva sua primeira redação e descubra sua nota estimada no ENEM.", cls: "border-green-500/10 bg-green-500/3" },
+                { icon: <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />, text: "A IA analisa as 5 competências e mostra exatamente o que melhorar.", cls: "border-blue-500/10 bg-blue-500/3" },
+                { icon: <TrendingUp className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />, text: "Complete aulas para ganhar XP e desbloquear novos níveis.", cls: "border-cyan-500/10 bg-cyan-500/3" },
+                { icon: <AlertCircle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />, text: "Seus gráficos de desempenho aparecerão após a primeira correção.", cls: "border-orange-500/10 bg-orange-500/3" },
+              ].map((item, i) => (
+                <div key={i} className={cn("flex items-start gap-2.5 p-3 rounded-xl border", item.cls)}>
+                  {item.icon}
+                  <p className="text-sm text-white/70 leading-relaxed">{item.text}</p>
                 </div>
-              );
-            })}
-          </div>
-        </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Bottom grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -338,63 +336,54 @@ export default function DashboardPage() {
                 <h2 className="text-sm font-semibold text-white">Últimas Redações</h2>
               </div>
               <Link href="/correcao-ia" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
-                Ver todas <ChevronRight className="w-3 h-3" />
+                Nova <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="space-y-2">
-              {recentEssays.map((essay) => (
-                <div key={essay.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer">
-                  <div className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0",
-                    essay.score >= 800 ? "bg-green-500/15 text-green-400" :
-                    essay.score >= 700 ? "bg-blue-500/15 text-blue-400" : "bg-orange-500/15 text-orange-400"
-                  )}>
-                    {essay.score}
+            {recentEssays.length === 0 ? (
+              <div className="py-8 text-center">
+                <Brain className="w-8 h-8 text-white/10 mx-auto mb-2" />
+                <p className="text-xs text-white/30">Nenhuma redação corrigida ainda.</p>
+                <Link href="/correcao-ia" className="text-xs text-blue-400 hover:text-blue-300 mt-2 inline-block">Corrigir agora →</Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentEssays.map((essay) => (
+                  <div key={essay.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer">
+                    <div className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0",
+                      essay.score >= 800 ? "bg-green-500/15 text-green-400" :
+                      essay.score >= 700 ? "bg-blue-500/15 text-blue-400" : "bg-orange-500/15 text-orange-400"
+                    )}>
+                      {essay.score}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm text-white/80 truncate font-medium">{essay.title}</p>
+                      <p className="text-xs text-white/30">{formatDate(essay.date)}</p>
+                    </div>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 ml-auto transition-colors" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm text-white/80 truncate font-medium">{essay.title}</p>
-                    <p className="text-xs text-white/30">{formatDate(essay.date)}</p>
-                  </div>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 ml-auto transition-colors" />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
-          {/* ── TEMA DO DIA ── */}
+          {/* Tema da Semana */}
           <motion.div variants={stagger.item} className="glass rounded-2xl p-6 border border-blue-500/10 bg-blue-500/3">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                <span className="text-[11px] text-blue-400 font-semibold uppercase tracking-wider">Tema do Dia</span>
+                <span className="text-[11px] text-blue-400 font-semibold uppercase tracking-wider">Tema da Semana</span>
               </div>
               <div className="flex items-center gap-1 text-[11px] text-white/30">
                 <CalendarDays className="w-3 h-3" />
-                <span>{mockDailyTheme.date}</span>
+                <span>Renova na segunda</span>
               </div>
             </div>
-            <h3 className="text-base font-bold text-white leading-snug mb-2">
-              {mockDailyTheme.title}
-            </h3>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[11px] text-orange-400 border border-orange-500/20 bg-orange-500/5 px-2 py-0.5 rounded-full">
-                {mockDailyTheme.difficulty}
-              </span>
-              <span className="text-[11px] text-white/30 flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {mockDailyTheme.timeLimit} min
-              </span>
-            </div>
-            <p className="text-sm text-white/50 leading-relaxed mb-4 line-clamp-3">
-              {mockDailyTheme.description}
-            </p>
-            <div className="space-y-1.5 mb-4">
-              <p className="text-[11px] text-white/30 font-medium uppercase tracking-wider">Repertórios sugeridos</p>
-              {mockDailyTheme.repertoires.map((r, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-white/50">
-                  <span className="text-blue-500 mt-0.5 flex-shrink-0">›</span>
-                  <span>{r}</span>
-                </div>
+            <h3 className="text-base font-bold text-white leading-snug mb-2">{weeklyTheme.title}</h3>
+            <p className="text-sm text-white/50 leading-relaxed mb-4 line-clamp-3">{weeklyTheme.context}</p>
+            <div className="flex gap-1.5 flex-wrap mb-4">
+              {weeklyTheme.tags.map((tag) => (
+                <span key={tag} className="text-[10px] text-white/30 border border-white/10 rounded px-1.5 py-0.5">{tag}</span>
               ))}
             </div>
             <Link
@@ -406,47 +395,26 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
-          {/* ── CONTEÚDOS RECOMENDADOS ── */}
+          {/* Acesso rápido — links reais */}
           <motion.div variants={stagger.item} className="glass rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-blue-400" />
-                <h2 className="text-sm font-semibold text-white">Conteúdos Recomendados</h2>
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <Layers className="w-4 h-4 text-blue-400" />
+              <h2 className="text-sm font-semibold text-white">Acesso Rápido</h2>
             </div>
-            <p className="text-[11px] text-white/30 mb-4">Baseado nos seus pontos fracos</p>
             <div className="space-y-2">
-              {mockRecommendedContents.map((content) => (
-                <Link key={content.id} href={content.href}>
-                  <div className={cn(
-                    "flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border",
-                    content.priority ? "border-blue-500/15 bg-blue-500/3" : "border-transparent"
-                  )}>
-                    {/* Type icon */}
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
-                      content.badgeColor
-                    )}>
-                      {contentTypeIcon[content.type]}
-                    </div>
+              {[
+                { label: "Começar C1 — Norma Culta", sub: "Primeira aula do método", href: "/aulas/c1-iniciante", badge: "Iniciante", badgeColor: "text-green-400 bg-green-500/10" },
+                { label: "Correção por IA", sub: "Cole sua redação e receba nota", href: "/correcao-ia", badge: "IA", badgeColor: "text-blue-400 bg-blue-500/10" },
+                { label: "Treinar redação", sub: "Escolha um tema e escreva", href: "/treinar", badge: "Editor", badgeColor: "text-purple-400 bg-purple-500/10" },
+                { label: "Ver todas as aulas", sub: "15 aulas C1 → C5", href: "/aulas", badge: "Método", badgeColor: "text-cyan-400 bg-cyan-500/10" },
+              ].map((item, i) => (
+                <Link key={i} href={item.href}>
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/5">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-white/80 font-medium leading-snug line-clamp-1 group-hover:text-white transition-colors">
-                        {content.title}
-                      </p>
-                      <p className="text-[11px] text-white/35 mt-0.5">{content.subtitle}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", content.badgeColor)}>
-                          {content.badge}
-                        </span>
-                        <span className="text-[11px] text-white/25 flex items-center gap-1">
-                          {content.type === "lesson" && <Clock className="w-3 h-3" />}
-                          {content.meta}
-                        </span>
-                        <span className="text-[10px] text-white/20 ml-auto">
-                          {contentTypeLabel[content.type]}
-                        </span>
-                      </div>
+                      <p className="text-sm text-white/80 font-medium group-hover:text-white transition-colors">{item.label}</p>
+                      <p className="text-[11px] text-white/35 mt-0.5">{item.sub}</p>
                     </div>
+                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0", item.badgeColor)}>{item.badge}</span>
                   </div>
                 </Link>
               ))}
