@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -206,8 +206,9 @@ function renderContent(raw: string) {
   return elements;
 }
 
-export default function LessonPage({ params }: { params: { slug: string } }) {
-  const lesson = mockLessons.find((l) => l.slug === params.slug);
+export default function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const lesson = mockLessons.find((l) => l.slug === slug);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
   const [completed, setCompleted] = useState(lesson?.progress === 100);
@@ -219,7 +220,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
   const [xpToast, setXpToast] = useState<number | null>(null);
 
   // Next lesson
-  const currentIndex = mockLessons.findIndex((l) => l.slug === params.slug);
+  const currentIndex = mockLessons.findIndex((l) => l.slug === slug);
   const nextLesson = currentIndex >= 0 ? mockLessons[currentIndex + 1] : null;
 
   useEffect(() => {
@@ -519,7 +520,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                 const res = await fetch("/api/lessons/progress", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ lessonSlug: params.slug, completed: true }),
+                  body: JSON.stringify({ lessonSlug: slug, completed: true }),
                 });
                 const data = await res.json();
                 setCompleted(true);
