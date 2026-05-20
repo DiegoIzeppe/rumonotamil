@@ -17,7 +17,13 @@
       "Bash(git commit *)",
       "Bash(git reset *)",
       "Bash(rm -rf .git)",
-      "Bash(git init *)"
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git rm *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\diego\\\\Desktop\\\\rumo-a-nota1000\\\\redacoes1000\" -Recurse)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(ConvertTo-Json)",
+      "Bash(xargs ls -lh)"
     ],
     "additionalDirectories": [
       "c:\\Users\\diego\\Desktop\\rumo-a-nota1000\\app\\(auth)\\sign-in\\[[...sign-in]]",
