@@ -129,6 +129,17 @@ const TRENDING_THEMES: Theme[] = [
 
 const CATEGORIES = ["Todos", "Saúde", "Política", "Tecnologia", "Educação", "Gênero", "Direitos", "Meio Ambiente"];
 
+// Rotates every Monday based on ISO week number
+function getWeeklyTheme(): Theme {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return TRENDING_THEMES[weekNum % TRENDING_THEMES.length];
+}
+
 const diffColor: Record<string, string> = {
   "Fácil": "text-green-400 bg-green-500/10 border-green-500/20",
   "Médio": "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
@@ -158,14 +169,16 @@ function ThemePicker({ onSelect }: { onSelect: (theme: string) => void }) {
   const [search, setSearch] = useState("");
   const [custom, setCustom] = useState("");
 
+  const weeklyTheme = getWeeklyTheme();
+
   const filtered = TRENDING_THEMES.filter((t) => {
     const matchCat = filter === "Todos" || t.category === filter;
     const matchSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.tags.some((tag) => tag.includes(search.toLowerCase()));
     return matchCat && matchSearch;
   });
 
-  const trending = filtered.filter((t) => t.trending);
-  const others = filtered.filter((t) => !t.trending);
+  const trending = filtered.filter((t) => t.trending && t.title !== weeklyTheme.title);
+  const others = filtered.filter((t) => !t.trending && t.title !== weeklyTheme.title);
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -181,6 +194,47 @@ function ThemePicker({ onSelect }: { onSelect: (theme: string) => void }) {
             Escolha um tema para praticar. A IA corrige sua redação ao final.
           </p>
         </div>
+
+        {/* Tema da Semana */}
+        {!search && filter === "Todos" && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/8 to-cyan-500/5 p-5 cursor-pointer group"
+            onClick={() => onSelect(weeklyTheme.title)}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-blue-300 bg-blue-500/15 border border-blue-500/25 px-2.5 py-1 rounded-full">
+                    <Sparkles className="w-3 h-3" />
+                    Tema da Semana
+                  </span>
+                  <span className="text-[10px] text-white/30 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Renova toda segunda-feira
+                  </span>
+                  <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded-full border", diffColor[weeklyTheme.difficulty])}>
+                    {weeklyTheme.difficulty}
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-white mb-1.5 group-hover:text-blue-200 transition-colors">
+                  {weeklyTheme.title}
+                </h2>
+                <p className="text-sm text-white/50 leading-relaxed mb-3">{weeklyTheme.context}</p>
+                <div className="flex gap-1.5 flex-wrap">
+                  {weeklyTheme.tags.map((tag) => (
+                    <span key={tag} className="text-[10px] text-white/40 border border-white/10 rounded px-1.5 py-0.5">{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-shrink-0 hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm font-semibold group-hover:bg-blue-500/30 transition-colors">
+                <PenLine className="w-4 h-4" />
+                Escrever
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Search + custom */}
         <div className="flex gap-3">
@@ -471,11 +525,10 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
           </div>
         </div>
 
-        {/* Coletânea */}
-        <ColetaneaView
-          coletanea={getColetaneaForTheme(selectedTheme) ?? getColetaneaForTheme("Crise da Saúde Mental na Era Digital")!}
-          collapsed
-        />
+        {/* Coletânea — só exibe se houver dados para o tema */}
+        {getColetaneaForTheme(selectedTheme) && (
+          <ColetaneaView coletanea={getColetaneaForTheme(selectedTheme)!} collapsed />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Editor */}
