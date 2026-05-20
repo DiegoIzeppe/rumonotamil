@@ -339,7 +339,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Anote o que aprendeu nesta aula..."
-            className="w-full h-24 bg-white/3 border border-white/5 rounded-xl p-3 text-sm text-white placeholder:text-white/20 outline-none resize-none focus:border-blue-500/30 transition-colors"
+            className="w-full h-24 bg-[#080c14] border border-white/8 rounded-xl p-3 text-sm text-white placeholder:text-white/20 outline-none resize-none focus:border-blue-500/30 transition-colors"
           />
         </div>
 
@@ -375,7 +375,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
                 placeholder="Escreva sua resposta aqui com clareza e precisão..."
                 rows={6}
                 className={cn(
-                  "w-full bg-white/3 border rounded-xl p-4 text-sm text-white placeholder:text-white/20 outline-none resize-none transition-colors leading-relaxed",
+                  "w-full bg-[#080c14] border rounded-xl p-4 text-sm text-white placeholder:text-white/20 outline-none resize-none transition-colors leading-relaxed",
                   result ? "border-white/5 opacity-70" : "border-white/10 focus:border-blue-500/40"
                 )}
               />
@@ -504,6 +504,43 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
                       <p className="text-sm text-white/70 leading-relaxed italic">{result.correctedVersion}</p>
                     </div>
                   )}
+
+                  {/* Mark complete CTA after answering */}
+                  <button
+                    onClick={async () => {
+                      if (completed || markingDone) return;
+                      setMarkingDone(true);
+                      try {
+                        const res = await fetch("/api/lessons/progress", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ lessonSlug: slug, completed: true }),
+                        });
+                        const data = await res.json();
+                        setCompleted(true);
+                        if (data.xpAwarded > 0) {
+                          setXpToast(data.xpAwarded);
+                          setTimeout(() => setXpToast(null), 3000);
+                        }
+                      } catch {
+                        setCompleted(true);
+                      } finally {
+                        setMarkingDone(false);
+                      }
+                    }}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all border mt-2",
+                      completed
+                        ? "bg-green-500/15 border-green-500/25 text-green-300"
+                        : "bg-gradient-to-r from-blue-500 to-cyan-500 border-transparent text-white hover:from-blue-400 hover:to-cyan-400 hover:shadow-glow"
+                    )}
+                  >
+                    {markingDone
+                      ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      : <CheckCircle2 className="w-4 h-4" />
+                    }
+                    {completed ? "Aula concluída ✓" : "Marcar como concluída"}
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>

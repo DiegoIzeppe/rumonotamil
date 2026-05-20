@@ -35,7 +35,14 @@ const diffBadge: Record<LessonDifficulty, string> = {
   ADVANCED: "text-orange-400 bg-orange-500/10 border-orange-500/20",
 };
 
-// getProgress is computed inside the component using real data
+// Linear unlock order across all competencies: C1→C2→C3→C4→C5, each level requires previous
+const UNLOCK_ORDER = [
+  "c1-iniciante", "c1-intermediario", "c1-avancado",
+  "c2-iniciante", "c2-intermediario", "c2-avancado",
+  "c3-iniciante", "c3-intermediario", "c3-avancado",
+  "c4-iniciante", "c4-intermediario", "c4-avancado",
+  "c5-iniciante", "c5-intermediario", "c5-avancado",
+];
 
 export default function AulasPage() {
   const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(new Set());
@@ -48,6 +55,13 @@ export default function AulasPage() {
   }, []);
 
   const isCompleted = (slug: string) => completedSlugs.has(slug) || mockLessons.find((l) => l.slug === slug)?.progress === 100;
+
+  const isLocked = (slug: string) => {
+    const idx = UNLOCK_ORDER.indexOf(slug);
+    if (idx <= 0) return false; // first lesson always unlocked, DICAS always unlocked
+    const prev = UNLOCK_ORDER[idx - 1];
+    return !isCompleted(prev);
+  };
 
   const dicasLessons = mockLessons
     .filter((l) => l.category === "DICAS")
@@ -106,17 +120,17 @@ export default function AulasPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {lessons.map((lesson, li) => {
                   const diff = diffConfig[lesson.difficulty];
-                  const isLocked = li > 0 && !isCompleted(lessons[li - 1].slug);
+                  const locked = isLocked(lesson.slug);
 
                   return (
                     <Link
                       key={lesson.id}
-                      href={isLocked ? "#" : `/aulas/${lesson.slug}`}
-                      onClick={isLocked ? (e) => e.preventDefault() : undefined}
+                      href={locked ? "#" : `/aulas/${lesson.slug}`}
+                      onClick={locked ? (e) => e.preventDefault() : undefined}
                     >
                       <div className={cn(
                         "glass rounded-2xl p-5 border transition-all h-full flex flex-col group",
-                        isLocked
+                        locked
                           ? "opacity-50 cursor-not-allowed border-white/5"
                           : diffCardColor[lesson.difficulty]
                       )}>
@@ -125,7 +139,7 @@ export default function AulasPage() {
                           <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded-full border", diffBadge[lesson.difficulty])}>
                             {diff.label}
                           </span>
-                          {isLocked
+                          {locked
                             ? <Lock className="w-4 h-4 text-white/20 flex-shrink-0" />
                             : isCompleted(lesson.slug)
                               ? <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
@@ -169,7 +183,7 @@ export default function AulasPage() {
                             <Clock className="w-3 h-3" />
                             <span>{lesson.readingTime} min</span>
                           </div>
-                          {!isLocked && (
+                          {!locked && (
                             <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors" />
                           )}
                         </div>
