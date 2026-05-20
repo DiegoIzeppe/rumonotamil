@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -8,25 +8,142 @@ import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import Highlight from "@tiptap/extension-highlight";
 import {
-  PenLine, Clock, Save, Maximize2, Minimize2, Lightbulb, Zap,
-  BarChart3, AlertCircle, CheckCircle2, ChevronRight, RotateCcw,
-  Timer, Target, Brain, Shuffle, X, Send,
+  PenLine, Clock, Maximize2, Minimize2, Lightbulb, Zap,
+  CheckCircle2, ChevronRight, RotateCcw,
+  Timer, Target, Brain, ArrowLeft, TrendingUp, Flame,
+  Search, Sparkles, Send,
 } from "lucide-react";
-import { mockWeeklyTheme } from "@/lib/mock-data";
 import { getColetaneaForTheme } from "@/lib/coletanea-data";
 import { ColetaneaView } from "@/components/ui/coletanea";
 import { cn, wordCount } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import toast from "react-hot-toast";
 
-const themes = [
-  { title: "Crise da Saúde Mental na Era Digital", tags: ["saúde", "tecnologia", "juventude"] },
-  { title: "IA e Manipulação Comportamental nas Redes Sociais", tags: ["tecnologia", "ética", "política"] },
-  { title: "Invisibilidade Social no Ambiente Digital", tags: ["desigualdade", "tecnologia"] },
-  { title: "Desinformação e Democracia no Brasil", tags: ["política", "comunicação"] },
-  { title: "Trabalho Invisível Feminino na Sociedade Contemporânea", tags: ["gênero", "trabalho"] },
-  { title: "Racismo Estrutural e Mercado de Trabalho", tags: ["raça", "desigualdade"] },
+// ─── Trending themes ──────────────────────────────────────────────────────────
+
+interface Theme {
+  title: string;
+  context: string;
+  tags: string[];
+  difficulty: "Fácil" | "Médio" | "Difícil";
+  category: string;
+  trending?: boolean;
+  enemYear?: string;
+}
+
+const TRENDING_THEMES: Theme[] = [
+  {
+    title: "Crise da Saúde Mental na Era Digital",
+    context: "O crescimento de transtornos psicológicos entre jovens associado ao uso excessivo de redes sociais.",
+    tags: ["saúde", "tecnologia", "juventude"],
+    difficulty: "Médio",
+    category: "Saúde",
+    trending: true,
+  },
+  {
+    title: "Desinformação e Democracia no Brasil",
+    context: "A disseminação de fake news e seus impactos na participação política e no processo democrático.",
+    tags: ["política", "comunicação", "direitos"],
+    difficulty: "Médio",
+    category: "Política",
+    trending: true,
+  },
+  {
+    title: "Invisibilidade do Trabalho Doméstico Feminino",
+    context: "O não reconhecimento social e econômico do trabalho realizado por mulheres no ambiente doméstico.",
+    tags: ["gênero", "trabalho", "desigualdade"],
+    difficulty: "Difícil",
+    category: "Gênero",
+    enemYear: "ENEM 2023",
+  },
+  {
+    title: "Racismo Estrutural e Mercado de Trabalho",
+    context: "As barreiras sistêmicas que dificultam a ascensão de pessoas negras no ambiente profissional.",
+    tags: ["raça", "trabalho", "desigualdade"],
+    difficulty: "Difícil",
+    category: "Direitos",
+    trending: true,
+  },
+  {
+    title: "IA e Manipulação Comportamental nas Redes",
+    context: "O uso de algoritmos e inteligência artificial para influenciar decisões e comportamentos humanos.",
+    tags: ["tecnologia", "ética", "privacidade"],
+    difficulty: "Difícil",
+    category: "Tecnologia",
+    trending: true,
+  },
+  {
+    title: "Desafios da Educação Inclusiva no Brasil",
+    context: "As dificuldades de integrar alunos com deficiência no sistema regular de ensino com qualidade.",
+    tags: ["educação", "inclusão", "direitos"],
+    difficulty: "Médio",
+    category: "Educação",
+    enemYear: "ENEM 2022",
+  },
+  {
+    title: "Impactos Ambientais do Agronegócio Brasileiro",
+    context: "A tensão entre crescimento econômico do setor agrícola e a preservação dos biomas nacionais.",
+    tags: ["meio ambiente", "economia", "sustentabilidade"],
+    difficulty: "Médio",
+    category: "Meio Ambiente",
+  },
+  {
+    title: "Populações Indígenas e Direito à Terra",
+    context: "A luta dos povos originários pela demarcação de territórios e preservação de suas culturas.",
+    tags: ["direitos", "cultura", "política"],
+    difficulty: "Difícil",
+    category: "Direitos",
+    enemYear: "ENEM 2023",
+  },
+  {
+    title: "Desigualdade Social e Acesso à Internet",
+    context: "A exclusão digital como fator de aprofundamento das desigualdades socioeconômicas no Brasil.",
+    tags: ["tecnologia", "desigualdade", "educação"],
+    difficulty: "Fácil",
+    category: "Tecnologia",
+  },
+  {
+    title: "Saúde Pública e Desafios do SUS",
+    context: "As limitações estruturais do sistema público de saúde diante das demandas crescentes da população.",
+    tags: ["saúde", "política pública", "direitos"],
+    difficulty: "Médio",
+    category: "Saúde",
+  },
+  {
+    title: "Violência contra a Mulher no Brasil",
+    context: "A persistência de práticas violentas contra mulheres e as insuficiências do aparato legal de proteção.",
+    tags: ["gênero", "violência", "direitos"],
+    difficulty: "Médio",
+    category: "Gênero",
+    enemYear: "ENEM 2015",
+  },
+  {
+    title: "Crise Climática e Responsabilidade Coletiva",
+    context: "Os impactos das mudanças climáticas e o papel dos Estados, empresas e cidadãos no combate.",
+    tags: ["meio ambiente", "política", "ciência"],
+    difficulty: "Médio",
+    category: "Meio Ambiente",
+    trending: true,
+  },
 ];
+
+const CATEGORIES = ["Todos", "Saúde", "Política", "Tecnologia", "Educação", "Gênero", "Direitos", "Meio Ambiente"];
+
+const diffColor: Record<string, string> = {
+  "Fácil": "text-green-400 bg-green-500/10 border-green-500/20",
+  "Médio": "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
+  "Difícil": "text-red-400 bg-red-500/10 border-red-500/20",
+};
+
+const catColor: Record<string, string> = {
+  "Saúde": "text-blue-400",
+  "Política": "text-purple-400",
+  "Tecnologia": "text-cyan-400",
+  "Educação": "text-green-400",
+  "Gênero": "text-pink-400",
+  "Direitos": "text-orange-400",
+  "Meio Ambiente": "text-emerald-400",
+};
 
 const competencyTips = [
   { label: "C4 — Coesão", tip: "Use conectivos como: 'no entanto', 'ademais', 'por conseguinte', 'nesse contexto'.", color: "text-green-400" },
@@ -34,14 +151,207 @@ const competencyTips = [
   { label: "C5 — Intervenção", tip: "Estrutura: Agente + Ação + Modo/Meio + Finalidade + Detalhamento.", color: "text-orange-400" },
 ];
 
-export default function TreinarPage() {
-  const [theme, setTheme] = useState(mockWeeklyTheme.title);
+// ─── Theme Picker ─────────────────────────────────────────────────────────────
+
+function ThemePicker({ onSelect }: { onSelect: (theme: string) => void }) {
+  const [filter, setFilter] = useState("Todos");
+  const [search, setSearch] = useState("");
+  const [custom, setCustom] = useState("");
+
+  const filtered = TRENDING_THEMES.filter((t) => {
+    const matchCat = filter === "Todos" || t.category === filter;
+    const matchSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.tags.some((tag) => tag.includes(search.toLowerCase()));
+    return matchCat && matchSearch;
+  });
+
+  const trending = filtered.filter((t) => t.trending);
+  const others = filtered.filter((t) => !t.trending);
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+            <PenLine className="w-7 h-7 text-blue-400" />
+            Treinar Redação
+          </h1>
+          <p className="text-white/40 text-sm mt-1">
+            Escolha um tema para praticar. A IA corrige sua redação ao final.
+          </p>
+        </div>
+
+        {/* Search + custom */}
+        <div className="flex gap-3">
+          <div className="flex-1 glass rounded-2xl border border-white/5 flex items-center gap-3 px-4">
+            <Search className="w-4 h-4 text-white/30 flex-shrink-0" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar tema..."
+              className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 outline-none py-3"
+            />
+          </div>
+        </div>
+
+        {/* Category filters */}
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
+                filter === cat
+                  ? "bg-blue-500/20 border-blue-500/40 text-blue-300"
+                  : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/70"
+              )}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Trending section */}
+        {trending.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Flame className="w-4 h-4 text-orange-400" />
+              <h2 className="text-sm font-bold text-white">Em alta</h2>
+              <TrendingUp className="w-3.5 h-3.5 text-orange-400/60" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {trending.map((t, i) => (
+                <ThemeCard key={i} theme={t} onSelect={onSelect} highlight />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Others */}
+        {others.length > 0 && (
+          <div>
+            {trending.length > 0 && (
+              <h2 className="text-sm font-bold text-white/50 mb-3">Outros temas</h2>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {others.map((t, i) => (
+                <ThemeCard key={i} theme={t} onSelect={onSelect} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filtered.length === 0 && (
+          <div className="text-center py-12 text-white/30 text-sm">
+            Nenhum tema encontrado. Tente um tema personalizado abaixo.
+          </div>
+        )}
+
+        {/* Custom theme */}
+        <div className="glass rounded-2xl border border-blue-500/10 bg-blue-500/3 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <h3 className="text-sm font-semibold text-white">Tema personalizado</h3>
+          </div>
+          <p className="text-xs text-white/40 mb-3">Tem um tema específico em mente? Digite abaixo.</p>
+          <div className="flex gap-3">
+            <input
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && custom.trim() && onSelect(custom.trim())}
+              placeholder="Ex: Desafios da mobilidade urbana no Brasil..."
+              className="flex-1 bg-[#080c14] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none focus:border-blue-500/40 transition-colors"
+            />
+            <button
+              onClick={() => custom.trim() && onSelect(custom.trim())}
+              disabled={!custom.trim()}
+              className={cn(
+                "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2",
+                custom.trim()
+                  ? "bg-blue-500 text-white hover:bg-blue-400"
+                  : "bg-white/5 text-white/20 cursor-not-allowed"
+              )}
+            >
+              <Send className="w-4 h-4" />
+              Usar
+            </button>
+          </div>
+        </div>
+
+      </motion.div>
+    </div>
+  );
+}
+
+function ThemeCard({ theme, onSelect, highlight }: { theme: Theme; onSelect: (t: string) => void; highlight?: boolean }) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      onClick={() => onSelect(theme.title)}
+      className={cn(
+        "text-left w-full glass rounded-2xl p-5 border transition-all group",
+        highlight
+          ? "border-blue-500/15 hover:border-blue-500/30 bg-blue-500/3"
+          : "border-white/5 hover:border-white/15"
+      )}
+    >
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {theme.trending && (
+            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+              <Flame className="w-2.5 h-2.5" />
+              Em alta
+            </span>
+          )}
+          {theme.enemYear && (
+            <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full">
+              {theme.enemYear}
+            </span>
+          )}
+        </div>
+        <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0", diffColor[theme.difficulty])}>
+          {theme.difficulty}
+        </span>
+      </div>
+
+      <h3 className={cn(
+        "text-sm font-bold leading-snug mb-1.5 transition-colors group-hover:text-white",
+        highlight ? "text-white/90" : "text-white/80"
+      )}>
+        {theme.title}
+      </h3>
+      <p className="text-xs text-white/40 leading-relaxed mb-3 line-clamp-2">{theme.context}</p>
+
+      <div className="flex items-center justify-between">
+        <div className="flex gap-1 flex-wrap">
+          {theme.tags.slice(0, 3).map((tag) => (
+            <span key={tag} className="text-[10px] text-white/30 border border-white/8 rounded px-1.5 py-0.5">{tag}</span>
+          ))}
+        </div>
+        <span className={cn("text-[11px] font-semibold flex-shrink-0", catColor[theme.category] ?? "text-white/40")}>
+          {theme.category}
+        </span>
+      </div>
+
+      <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-1.5 text-xs text-blue-400/70 group-hover:text-blue-400 transition-colors">
+        <PenLine className="w-3.5 h-3.5" />
+        Escrever sobre este tema
+        <ChevronRight className="w-3 h-3 ml-auto" />
+      </div>
+    </motion.button>
+  );
+}
+
+// ─── Editor ───────────────────────────────────────────────────────────────────
+
+function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () => void }) {
   const [fullscreen, setFullscreen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(60 * 60); // 60 min
-  const [showThemePicker, setShowThemePicker] = useState(false);
-  const [showBrainstorm, setShowBrainstorm] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(60 * 60);
   const [sending, setSending] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<"analysis" | "tips">("tips");
   const { setLastCorrectionResult, setCurrentTheme } = useAppStore();
@@ -53,11 +363,7 @@ export default function TreinarPage() {
       CharacterCount.configure({ limit: 3000 }),
       Highlight,
     ],
-    editorProps: {
-      attributes: {
-        class: "tiptap-editor outline-none min-h-[500px] p-2",
-      },
-    },
+    editorProps: { attributes: { class: "tiptap-editor outline-none min-h-[500px] p-2" } },
     onUpdate: () => setSaved(false),
   });
 
@@ -65,51 +371,35 @@ export default function TreinarPage() {
   const chars = editor?.storage.characterCount.characters() ?? 0;
   const paragraphs = editor ? editor.getText().split("\n\n").filter((p) => p.trim()).length : 0;
 
-  // Autosave
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (editor && !saved) setSaved(true);
-    }, 2000);
+    const timer = setTimeout(() => { if (editor && !saved) setSaved(true); }, 2000);
     return () => clearTimeout(timer);
   }, [editor?.getText(), saved]);
 
-  // Countdown timer
   useEffect(() => {
     if (!timerActive) return;
     const interval = setInterval(() => {
-      setTimerSeconds((s) => {
-        if (s <= 0) { setTimerActive(false); return 0; }
-        return s - 1;
-      });
+      setTimerSeconds((s) => { if (s <= 0) { setTimerActive(false); return 0; } return s - 1; });
     }, 1000);
     return () => clearInterval(interval);
   }, [timerActive]);
 
-  const formatTimer = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const formatTimer = (s: number) =>
+    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   const handleSendForCorrection = async () => {
     if (!editor || words < 100) return;
     setSending(true);
     try {
       const content = editor.getText();
-      setCurrentTheme(theme);
-
-      if (!process.env.NEXT_PUBLIC_APP_URL && typeof window !== "undefined") {
-        // just navigate if no API key configured
-      }
-
+      setCurrentTheme(selectedTheme);
       const res = await fetch("/api/ai/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, theme }),
+        body: JSON.stringify({ content, theme: selectedTheme }),
       });
-
       const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error ?? "Erro ao corrigir redação");
-        return;
-      }
-
+      if (!res.ok) { toast.error(data.error ?? "Erro ao corrigir redação"); return; }
       setLastCorrectionResult({ feedback: data.feedback, essayText: content });
       window.location.href = "/correcao-ia";
     } catch {
@@ -119,30 +409,47 @@ export default function TreinarPage() {
     }
   };
 
-  const randomTheme = () => {
-    const t = themes[Math.floor(Math.random() * themes.length)];
-    setTheme(t.title);
-  };
-
   const wordQuality = words < 150 ? "short" : words < 250 ? "ok" : words <= 350 ? "ideal" : "long";
   const qualityColors = { short: "text-red-400", ok: "text-yellow-400", ideal: "text-green-400", long: "text-orange-400" };
   const qualityLabels = { short: "Muito curta", ok: "Precisa mais", ideal: "Ideal ENEM", long: "Muito longa" };
+  const themeObj = TRENDING_THEMES.find((t) => t.title === selectedTheme);
 
   return (
     <div className={cn("max-w-7xl mx-auto", fullscreen && "fixed inset-0 z-50 bg-[#080c14] overflow-auto p-6")}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <PenLine className="w-6 h-6 text-blue-400" />
-              Treinar Redação
-            </h1>
-            <p className="text-white/40 text-sm mt-1">Escreva com foco. A IA corrige ao final.</p>
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {!fullscreen && (
+              <button
+                onClick={onBack}
+                className="p-2 rounded-xl border border-white/5 text-white/40 hover:text-white hover:border-white/10 transition-all flex-shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div className="min-w-0">
+              <h1 className="text-base md:text-lg font-bold text-white flex items-center gap-2 truncate">
+                <PenLine className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span className="truncate">{selectedTheme}</span>
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                {themeObj && (
+                  <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded-full border", diffColor[themeObj.difficulty])}>
+                    {themeObj.difficulty}
+                  </span>
+                )}
+                {themeObj?.enemYear && (
+                  <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">
+                    {themeObj.enemYear}
+                  </span>
+                )}
+                <p className="text-white/30 text-xs">Escreva com foco. A IA corrige ao final.</p>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Timer */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => setTimerActive(!timerActive)}
               className={cn(
@@ -165,69 +472,22 @@ export default function TreinarPage() {
         </div>
 
         {/* Coletânea */}
-        <ColetaneaView coletanea={getColetaneaForTheme(theme) ?? getColetaneaForTheme("Crise da Saúde Mental na Era Digital")!} collapsed />
+        <ColetaneaView
+          coletanea={getColetaneaForTheme(selectedTheme) ?? getColetaneaForTheme("Crise da Saúde Mental na Era Digital")!}
+          collapsed
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Editor */}
           <div className="lg:col-span-3 space-y-4">
-            {/* Theme selector */}
             <div className="glass rounded-2xl border border-white/5 overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5">
-                <Target className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <input
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  placeholder="Digite ou selecione o tema..."
-                  className="flex-1 bg-transparent text-sm font-medium text-white placeholder:text-white/30 outline-none"
-                />
-                <button onClick={randomTheme} title="Tema aleatório" className="p-1.5 rounded-lg hover:bg-white/5 text-white/30 hover:text-white/70 transition-colors">
-                  <Shuffle className="w-4 h-4" />
-                </button>
-                <button onClick={() => setShowThemePicker(!showThemePicker)} className="text-xs text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20 rounded-lg px-2.5 py-1">
-                  Temas
-                </button>
+              <div className="flex items-center gap-3 px-5 py-3 border-b border-white/5">
+                <Target className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                <span className="text-sm font-medium text-white/70 truncate">{selectedTheme}</span>
               </div>
-
-              {/* Theme picker */}
-              <AnimatePresence>
-                {showThemePicker && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {themes.map((t) => (
-                        <button
-                          key={t.title}
-                          onClick={() => { setTheme(t.title); setShowThemePicker(false); }}
-                          className={cn(
-                            "text-left p-3 rounded-xl text-sm border transition-all",
-                            theme === t.title
-                              ? "border-blue-500/30 bg-blue-500/10 text-white"
-                              : "border-white/5 text-white/60 hover:border-white/10 hover:bg-white/3"
-                          )}
-                        >
-                          <p className="font-medium leading-snug mb-1">{t.title}</p>
-                          <div className="flex gap-1 flex-wrap">
-                            {t.tags.map((tag) => (
-                              <span key={tag} className="text-[10px] text-white/30 border border-white/5 rounded px-1.5 py-0.5">{tag}</span>
-                            ))}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Editor area */}
               <div className="p-5 md:p-8">
                 <EditorContent editor={editor} />
               </div>
-
-              {/* Editor toolbar */}
               <div className="flex items-center justify-between px-5 py-3 border-t border-white/5">
                 <div className="flex items-center gap-4 text-xs text-white/30">
                   <span className={cn("font-semibold", qualityColors[wordQuality])}>
@@ -242,19 +502,16 @@ export default function TreinarPage() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => editor?.commands.clearContent()}
-                    className="p-1.5 rounded-lg hover:bg-white/5 text-white/20 hover:text-white/50 transition-colors"
-                    title="Limpar"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => editor?.commands.clearContent()}
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-white/20 hover:text-white/50 transition-colors"
+                  title="Limpar"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            {/* Send for correction */}
             <button
               onClick={handleSendForCorrection}
               disabled={words < 100 || sending}
@@ -281,7 +538,6 @@ export default function TreinarPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Tab selector */}
             <div className="glass rounded-2xl border border-white/5 overflow-hidden">
               <div className="flex border-b border-white/5">
                 {(["tips", "analysis"] as const).map((tab) => (
@@ -348,33 +604,23 @@ export default function TreinarPage() {
               </div>
             </div>
 
-            {/* Brainstorm */}
-            <div className="glass rounded-2xl border border-white/5 p-4">
-              <button
-                onClick={() => setShowBrainstorm(!showBrainstorm)}
-                className="w-full flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white transition-colors"
-              >
-                <Zap className="w-4 h-4 text-blue-400" />
-                Brainstorm com IA
-                <ChevronRight className={cn("w-3.5 h-3.5 ml-auto transition-transform", showBrainstorm && "rotate-90")} />
-              </button>
-              <AnimatePresence>
-                {showBrainstorm && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs text-white/40 font-medium">Repertórios para o tema atual:</p>
-                      {mockWeeklyTheme.repertoires.map((r, i) => (
-                        <div key={i} className="text-xs text-white/60 p-2 rounded-lg bg-white/3 border border-white/5 leading-snug">
-                          <span className="text-blue-400 mr-1">›</span>{r}
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Tema info */}
+            {themeObj && (
+              <div className="glass rounded-2xl border border-white/5 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-blue-400" />
+                  <p className="text-sm font-semibold text-white">Contexto do tema</p>
+                </div>
+                <p className="text-xs text-white/55 leading-relaxed mb-3">{themeObj.context}</p>
+                <div className="flex flex-wrap gap-1">
+                  {themeObj.tags.map((tag) => (
+                    <span key={tag} className="text-[10px] text-white/30 border border-white/8 rounded px-1.5 py-0.5">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {/* Sim mode */}
+            {/* Modo simulado */}
             <div className="glass rounded-2xl border border-orange-500/15 bg-orange-500/3 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Timer className="w-4 h-4 text-orange-400" />
@@ -392,5 +638,25 @@ export default function TreinarPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function TreinarPage() {
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+
+  return (
+    <AnimatePresence mode="wait">
+      {!selectedTheme ? (
+        <motion.div key="picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <ThemePicker onSelect={(t) => setSelectedTheme(t)} />
+        </motion.div>
+      ) : (
+        <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <Editor selectedTheme={selectedTheme} onBack={() => setSelectedTheme(null)} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
