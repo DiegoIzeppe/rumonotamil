@@ -7,6 +7,7 @@ import {
   CheckCircle2, Clock, ChevronRight, Lightbulb, Lock,
 } from "lucide-react";
 import { mockLessons, type LessonDifficulty, type LessonCategory } from "@/lib/mock-data";
+import { useAppStore } from "@/store/app-store";
 import { cn } from "@/lib/utils";
 
 const competencies = [
@@ -45,16 +46,20 @@ const UNLOCK_ORDER = [
 ];
 
 export default function AulasPage() {
-  const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(new Set());
+  const { completedLessonSlugs } = useAppStore();
+  const [dbCompletedSlugs, setDbCompletedSlugs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch("/api/lessons/progress")
       .then((r) => r.json())
-      .then((d) => { if (d.completedSlugs) setCompletedSlugs(new Set(d.completedSlugs)); })
+      .then((d) => { if (d.completedSlugs) setDbCompletedSlugs(new Set(d.completedSlugs)); })
       .catch(() => {});
   }, []);
 
-  const isCompleted = (slug: string) => completedSlugs.has(slug) || mockLessons.find((l) => l.slug === slug)?.progress === 100;
+  const isCompleted = (slug: string) =>
+    completedLessonSlugs.includes(slug) ||
+    dbCompletedSlugs.has(slug) ||
+    mockLessons.find((l) => l.slug === slug)?.progress === 100;
 
   const isLocked = (slug: string) => {
     const idx = UNLOCK_ORDER.indexOf(slug);

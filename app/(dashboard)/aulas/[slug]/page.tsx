@@ -9,6 +9,7 @@ import {
   Send, RotateCcw, AlertCircle, TrendingUp, Star,
 } from "lucide-react";
 import { mockLessons } from "@/lib/mock-data";
+import { useAppStore } from "@/store/app-store";
 import { cn } from "@/lib/utils";
 
 interface QuestionResult {
@@ -209,9 +210,11 @@ function renderContent(raw: string) {
 export default function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const lesson = mockLessons.find((l) => l.slug === slug);
+  const { isLessonComplete, markLessonComplete } = useAppStore();
+
   const [scrollProgress, setScrollProgress] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
-  const [completed, setCompleted] = useState(lesson?.progress === 100);
+  const [completed, setCompleted] = useState(() => isLessonComplete(slug));
   const [answer, setAnswer] = useState("");
   const [correcting, setCorrecting] = useState(false);
   const [result, setResult] = useState<QuestionResult | null>(null);
@@ -219,7 +222,12 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
   const [markingDone, setMarkingDone] = useState(false);
   const [xpToast, setXpToast] = useState<number | null>(null);
 
-  // Next lesson
+  // Sync completed state when slug changes (navigating between lessons)
+  useEffect(() => {
+    setCompleted(isLessonComplete(slug));
+  }, [slug]);
+
+  // Next lesson — only within UNLOCK_ORDER so DICAS don't break chain
   const currentIndex = mockLessons.findIndex((l) => l.slug === slug);
   const nextLesson = currentIndex >= 0 ? mockLessons[currentIndex + 1] : null;
 
@@ -231,6 +239,30 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleMarkComplete = async () => {
+    if (completed || markingDone) return;
+    setMarkingDone(true);
+    try {
+      const res = await fetch("/api/lessons/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonSlug: slug, completed: true }),
+      });
+      const data = await res.json();
+      markLessonComplete(slug); // persist in Zustand (localStorage)
+      setCompleted(true);
+      if (data.xpAwarded > 0) {
+        setXpToast(data.xpAwarded);
+        setTimeout(() => setXpToast(null), 3000);
+      }
+    } catch {
+      markLessonComplete(slug);
+      setCompleted(true);
+    } finally {
+      setMarkingDone(false);
+    }
+  };
 
   const handleCorrect = async () => {
     if (!lesson || answer.trim().length < 20) return;
@@ -507,27 +539,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
 
                   {/* Mark complete CTA after answering */}
                   <button
-                    onClick={async () => {
-                      if (completed || markingDone) return;
-                      setMarkingDone(true);
-                      try {
-                        const res = await fetch("/api/lessons/progress", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ lessonSlug: slug, completed: true }),
-                        });
-                        const data = await res.json();
-                        setCompleted(true);
-                        if (data.xpAwarded > 0) {
-                          setXpToast(data.xpAwarded);
-                          setTimeout(() => setXpToast(null), 3000);
-                        }
-                      } catch {
-                        setCompleted(true);
-                      } finally {
-                        setMarkingDone(false);
-                      }
-                    }}
+                    onClick={handleMarkComplete}
                     className={cn(
                       "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all border mt-2",
                       completed
@@ -550,27 +562,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
         {/* Complete + Next */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <button
-            onClick={async () => {
-              if (completed || markingDone) return;
-              setMarkingDone(true);
-              try {
-                const res = await fetch("/api/lessons/progress", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ lessonSlug: slug, completed: true }),
-                });
-                const data = await res.json();
-                setCompleted(true);
-                if (data.xpAwarded > 0) {
-                  setXpToast(data.xpAwarded);
-                  setTimeout(() => setXpToast(null), 3000);
-                }
-              } catch {
-                setCompleted(true);
-              } finally {
-                setMarkingDone(false);
-              }
-            }}
+            onClick={handleMarkComplete}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all border",
               completed
@@ -585,6 +577,26 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
             )}
             {completed ? "Aula concluída ✓" : "Marcar como concluída"}
           </button>
+
+          {/* Próxima aula — só aparece após concluir */}
+          {nextLesson && completed && (
+            <Link href={`/aulas/${nextLesson.slug}`} className="flex-1">
+              <button className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm glass border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-all">
+                Próxima aula
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </Link>
+          )}
+          {nextLesson && !completed && (
+            <div className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm glass border border-white/5 text-white/20 cursor-not-allowed">
+              <ChevronRight className="w-4 h-4" />
+              Conclua esta aula primeiro
+            </div>
+          )}
+        </div>
+
+        {/* XP toast */}
+        <AnimatePresence>
           {xpToast !== null && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -596,15 +608,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
               +{xpToast} XP conquistados!
             </motion.div>
           )}
-          {nextLesson && (
-            <Link href={`/aulas/${nextLesson.slug}`} className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm glass border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-all">
-                Próxima aula
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </Link>
-          )}
-        </div>
+        </AnimatePresence>
       </motion.div>
     </div>
   );

@@ -20,11 +20,16 @@ interface AppState {
 
   lastCorrectionResult: LastCorrectionResult | null;
   setLastCorrectionResult: (result: LastCorrectionResult | null) => void;
+
+  // Lesson completion — persisted so navigation doesn't reset it
+  completedLessonSlugs: string[];
+  markLessonComplete: (slug: string) => void;
+  isLessonComplete: (slug: string) => boolean;
 }
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       sidebarOpen: true,
       setSidebarOpen: (v) => set({ sidebarOpen: v }),
 
@@ -37,6 +42,15 @@ export const useAppStore = create<AppState>()(
 
       lastCorrectionResult: null,
       setLastCorrectionResult: (result) => set({ lastCorrectionResult: result }),
+
+      completedLessonSlugs: [],
+      markLessonComplete: (slug) =>
+        set((s) =>
+          s.completedLessonSlugs.includes(slug)
+            ? s
+            : { completedLessonSlugs: [...s.completedLessonSlugs, slug] }
+        ),
+      isLessonComplete: (slug) => get().completedLessonSlugs.includes(slug),
     }),
     {
       name: "rumo-app-store",
@@ -44,6 +58,7 @@ export const useAppStore = create<AppState>()(
         essayDraft: s.essayDraft,
         currentTheme: s.currentTheme,
         lastCorrectionResult: s.lastCorrectionResult,
+        completedLessonSlugs: s.completedLessonSlugs,
       }),
     }
   )
