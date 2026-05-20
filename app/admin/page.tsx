@@ -13,8 +13,7 @@ const adminSections = [
   { id: "overview", label: "Visão Geral", icon: BarChart3 },
   { id: "users", label: "Usuários", icon: Users },
   { id: "lessons", label: "Aulas", icon: BookOpen },
-  { id: "essays", label: "Redações Modelo", icon: FileText },
-  { id: "corrections", label: "Logs de IA", icon: Brain },
+{ id: "corrections", label: "Logs de IA", icon: Brain },
   { id: "prompts", label: "Prompts", icon: Settings },
 ];
 
@@ -210,6 +209,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               )}
+
 
               {section === "prompts" && (
                 <div className="space-y-4">

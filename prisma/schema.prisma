@@ -139,33 +139,6 @@ model LessonProgress {
   @@unique([userId, lessonId])
 }
 
-model ModelEssay {
-  id           String   @id @default(cuid())
-  title        String
-  slug         String   @unique
-  theme        String
-  enEmYear     Int?
-  score        Int      // 0-1000
-  competency1  Int      // 0-200
-  competency2  Int
-  competency3  Int
-  competency4  Int
-  competency5  Int
-  content      String   @db.Text
-  annotations  Json?    // JSON with paragraph-level annotations
-  repertoires  String[]
-  tags         String[]
-  published    Boolean  @default(false)
-  featured     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  bookmarks Bookmark[]
-
-  @@index([slug])
-  @@index([score])
-  @@index([enEmYear])
-}
 
 model EssaySubmission {
   id         String           @id @default(cuid())
@@ -334,12 +307,10 @@ model Bookmark {
   id          String   @id @default(cuid())
   userId      String
   lessonId    String?
-  modelEssayId String?
   createdAt   DateTime @default(now())
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson      Lesson?     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  modelEssay  ModelEssay? @relation(fields: [modelEssayId], references: [id], onDelete: Cascade)
 }
 
 model Note {

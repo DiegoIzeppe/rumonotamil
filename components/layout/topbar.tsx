@@ -187,8 +187,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                   {[
                     { label: "Escrever redação", href: "/treinar" },
                     { label: "Correção por IA", href: "/correcao-ia" },
-                    { label: "Redações nota 1000", href: "/redacoes-modelo" },
-                    { label: "Meu desempenho", href: "/desempenho" },
+{ label: "Meu desempenho", href: "/desempenho" },
                   ].map((item) => (
                     <Link
                       key={item.href}

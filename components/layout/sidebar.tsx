@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   BookOpen,
-  FileText,
   PenLine,
   Brain,
   BarChart3,
@@ -23,8 +22,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/aulas", label: "Método", icon: BookOpen },
-  { href: "/redacoes-modelo", label: "Redações Nota 1000", icon: FileText },
-  { href: "/treinar", label: "Treinar Redação", icon: PenLine },
+{ href: "/treinar", label: "Treinar Redação", icon: PenLine },
   { href: "/simulado", label: "Simulado ENEM", icon: Timer },
   { href: "/correcao-ia", label: "Correção IA", icon: Brain },
   { href: "/repertorios", label: "Repertórios", icon: BookMarked },
