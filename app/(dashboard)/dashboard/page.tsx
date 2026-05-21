@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { getWeeklyTheme } from "@/lib/weekly-theme";
+import { MotivationalModal } from "@/components/ui/motivational-modal";
+import { AnimatePresence } from "framer-motion";
 import { cn, formatDate, getScoreColor, getScoreLabel, getCompetencyLabel } from "@/lib/utils";
 
 const MOTIVATIONAL_PHRASES = [
@@ -145,8 +147,16 @@ export default function DashboardPage() {
   const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs } = useAppStore();
   const weeklyTheme = getWeeklyTheme();
   const [motivationalPhrase, setMotivationalPhrase] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
   useEffect(() => {
-    setMotivationalPhrase(MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)]);
+    const phrase = MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)];
+    setMotivationalPhrase(phrase);
+    // Show modal once per browser session
+    if (!sessionStorage.getItem("motivated")) {
+      setShowModal(true);
+      sessionStorage.setItem("motivated", "1");
+    }
   }, []);
 
   const [dbData, setDbData] = useState<UserStats | null>(null);
@@ -177,6 +187,17 @@ export default function DashboardPage() {
   const weeklyDelta = 0;
 
   return (
+    <>
+      <AnimatePresence>
+        {showModal && motivationalPhrase && (
+          <MotivationalModal
+            phrase={motivationalPhrase}
+            variant="entry"
+            onClose={() => setShowModal(false)}
+          />
+        )}
+      </AnimatePresence>
+
     <div className="max-w-7xl mx-auto">
       <motion.div variants={stagger.container} initial="initial" animate="animate" className="space-y-6">
 
@@ -458,5 +479,6 @@ export default function DashboardPage() {
         </div>
       </motion.div>
     </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MotivationalModal } from "@/components/ui/motivational-modal";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -301,7 +302,7 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
   const [timerSeconds, setTimerSeconds] = useState(60 * 60);
   const [sending, setSending] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<"analysis" | "tips">("tips");
-  const [simuladoPhrase, setSimuladoPhrase] = useState<string | null>(null);
+  const [simuladoModal, setSimuladoModal] = useState<string | null>(null);
   const { setLastCorrectionResult, setCurrentTheme, setPendingEssayMeta } = useAppStore();
   const [usedAssistant, setUsedAssistant] = useState(false);
 
@@ -372,17 +373,18 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
 
   return (
     <div className={cn("max-w-7xl mx-auto", fullscreen && "fixed inset-0 z-50 bg-[#080c14] overflow-auto p-6")}>
-      {/* Simulado motivational overlay */}
       <AnimatePresence>
-        {simuladoPhrase && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 glass border border-orange-500/25 bg-orange-500/8 px-6 py-3.5 rounded-2xl shadow-glass max-w-lg text-center"
-          >
-            <p className="text-sm font-semibold text-orange-200 leading-relaxed">⏱️ {simuladoPhrase}</p>
-          </motion.div>
+        {simuladoModal && (
+          <MotivationalModal
+            phrase={simuladoModal}
+            variant="simulado"
+            onClose={() => {
+              setSimuladoModal(null);
+              setTimerSeconds(60 * 60);
+              setTimerActive(true);
+              setFullscreen(true);
+            }}
+          />
         )}
       </AnimatePresence>
 
@@ -598,11 +600,7 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
               <p className="text-xs text-white/50 mb-3">Simule as condições reais do ENEM: 60 minutos, sem distrações.</p>
               <button
                 onClick={() => {
-                  setTimerSeconds(60 * 60);
-                  setTimerActive(true);
-                  setFullscreen(true);
-                  setSimuladoPhrase(SIMULADO_PHRASES[Math.floor(Math.random() * SIMULADO_PHRASES.length)]);
-                  setTimeout(() => setSimuladoPhrase(null), 5000);
+                  setSimuladoModal(SIMULADO_PHRASES[Math.floor(Math.random() * SIMULADO_PHRASES.length)]);
                 }}
                 className="w-full py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-300 text-xs font-semibold hover:bg-orange-500/20 transition-colors"
               >
