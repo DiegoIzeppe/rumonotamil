@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  User, Bell, CreditCard, Shield, Smartphone, LogOut,
+  User, Bell, CreditCard, Shield, Smartphone, LogOut, RotateCcw,
   ChevronRight, Check, ExternalLink, Star, Zap, Crown,
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
@@ -27,12 +27,20 @@ export default function ConfiguracoesPage() {
     streak: false,
     newsletter: false,
   });
-  const { userInfo } = useAppStore();
+  const { userInfo, resetAllProgress } = useAppStore();
   const router = useRouter();
+  const [confirmReset, setConfirmReset] = useState(false);
+
   const signOut = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/sign-in");
     router.refresh();
+  };
+
+  const handleReset = () => {
+    if (!confirmReset) { setConfirmReset(true); return; }
+    resetAllProgress();
+    setConfirmReset(false);
   };
 
   return (
@@ -65,6 +73,13 @@ export default function ConfiguracoesPage() {
                   </button>
                 );
               })}
+              <button
+                onClick={handleReset}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-orange-400/70 hover:text-orange-400 hover:bg-orange-500/5 transition-colors border-t border-white/5"
+              >
+                <RotateCcw className="w-4 h-4 flex-shrink-0" />
+                {confirmReset ? "Confirmar reset?" : "Reiniciar progresso"}
+              </button>
               <button
                 onClick={() => signOut()}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/5 transition-colors"

@@ -12,7 +12,29 @@ export interface EssayHistoryEntry {
   theme: string;
   score: number;
   date: string;
+  hour: number; // 0-23, for Madrugador/Noturno achievements
   feedback: EssayCorrectionOutput;
+  wasSimulado?: boolean;
+  usedAssistant?: boolean;
+  previousScore?: number; // for improvement tracking
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function updateStreak(state: { currentStreak: number; maxStreak: number; lastActivityDate: string }) {
+  const today = todayStr();
+  if (state.lastActivityDate === today) return {}; // same day, no change
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yStr = yesterday.toISOString().slice(0, 10);
+  const newStreak = state.lastActivityDate === yStr ? state.currentStreak + 1 : 1;
+  return {
+    currentStreak: newStreak,
+    maxStreak: Math.max(newStreak, state.maxStreak),
+    lastActivityDate: today,
+  };
 }
 
 interface AppState {
@@ -34,17 +56,25 @@ interface AppState {
   markLessonComplete: (slug: string) => void;
   isLessonComplete: (slug: string) => boolean;
 
-  // Derived XP: 50 per lesson completed
+  // XP: lessons give 50 XP each
   getXP: () => number;
   getLevel: () => number;
 
-  // Essay history — real corrections done by the user
-  essayHistory: EssayHistoryEntry[];
-  addEssayToHistory: (entry: Omit<EssayHistoryEntry, "id" | "date">) => void;
+  // Streak tracking
+  currentStreak: number;
+  maxStreak: number;
+  lastActivityDate: string; // YYYY-MM-DD
 
-  // Auth user info (cached from /api/auth/me)
+  // Essay history
+  essayHistory: EssayHistoryEntry[];
+  addEssayToHistory: (entry: Omit<EssayHistoryEntry, "id" | "date" | "hour">) => void;
+
+  // Auth user info
   userInfo: { name: string; email: string } | null;
   setUserInfo: (info: { name: string; email: string } | null) => void;
+
+  // Reset all progress (aulas + essays + streak)
+  resetAllProgress: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -65,11 +95,13 @@ export const useAppStore = create<AppState>()(
 
       completedLessonSlugs: [],
       markLessonComplete: (slug) =>
-        set((s) =>
-          s.completedLessonSlugs.includes(slug)
-            ? s
-            : { completedLessonSlugs: [...s.completedLessonSlugs, slug] }
-        ),
+        set((s) => {
+          if (s.completedLessonSlugs.includes(slug)) return s;
+          return {
+            completedLessonSlugs: [...s.completedLessonSlugs, slug],
+            ...updateStreak(s),
+          };
+        }),
       isLessonComplete: (slug) => get().completedLessonSlugs.includes(slug),
 
       getXP: () => get().completedLessonSlugs.length * 50,
@@ -82,21 +114,42 @@ export const useAppStore = create<AppState>()(
         return 1;
       },
 
+      currentStreak: 0,
+      maxStreak: 0,
+      lastActivityDate: "",
+
       essayHistory: [],
       addEssayToHistory: (entry) =>
-        set((s) => ({
-          essayHistory: [
-            {
-              ...entry,
-              id: `essay-${Date.now()}`,
-              date: new Date().toISOString(),
-            },
-            ...s.essayHistory,
-          ].slice(0, 50), // cap at 50
-        })),
+        set((s) => {
+          const prev = s.essayHistory[0]?.score;
+          return {
+            essayHistory: [
+              {
+                ...entry,
+                id: `essay-${Date.now()}`,
+                date: new Date().toISOString(),
+                hour: new Date().getHours(),
+                previousScore: prev,
+              },
+              ...s.essayHistory,
+            ].slice(0, 100),
+            ...updateStreak(s),
+          };
+        }),
 
       userInfo: null,
       setUserInfo: (info) => set({ userInfo: info }),
+
+      resetAllProgress: () =>
+        set({
+          completedLessonSlugs: [],
+          essayHistory: [],
+          currentStreak: 0,
+          maxStreak: 0,
+          lastActivityDate: "",
+          lastCorrectionResult: null,
+          essayDraft: "",
+        }),
     }),
     {
       name: "rumo-app-store",
@@ -107,6 +160,9 @@ export const useAppStore = create<AppState>()(
         completedLessonSlugs: s.completedLessonSlugs,
         essayHistory: s.essayHistory,
         userInfo: s.userInfo,
+        currentStreak: s.currentStreak,
+        maxStreak: s.maxStreak,
+        lastActivityDate: s.lastActivityDate,
       }),
     }
   )
