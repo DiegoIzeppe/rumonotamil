@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  User, Bell, CreditCard, Shield, Smartphone, LogOut, RotateCcw,
-  ChevronRight, Check, ExternalLink, Star, Zap, Crown,
+  User, Bell, CreditCard, Shield, LogOut, RotateCcw,
+  ChevronRight, Check, Camera, Lock, Trash2, Eye, EyeOff,
+  Send, Crown, Zap, AlertCircle, CheckCircle2,
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
-import { PLANS } from "@/lib/stripe";
+import { PRO_PLAN } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const sections = [
   { id: "profile", label: "Perfil", icon: User },
@@ -18,16 +20,487 @@ const sections = [
   { id: "security", label: "Segurança", icon: Shield },
 ];
 
+// ─── Profile ──────────────────────────────────────────────────────────────────
+
+function ProfileSection() {
+  const { userInfo, setUserInfo } = useAppStore();
+  const [name, setName] = useState(userInfo?.name ?? "");
+  const [saving, setSaving] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("Arquivo muito grande. Máx 2MB."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setAvatarUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) { toast.error("Nome não pode estar vazio"); return; }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Erro ao salvar"); return; }
+      setUserInfo({ name: data.name, email: userInfo?.email ?? "" });
+      toast.success("Perfil atualizado!");
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const initials = (name || userInfo?.name || "E")[0].toUpperCase();
+
+  return (
+    <div className="glass rounded-2xl border border-white/5 p-6 space-y-6">
+      <h2 className="text-base font-semibold text-white">Informações do Perfil</h2>
+
+      {/* Avatar */}
+      <div className="flex items-center gap-4">
+        <div className="relative group">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover" />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl font-black text-white">
+              {initials}
+            </div>
+          )}
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          >
+            <Camera className="w-5 h-5 text-white" />
+          </button>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhotoChange} />
+        </div>
+        <div>
+          <button onClick={() => fileRef.current?.click()} className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            Alterar foto
+          </button>
+          <p className="text-xs text-white/30 mt-1">JPG, PNG, WebP. Máx 2MB.</p>
+        </div>
+      </div>
+
+      {/* Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-white/40 mb-1.5 font-medium">Nome completo</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Seu nome"
+            className="w-full px-3 py-2.5 bg-[#080c14] border border-white/8 rounded-xl text-sm text-white outline-none focus:border-blue-500/40 transition-colors placeholder:text-white/20"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-white/40 mb-1.5 font-medium">Email</label>
+          <input
+            value={userInfo?.email ?? ""}
+            disabled
+            className="w-full px-3 py-2.5 bg-white/3 border border-white/5 rounded-xl text-sm text-white/40 outline-none cursor-not-allowed"
+          />
+          <p className="text-[10px] text-white/20 mt-1">Email não pode ser alterado aqui.</p>
+        </div>
+      </div>
+
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-white/10 disabled:text-white/30 text-white text-sm font-semibold transition-all flex items-center gap-2"
+      >
+        {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
+        {saving ? "Salvando..." : "Salvar alterações"}
+      </button>
+    </div>
+  );
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+const NOTIF_ITEMS = [
+  { key: "essayCorrected", label: "Redação corrigida", desc: "Quando a IA terminar a correção" },
+  { key: "weeklyTheme", label: "Novo tema semanal", desc: "Toda segunda-feira" },
+  { key: "achievements", label: "Conquistas desbloqueadas", desc: "Quando ganhar um badge" },
+  { key: "streak", label: "Lembrete de streak", desc: "Aviso antes de perder o streak" },
+  { key: "newsletter", label: "Newsletter mensal", desc: "Dicas e conteúdos extras" },
+] as const;
+
+type NotifKey = typeof NOTIF_ITEMS[number]["key"];
+
+function NotificationsSection() {
+  const { userInfo } = useAppStore();
+  const [prefs, setPrefs] = useState<Record<NotifKey, boolean>>({
+    essayCorrected: true, weeklyTheme: true, achievements: true, streak: false, newsletter: false,
+  });
+  const [saving, setSaving] = useState(false);
+  const [testMsg, setTestMsg] = useState("");
+
+  const toggle = (key: NotifKey) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await fetch("/api/notifications/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(prefs),
+      });
+      toast.success("Preferências salvas!");
+    } catch {
+      toast.error("Erro ao salvar.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    setTestMsg("");
+    try {
+      const res = await fetch("/api/notifications/preferences", { method: "POST" });
+      const data = await res.json();
+      setTestMsg(data.message ?? (data.success ? "Email enviado!" : "Erro ao enviar."));
+      if (data.success) toast.success("Email de teste enviado!");
+      else toast.error(data.message ?? "Erro ao enviar email.");
+    } catch {
+      toast.error("Erro de conexão.");
+    }
+  };
+
+  return (
+    <div className="glass rounded-2xl border border-white/5 p-6 space-y-4">
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-white">Notificações por Email</h2>
+          {userInfo?.email && (
+            <p className="text-xs text-white/40 mt-0.5">Enviadas para <span className="text-blue-400">{userInfo.email}</span></p>
+          )}
+        </div>
+        <button
+          onClick={handleTestEmail}
+          className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20 px-3 py-1.5 rounded-lg"
+        >
+          <Send className="w-3.5 h-3.5" />
+          Enviar teste
+        </button>
+      </div>
+
+      {testMsg && (
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-500/5 border border-blue-500/15 text-xs text-blue-300">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+          {testMsg}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {NOTIF_ITEMS.map((item) => (
+          <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-white/3 border border-white/5">
+            <div>
+              <p className="text-sm font-medium text-white">{item.label}</p>
+              <p className="text-xs text-white/40 mt-0.5">{item.desc}</p>
+            </div>
+            <button
+              onClick={() => toggle(item.key)}
+              className={cn("w-10 h-6 rounded-full transition-all relative flex-shrink-0", prefs[item.key] ? "bg-blue-500" : "bg-white/10")}
+            >
+              <span className={cn("absolute top-1 w-4 h-4 bg-white rounded-full transition-all", prefs[item.key] ? "left-5" : "left-1")} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-white/10 disabled:text-white/30 text-white text-sm font-semibold transition-all flex items-center gap-2"
+      >
+        {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
+        {saving ? "Salvando..." : "Salvar preferências"}
+      </button>
+    </div>
+  );
+}
+
+// ─── Billing ──────────────────────────────────────────────────────────────────
+
+function BillingSection() {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cycle: "monthly", paymentMode: "monthly" }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else toast.error(data.error ?? "Erro ao criar sessão de pagamento.");
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="glass rounded-2xl border border-blue-500/20 p-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-base font-semibold text-white">Plano Atual</h2>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 uppercase">
+            Gratuito
+          </span>
+        </div>
+        <p className="text-xs text-white/40 mb-5">Você está no plano gratuito com acesso limitado.</p>
+
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Crown className="w-5 h-5 text-blue-400" />
+            <h3 className="text-sm font-bold text-white">Plano PRO</h3>
+            <span className="ml-auto text-xs text-blue-400 font-bold">R$ 49/mês</span>
+          </div>
+          <div className="space-y-2 mb-5">
+            {(PRO_PLAN.features as string[]).map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm text-white/60">
+                <Check className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                <span>{f}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleCheckout}
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold text-sm transition-all hover:shadow-glow disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Zap className="w-4 h-4" />
+            )}
+            {loading ? "Aguarde..." : "Assinar PRO — R$ 49/mês"}
+          </button>
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl border border-white/5 p-5">
+        <h3 className="text-sm font-semibold text-white mb-2">Comparativo</h3>
+        <div className="space-y-2 text-xs">
+          {[
+            { feature: "Aulas C1-C5", free: true, pro: true },
+            { feature: "Correção por IA", free: "3/mês", pro: "Ilimitada" },
+            { feature: "Assistente IA", free: false, pro: true },
+            { feature: "Simulado ENEM", free: false, pro: true },
+            { feature: "Biblioteca de repertórios", free: "Limitada", pro: "Completa" },
+            { feature: "Plano de estudos personalizado", free: false, pro: true },
+          ].map((row) => (
+            <div key={row.feature} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+              <span className="text-white/60">{row.feature}</span>
+              <div className="flex gap-8">
+                <span className={cn("w-16 text-center", typeof row.free === "boolean" ? (row.free ? "text-green-400" : "text-white/20") : "text-yellow-400")}>
+                  {typeof row.free === "boolean" ? (row.free ? "✓" : "—") : row.free}
+                </span>
+                <span className={cn("w-16 text-center", typeof row.pro === "boolean" ? (row.pro ? "text-blue-400" : "text-white/20") : "text-blue-400")}>
+                  {typeof row.pro === "boolean" ? (row.pro ? "✓" : "—") : row.pro}
+                </span>
+              </div>
+            </div>
+          ))}
+          <div className="flex justify-end gap-8 pt-1 text-[10px] text-white/30 uppercase tracking-wider">
+            <span className="w-16 text-center">Grátis</span>
+            <span className="w-16 text-center text-blue-400/60">PRO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+
+function SecuritySection() {
+  const [showChangePass, setShowChangePass] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const router = useRouter();
+
+  const handleChangePassword = async () => {
+    if (newPw !== confirmPw) { toast.error("Senhas não conferem."); return; }
+    if (newPw.length < 8) { toast.error("Nova senha deve ter ao menos 8 caracteres."); return; }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Erro ao alterar senha."); return; }
+      toast.success(data.message ?? "Senha alterada com sucesso!");
+      setShowChangePass(false);
+      setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm !== "DELETAR") { toast.error("Digite DELETAR para confirmar."); return; }
+    setSaving(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/sign-in");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="glass rounded-2xl border border-white/5 p-6 space-y-4">
+      <h2 className="text-base font-semibold text-white">Segurança</h2>
+
+      {/* Change password */}
+      <div className="rounded-xl border border-white/5 overflow-hidden">
+        <button
+          onClick={() => setShowChangePass(!showChangePass)}
+          className="w-full flex items-center gap-3 p-4 hover:bg-white/3 transition-colors group"
+        >
+          <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+            <Lock className="w-4 h-4 text-white/50" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-medium text-white/80">Alterar senha</p>
+            <p className="text-xs text-white/30 mt-0.5">Mantenha sua conta segura</p>
+          </div>
+          <ChevronRight className={cn("w-4 h-4 text-white/20 group-hover:text-white/50 transition-all", showChangePass && "rotate-90")} />
+        </button>
+
+        {showChangePass && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-4 pb-4 space-y-3 border-t border-white/5"
+          >
+            <div className="pt-3 space-y-3">
+              {[
+                { label: "Senha atual", value: currentPw, set: setCurrentPw, show: showCurrent, toggle: () => setShowCurrent(!showCurrent) },
+                { label: "Nova senha", value: newPw, set: setNewPw, show: showNew, toggle: () => setShowNew(!showNew) },
+                { label: "Confirmar nova senha", value: confirmPw, set: setConfirmPw, show: showNew, toggle: () => setShowNew(!showNew) },
+              ].map((f) => (
+                <div key={f.label}>
+                  <label className="block text-xs text-white/40 mb-1.5">{f.label}</label>
+                  <div className="relative">
+                    <input
+                      type={f.show ? "text" : "password"}
+                      value={f.value}
+                      onChange={(e) => f.set(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-[#080c14] border border-white/8 rounded-xl text-sm text-white outline-none focus:border-blue-500/40 transition-colors pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={f.toggle}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
+                    >
+                      {f.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {newPw && confirmPw && newPw !== confirmPw && (
+              <p className="text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> Senhas não conferem
+              </p>
+            )}
+            {newPw && confirmPw && newPw === confirmPw && newPw.length >= 8 && (
+              <p className="text-xs text-green-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Senhas conferem
+              </p>
+            )}
+            <button
+              onClick={handleChangePassword}
+              disabled={saving || !currentPw || !newPw || newPw !== confirmPw}
+              className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-white/5 disabled:text-white/20 text-white text-sm font-semibold transition-all"
+            >
+              {saving ? "Alterando..." : "Alterar senha"}
+            </button>
+          </motion.div>
+        )}
+      </div>
+
+      {/* 2FA — coming soon */}
+      <div className="flex items-center gap-3 p-4 rounded-xl border border-white/5 opacity-50">
+        <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+          <Shield className="w-4 h-4 text-white/50" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-white/80">Autenticação em dois fatores</p>
+          <p className="text-xs text-white/30 mt-0.5">Em breve</p>
+        </div>
+        <span className="text-[10px] text-white/30 border border-white/10 px-2 py-1 rounded-full">Em breve</span>
+      </div>
+
+      {/* Delete account */}
+      <div className="pt-4 border-t border-white/5 space-y-3">
+        <button
+          onClick={() => setShowDelete(!showDelete)}
+          className="text-sm text-red-400/70 hover:text-red-400 transition-colors flex items-center gap-2"
+        >
+          <Trash2 className="w-4 h-4" />
+          Excluir conta permanentemente
+        </button>
+
+        {showDelete && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 space-y-3">
+            <p className="text-sm text-red-300">
+              Esta ação é <strong>irreversível</strong>. Todos os dados, redações e conquistas serão perdidos.
+            </p>
+            <div>
+              <label className="block text-xs text-white/40 mb-1.5">Digite <strong className="text-red-400">DELETAR</strong> para confirmar</label>
+              <input
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                className="w-full px-3 py-2.5 bg-[#080c14] border border-red-500/20 rounded-xl text-sm text-white outline-none focus:border-red-500/40 transition-colors"
+                placeholder="DELETAR"
+              />
+            </div>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirm !== "DELETAR" || saving}
+              className="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-400 disabled:bg-white/5 disabled:text-white/20 text-white text-sm font-bold transition-all"
+            >
+              Excluir minha conta
+            </button>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function ConfiguracoesPage() {
   const [activeSection, setActiveSection] = useState("profile");
-  const [notifications, setNotifications] = useState({
-    essayCorrected: true,
-    weeklyTheme: true,
-    achievements: true,
-    streak: false,
-    newsletter: false,
-  });
-  const { userInfo, resetAllProgress } = useAppStore();
+  const { resetAllProgress } = useAppStore();
   const router = useRouter();
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -41,6 +514,7 @@ export default function ConfiguracoesPage() {
     if (!confirmReset) { setConfirmReset(true); return; }
     resetAllProgress();
     setConfirmReset(false);
+    toast.success("Progresso reiniciado.");
   };
 
   return (
@@ -81,7 +555,7 @@ export default function ConfiguracoesPage() {
                 {confirmReset ? "Confirmar reset?" : "Reiniciar progresso"}
               </button>
               <button
-                onClick={() => signOut()}
+                onClick={signOut}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/5 transition-colors"
               >
                 <LogOut className="w-4 h-4 flex-shrink-0" />
@@ -92,157 +566,10 @@ export default function ConfiguracoesPage() {
 
           {/* Content */}
           <div className="md:col-span-3">
-            {activeSection === "profile" && (
-              <div className="glass rounded-2xl border border-white/5 p-6 space-y-6">
-                <h2 className="text-base font-semibold text-white">Informações do Perfil</h2>
-                {/* Avatar */}
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl font-black text-white">
-                    {(userInfo?.name ?? "E")[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Alterar foto</button>
-                    <p className="text-xs text-white/30 mt-1">JPG, PNG. Máx 2MB.</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { label: "Nome completo", value: userInfo?.name ?? "—" },
-                    { label: "Email", value: userInfo?.email ?? "—" },
-                  ].map((field) => (
-                    <div key={field.label}>
-                      <label className="block text-xs text-white/40 mb-1.5 font-medium">{field.label}</label>
-                      <input
-                        defaultValue={field.value}
-                        className="w-full px-3 py-2.5 glass border border-white/5 rounded-xl text-sm text-white outline-none focus:border-blue-500/30 transition-colors"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <button className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold transition-all">
-                  Salvar alterações
-                </button>
-              </div>
-            )}
-
-            {activeSection === "notifications" && (
-              <div className="glass rounded-2xl border border-white/5 p-6 space-y-4">
-                <h2 className="text-base font-semibold text-white">Notificações</h2>
-                {[
-                  { key: "essayCorrected", label: "Redação corrigida", desc: "Quando a IA terminar a correção" },
-                  { key: "weeklyTheme", label: "Novo tema semanal", desc: "Toda segunda-feira" },
-                  { key: "achievements", label: "Conquistas desbloqueadas", desc: "Quando ganhar um badge" },
-                  { key: "streak", label: "Lembrete de streak", desc: "Aviso antes de perder o streak" },
-                  { key: "newsletter", label: "Newsletter mensal", desc: "Dicas e conteúdos extras" },
-                ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-white/3 border border-white/5">
-                    <div>
-                      <p className="text-sm font-medium text-white">{item.label}</p>
-                      <p className="text-xs text-white/40 mt-0.5">{item.desc}</p>
-                    </div>
-                    <button
-                      onClick={() => setNotifications((prev) => ({ ...prev, [item.key]: !prev[item.key as keyof typeof prev] }))}
-                      className={cn(
-                        "w-10 h-6 rounded-full transition-all relative",
-                        notifications[item.key as keyof typeof notifications] ? "bg-blue-500" : "bg-white/10"
-                      )}
-                    >
-                      <span className={cn(
-                        "absolute top-1 w-4 h-4 bg-white rounded-full transition-all",
-                        notifications[item.key as keyof typeof notifications] ? "left-5" : "left-1"
-                      )} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeSection === "billing" && (
-              <div className="space-y-4">
-                {/* Current plan */}
-                <div className="glass rounded-2xl border border-blue-500/20 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-semibold text-white">Plano Atual</h2>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-300 uppercase">
-                      FREE
-                    </span>
-                  </div>
-                  <div className="flex items-end gap-1 mb-4">
-                    <span className="text-3xl font-black text-white">R$ 97,90</span>
-                    <span className="text-white/40 mb-1">/mês</span>
-                  </div>
-                  <div className="space-y-2 mb-5">
-                    {PLANS.PRO.features.map((f) => (
-                      <div key={f} className="flex items-center gap-2 text-sm text-white/60">
-                        <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        <span>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20 px-4 py-2 rounded-xl">
-                    <ExternalLink className="w-4 h-4" />
-                    Gerenciar no Stripe
-                  </button>
-                </div>
-
-                {/* Upgrade to Elite */}
-                <div className="glass rounded-2xl border border-yellow-500/20 bg-yellow-500/3 p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Crown className="w-5 h-5 text-yellow-400" />
-                    <h3 className="text-base font-bold text-white">Upgrade para Elite</h3>
-                  </div>
-                  <p className="text-sm text-white/60 mb-4">
-                    Acesso a mentoria em grupo, garantia de nota 900+ e suporte prioritário.
-                  </p>
-                  <div className="space-y-1.5 mb-5">
-                    {PLANS.PRO.features.map((f) => (
-                      <div key={f} className="flex items-center gap-2 text-sm text-white/60">
-                        <Star className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />
-                        <span>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-400 text-white font-bold text-sm hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all">
-                    Fazer upgrade — R$ 197,90/mês
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeSection === "security" && (
-              <div className="glass rounded-2xl border border-white/5 p-6 space-y-4">
-                <h2 className="text-base font-semibold text-white">Segurança</h2>
-                <div className="space-y-3">
-                  {[
-                    { label: "Alterar senha", desc: "Requer verificação por email", icon: Shield },
-                    { label: "Autenticação em dois fatores", desc: "Adicione uma camada extra de segurança", icon: Smartphone },
-                    { label: "Sessões ativas", desc: "Veja e revogue sessões abertas", icon: Smartphone },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        key={item.label}
-                        className="w-full flex items-center gap-3 p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/3 transition-all group"
-                      >
-                        <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-4 h-4 text-white/50" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="text-sm font-medium text-white/80">{item.label}</p>
-                          <p className="text-xs text-white/30 mt-0.5">{item.desc}</p>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="pt-4 border-t border-white/5">
-                  <button className="text-sm text-red-400/70 hover:text-red-400 transition-colors">
-                    Excluir conta permanentemente
-                  </button>
-                </div>
-              </div>
-            )}
+            {activeSection === "profile"       && <ProfileSection />}
+            {activeSection === "notifications" && <NotificationsSection />}
+            {activeSection === "billing"       && <BillingSection />}
+            {activeSection === "security"      && <SecuritySection />}
           </div>
         </div>
       </motion.div>
