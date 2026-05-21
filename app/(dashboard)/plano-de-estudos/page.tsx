@@ -24,11 +24,18 @@ const taskTypeColors: Record<string, string> = {
 };
 
 const weekDays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-const months = ["Nov 2024"];
+
+interface Task {
+  id: string;
+  title: string;
+  type: "LESSON" | "ESSAY" | "REVIEW" | "PRACTICE";
+  completed: boolean;
+  dueDate?: string;
+}
 
 export default function PlanoDeEstudosPage() {
   const { completedLessonSlugs, essayHistory } = useAppStore();
-  const [tasks, setTasks] = useState<typeof import("@/lib/mock-data").mockStudyPlan.tasks>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [generating, setGenerating] = useState(false);
 
   const toggleTask = (id: string) => {
@@ -39,7 +46,36 @@ export default function PlanoDeEstudosPage() {
 
   const handleGeneratePlan = async () => {
     setGenerating(true);
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 1200));
+    // Generate a starter plan based on lessons not yet completed
+    const LESSON_ORDER = [
+      { slug: "c1-iniciante", title: "Aula: C1 Iniciante — Fundamentos da Norma Culta", type: "LESSON" as const },
+      { slug: "c1-intermediario", title: "Aula: C1 Intermediário — Ortografia e Regência", type: "LESSON" as const },
+      { slug: "c1-avancado", title: "Aula: C1 Avançado — Pontuação e Registros", type: "LESSON" as const },
+      { slug: "c2-iniciante", title: "Aula: C2 Iniciante — Lendo a Proposta", type: "LESSON" as const },
+      { slug: "c2-intermediario", title: "Aula: C2 Intermediário — Repertório", type: "LESSON" as const },
+    ];
+    const today = new Date();
+    const generated: Task[] = [];
+    let dayOffset = 0;
+    for (const lesson of LESSON_ORDER) {
+      if (!completedLessonSlugs.includes(lesson.slug)) {
+        const due = new Date(today);
+        due.setDate(due.getDate() + dayOffset * 2);
+        generated.push({ id: `task-${lesson.slug}`, title: lesson.title, type: lesson.type, completed: false, dueDate: due.toISOString().slice(0, 10) });
+        dayOffset++;
+        if (generated.length >= 5) break;
+      }
+    }
+    generated.push({
+      id: "task-essay-1", title: "Redação: Tema da semana", type: "ESSAY", completed: false,
+      dueDate: new Date(today.getTime() + 3 * 86400000).toISOString().slice(0, 10),
+    });
+    generated.push({
+      id: "task-review-c4", title: "Revisão: Conectivos e coesão (C4)", type: "REVIEW", completed: false,
+      dueDate: new Date(today.getTime() + 5 * 86400000).toISOString().slice(0, 10),
+    });
+    setTasks(generated);
     setGenerating(false);
   };
 
@@ -73,26 +109,30 @@ export default function PlanoDeEstudosPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-5">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-base font-bold text-white">{mockStudyPlan.title}</h2>
-                <span className="text-xs text-blue-400 border border-blue-500/20 rounded-full px-2 py-0.5 bg-blue-500/5">IA</span>
+                <h2 className="text-base font-bold text-white">Meu Plano de Estudos</h2>
+                {tasks.length > 0 && (
+                  <span className="text-xs text-blue-400 border border-blue-500/20 rounded-full px-2 py-0.5 bg-blue-500/5">IA</span>
+                )}
               </div>
-              <p className="text-sm text-white/50">{mockStudyPlan.description}</p>
+              <p className="text-sm text-white/50">
+                {tasks.length === 0
+                  ? "Clique em 'Gerar com IA' para criar seu plano personalizado."
+                  : `${completed} de ${totalTasks} tarefas concluídas`}
+              </p>
             </div>
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <div className="text-center">
-                <p className="text-2xl font-black gradient-text">{mockStudyPlan.progress}%</p>
+            {tasks.length > 0 && (
+              <div className="text-center flex-shrink-0">
+                <p className="text-2xl font-black gradient-text">
+                  {totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0}%
+                </p>
                 <p className="text-xs text-white/30">concluído</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-black text-orange-300">{mockStudyPlan.daysLeft}</p>
-                <p className="text-xs text-white/30">dias restantes</p>
-              </div>
-            </div>
+            )}
           </div>
           <div className="h-2 bg-white/5 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${mockStudyPlan.progress}%` }}
+              animate={{ width: `${totalTasks > 0 ? (completed / totalTasks) * 100 : 0}%` }}
               transition={{ duration: 1.2, ease: "easeOut" }}
               className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
             />
@@ -111,6 +151,13 @@ export default function PlanoDeEstudosPage() {
                 Adicionar
               </button>
             </div>
+            {tasks.length === 0 && (
+              <div className="glass rounded-2xl p-10 border border-white/5 text-center">
+                <Sparkles className="w-8 h-8 text-white/10 mx-auto mb-3" />
+                <p className="text-sm text-white/40 mb-1">Nenhuma tarefa ainda.</p>
+                <p className="text-xs text-white/25">Clique em "Gerar com IA" para criar seu plano personalizado.</p>
+              </div>
+            )}
             {tasks.map((task, i) => {
               const Icon = taskTypeIcons[task.type] || Target;
               return (
