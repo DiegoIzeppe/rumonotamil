@@ -290,7 +290,8 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
   const [timerSeconds, setTimerSeconds] = useState(60 * 60);
   const [sending, setSending] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<"analysis" | "tips">("tips");
-  const { setLastCorrectionResult, setCurrentTheme } = useAppStore();
+  const { setLastCorrectionResult, setCurrentTheme, setPendingEssayMeta } = useAppStore();
+  const [usedAssistant, setUsedAssistant] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -329,6 +330,13 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
     try {
       const content = editor.getText();
       setCurrentTheme(selectedTheme);
+      // Capture metadata for achievement tracking
+      const themeObj = TRENDING_THEMES.find((t) => t.title === selectedTheme);
+      setPendingEssayMeta({
+        wasSimulado: timerActive || timerSeconds < 3600, // timer was started
+        usedAssistant,
+        themeDifficulty: themeObj?.difficulty ?? "Médio",
+      });
       const res = await fetch("/api/ai/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

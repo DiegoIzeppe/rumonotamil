@@ -16,6 +16,7 @@ export interface EssayHistoryEntry {
   feedback: EssayCorrectionOutput;
   wasSimulado?: boolean;
   usedAssistant?: boolean;
+  themeDifficulty?: string; // "Fácil" | "Médio" | "Difícil"
   previousScore?: number; // for improvement tracking
 }
 
@@ -56,7 +57,7 @@ interface AppState {
   markLessonComplete: (slug: string) => void;
   isLessonComplete: (slug: string) => boolean;
 
-  // XP: lessons give 50 XP each
+  // XP: 50 per lesson + (score / 10) per essay
   getXP: () => number;
   getLevel: () => number;
 
@@ -67,11 +68,15 @@ interface AppState {
 
   // Essay history
   essayHistory: EssayHistoryEntry[];
-  addEssayToHistory: (entry: Omit<EssayHistoryEntry, "id" | "date" | "hour">) => void;
+  addEssayToHistory: (entry: Omit<EssayHistoryEntry, "id" | "date" | "hour" | "previousScore">) => void;
 
   // Auth user info
   userInfo: { name: string; email: string } | null;
   setUserInfo: (info: { name: string; email: string } | null) => void;
+
+  // Essay metadata set in treinar before sending, consumed in correcao-ia
+  pendingEssayMeta: { wasSimulado: boolean; usedAssistant: boolean; themeDifficulty: string } | null;
+  setPendingEssayMeta: (m: { wasSimulado: boolean; usedAssistant: boolean; themeDifficulty: string } | null) => void;
 
   // Study profile — collected via onboarding questionnaire
   studyProfile: StudyProfile | null;
@@ -131,9 +136,14 @@ export const useAppStore = create<AppState>()(
         }),
       isLessonComplete: (slug) => get().completedLessonSlugs.includes(slug),
 
-      getXP: () => get().completedLessonSlugs.length * 50,
+      getXP: () => {
+        const lessonXP = get().completedLessonSlugs.length * 50;
+        const essayXP = get().essayHistory.reduce((sum, e) => sum + Math.round(e.score / 10), 0);
+        return lessonXP + essayXP;
+      },
       getLevel: () => {
-        const xp = get().completedLessonSlugs.length * 50;
+        const xp = get().completedLessonSlugs.length * 50 +
+          get().essayHistory.reduce((sum, e) => sum + Math.round(e.score / 10), 0);
         if (xp >= 1500) return 5;
         if (xp >= 800) return 4;
         if (xp >= 400) return 3;
@@ -157,6 +167,7 @@ export const useAppStore = create<AppState>()(
                 date: new Date().toISOString(),
                 hour: new Date().getHours(),
                 previousScore: prev,
+                themeDifficulty: entry.themeDifficulty,
               },
               ...s.essayHistory,
             ].slice(0, 100),
@@ -166,6 +177,9 @@ export const useAppStore = create<AppState>()(
 
       userInfo: null,
       setUserInfo: (info) => set({ userInfo: info }),
+
+      pendingEssayMeta: null,
+      setPendingEssayMeta: (m) => set({ pendingEssayMeta: m }),
 
       studyProfile: null,
       setStudyProfile: (p) => set({ studyProfile: p }),

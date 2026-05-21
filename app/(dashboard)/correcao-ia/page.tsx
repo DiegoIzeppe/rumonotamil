@@ -152,7 +152,7 @@ function UploadMode({
   const [theme, setTheme] = useState("");
   const [checklist, setChecklist] = useState<boolean[]>(CHECKLIST.map(() => false));
   const { correct, loading } = useEssayCorrection();
-  const { currentTheme, addEssayToHistory } = useAppStore();
+  const { currentTheme, addEssayToHistory, pendingEssayMeta, setPendingEssayMeta } = useAppStore();
 
   useEffect(() => {
     if (currentTheme && !theme) setTheme(currentTheme);
@@ -176,7 +176,14 @@ function UploadMode({
   const handleCorrect = async () => {
     const result = await correct(text, theme);
     if (result?.feedback) {
-      addEssayToHistory({ theme: theme || "Sem tema", score: result.feedback.score, feedback: result.feedback });
+      addEssayToHistory({
+        theme: theme || "Sem tema",
+        score: result.feedback.score,
+        feedback: result.feedback,
+        wasSimulado: pendingEssayMeta?.wasSimulado ?? false,
+        usedAssistant: pendingEssayMeta?.usedAssistant ?? false,
+      });
+      setPendingEssayMeta(null);
       onResult(result.feedback, text);
     }
   };

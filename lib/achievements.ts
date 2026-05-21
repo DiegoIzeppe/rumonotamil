@@ -179,10 +179,11 @@ export function computeUnlocked(stats: AchievementStats): Set<string> {
   )) unlocked.add("all_200");
 
   // Desafios
-  if (essays.some((e) => e.wasSimulado)) unlocked.add("timed");
+  if (essays.some((e) => e.wasSimulado)) { unlocked.add("timed"); unlocked.add("simulado"); }
   if (essays.some((e) => (e.previousScore !== undefined) && e.score - e.previousScore >= 50)) unlocked.add("improve_any");
   if (essays.some((e) => (e.previousScore !== undefined) && e.score - e.previousScore >= 200)) unlocked.add("improve_200");
-  if (essays.some((e) => !e.usedAssistant)) unlocked.add("no_assistant");
+  if (essays.some((e) => e.usedAssistant === false)) unlocked.add("no_assistant");
+  if (essays.some((e) => e.themeDifficulty === "Difícil")) unlocked.add("hard_theme");
 
   // 3 essays in same week
   const weekBuckets: Record<string, number> = {};
