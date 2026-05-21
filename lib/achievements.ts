@@ -31,12 +31,15 @@ export const ACHIEVEMENTS: Achievement[] = [
   { key: "essays_100",       title: "Maratona Literária",        description: "Escreveu 100 redações",                           tier: "legendary", category: "escrita",      emoji: "🏃" },
 
   // ── Consistência ─────────────────────────────────────────────────────────
-  { key: "streak_3",         title: "3 Dias Seguidos",           description: "Estudou 3 dias consecutivos",                     tier: "bronze",    category: "consistencia", emoji: "🔥" },
-  { key: "streak_7",         title: "Semana Implacável",         description: "7 dias consecutivos de estudo",                   tier: "silver",    category: "consistencia", emoji: "🔥" },
-  { key: "streak_30",        title: "Disciplina de Ferro",       description: "30 dias consecutivos sem parar",                  tier: "gold",      category: "consistencia", emoji: "⚡" },
+  { key: "streak_5",         title: "5 Dias Seguidos",           description: "5 dias consecutivos de estudo",                   tier: "bronze",    category: "consistencia", emoji: "🔥" },
+  { key: "streak_10",        title: "10 Dias Seguidos",          description: "10 dias consecutivos — primeira semana e meia",   tier: "bronze",    category: "consistencia", emoji: "🔥" },
+  { key: "streak_20",        title: "20 Dias Seguidos",          description: "20 dias consecutivos — ritmo estabelecido",       tier: "silver",    category: "consistencia", emoji: "⚡" },
+  { key: "streak_30",        title: "Semana Implacável",         description: "30 dias consecutivos de estudo",                  tier: "silver",    category: "consistencia", emoji: "🔥" },
+  { key: "streak_40",        title: "Disciplina Real",           description: "40 dias consecutivos — foco total",               tier: "gold",      category: "consistencia", emoji: "💪" },
+  { key: "streak_50",        title: "Disciplina de Ferro",       description: "50 dias consecutivos sem parar",                  tier: "gold",      category: "consistencia", emoji: "⚡" },
+  { key: "streak_100",       title: "Modo ENEM Ativado",         description: "100 dias consecutivos — elite do estudo",         tier: "diamond",   category: "consistencia", emoji: "🏆" },
+  { key: "streak_200",       title: "Rotina Nota 1000",          description: "200 dias — hábito transformado em identidade",    tier: "legendary", category: "consistencia", emoji: "👑" },
   { key: "simulado",         title: "Modo ENEM",                 description: "Completou um simulado cronometrado",              tier: "silver",    category: "consistencia", emoji: "⏱️" },
-  { key: "streak_14",        title: "Sem Pausas",                description: "14 dias consecutivos de estudo",                  tier: "gold",      category: "consistencia", emoji: "💪" },
-  { key: "streak_60",        title: "Rotina Nota 1000",          description: "60 dias consecutivos — hábito formado",           tier: "diamond",   category: "consistencia", emoji: "🏆" },
 
   // ── Competências C1 ──────────────────────────────────────────────────────
   { key: "c1_120",           title: "Gramática Sob Controle",   description: "C1 ≥ 120 em alguma redação",                      tier: "bronze",    category: "competencias", emoji: "📝" },
@@ -132,11 +135,14 @@ export function computeUnlocked(stats: AchievementStats): Set<string> {
   if (total >= 100) unlocked.add("essays_100");
 
   // Consistência
-  if (streak >= 3)  unlocked.add("streak_3");
-  if (streak >= 7)  unlocked.add("streak_7");
-  if (streak >= 14) unlocked.add("streak_14");
-  if (streak >= 30) unlocked.add("streak_30");
-  if (streak >= 60) unlocked.add("streak_60");
+  if (streak >= 5)   unlocked.add("streak_5");
+  if (streak >= 10)  unlocked.add("streak_10");
+  if (streak >= 20)  unlocked.add("streak_20");
+  if (streak >= 30)  unlocked.add("streak_30");
+  if (streak >= 40)  unlocked.add("streak_40");
+  if (streak >= 50)  unlocked.add("streak_50");
+  if (streak >= 100) unlocked.add("streak_100");
+  if (streak >= 200) unlocked.add("streak_200");
   if (essays.some((e) => e.wasSimulado)) unlocked.add("simulado");
 
   // C1
