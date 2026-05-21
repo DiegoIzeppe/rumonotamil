@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Zap, Star, Users, Lock, ChevronDown } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
@@ -107,7 +107,7 @@ function CategorySection({
 }
 
 export default function RankingPage() {
-  const { getXP, getLevel, essayHistory, completedLessonSlugs, currentStreak, maxStreak } = useAppStore();
+  const { getXP, getLevel, essayHistory, completedLessonSlugs, currentStreak, maxStreak, setUnlockedAchievementCount } = useAppStore();
   const xp = getXP();
   const level = getLevel();
 
@@ -117,6 +117,9 @@ export default function RankingPage() {
     currentStreak,
     maxStreak,
   });
+
+  // Sync achievement count so getXP includes achievement XP
+  useEffect(() => { setUnlockedAchievementCount(unlockedKeys.size); }, [unlockedKeys.size]);
 
   const totalAchs = ACHIEVEMENTS.length;
   const unlockedCount = unlockedKeys.size;
@@ -160,6 +163,34 @@ export default function RankingPage() {
               </p>
             </div>
           </div>
+
+          {/* XP breakdown */}
+          {(() => {
+            const lessonXP   = completedLessonSlugs.length * 50;
+            const trainXP    = essayHistory.filter((e) => !e.wasSimulado).length * 50;
+            const simXP      = essayHistory.filter((e) => e.wasSimulado).reduce((s, e) => s + e.score, 0);
+            const achXP      = unlockedKeys.size * 50;
+            const streakXP   = Math.floor(Math.max(currentStreak, maxStreak) / 10) * 1000;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                {[
+                  { label: "Aulas", value: `+${lessonXP}`, icon: "📚" },
+                  { label: "Treino", value: `+${trainXP}`, icon: "✍️" },
+                  { label: "Simulado", value: `+${simXP}`, icon: "⏱️" },
+                  { label: "Conquistas", value: `+${achXP}`, icon: "🏆" },
+                  { label: "Streak", value: `+${streakXP}`, icon: "🔥" },
+                ].map((s) => (
+                  <div key={s.label} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/3 border border-white/5">
+                    <span className="text-sm">{s.icon}</span>
+                    <div>
+                      <p className="text-xs font-bold text-white/70">{s.value} XP</p>
+                      <p className="text-[10px] text-white/30">{s.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
 
           {/* Quick stats */}
           <div className="grid grid-cols-3 gap-3">
