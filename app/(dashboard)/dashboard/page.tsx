@@ -144,9 +144,10 @@ const EMPTY_WEEKLY = [
 export default function DashboardPage() {
   const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs } = useAppStore();
   const weeklyTheme = getWeeklyTheme();
-  const [motivationalPhrase] = useState(
-    () => MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)]
-  );
+  const [motivationalPhrase, setMotivationalPhrase] = useState("");
+  useEffect(() => {
+    setMotivationalPhrase(MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)]);
+  }, []);
 
   const [dbData, setDbData] = useState<UserStats | null>(null);
 
@@ -185,9 +186,11 @@ export default function DashboardPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               Olá, {userName.split(" ")[0]} 👋
             </h1>
-            <p className="text-white/60 mt-1 text-sm italic max-w-lg leading-relaxed">
-              "{motivationalPhrase}"
-            </p>
+            {motivationalPhrase && (
+              <p className="text-white/60 mt-1 text-sm italic max-w-lg leading-relaxed">
+                "{motivationalPhrase}"
+              </p>
+            )}
             {streakDays > 0 && (
               <p className="text-white/30 mt-1 text-xs">
                 🔥 {streakDays} dias consecutivos de estudo
