@@ -57,9 +57,9 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
       <div className="relative flex flex-col h-full p-4">
         {/* Logo */}
         <div className="flex items-center justify-between mb-8 px-2">
-          <Link href="/dashboard" className="flex items-center gap-1">
-            <span className="text-sm font-bold text-white">Rumo à</span>
-            <span className="text-sm font-black gradient-text">Nota 1000</span>
+          <Link href="/dashboard" className="flex items-center gap-1.5">
+            <span className="text-base font-bold text-white">Rumo à</span>
+            <span className="text-base font-black gradient-text">Nota 1000</span>
           </Link>
           {mobile && (
             <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/5 text-white/50 hover:text-white transition-colors">
