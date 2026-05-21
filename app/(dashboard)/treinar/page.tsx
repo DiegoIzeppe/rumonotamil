@@ -21,7 +21,7 @@ import { useAppStore } from "@/store/app-store";
 import { TRENDING_THEMES, getWeeklyTheme, type Theme } from "@/lib/weekly-theme";
 import toast from "react-hot-toast";
 
-const CATEGORIES = ["Todos", "Saúde", "Política", "Tecnologia", "Educação", "Gênero", "Direitos", "Meio Ambiente"];
+const CATEGORIES = ["Todos", "Saúde", "Política", "Tecnologia", "Educação", "Gênero", "Direitos", "Meio Ambiente", "Trabalho", "Social", "Segurança", "Cultura"];
 
 const diffColor: Record<string, string> = {
   "Fácil": "text-green-400 bg-green-500/10 border-green-500/20",
