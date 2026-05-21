@@ -73,8 +73,35 @@ interface AppState {
   userInfo: { name: string; email: string } | null;
   setUserInfo: (info: { name: string; email: string } | null) => void;
 
+  // Study profile — collected via onboarding questionnaire
+  studyProfile: StudyProfile | null;
+  setStudyProfile: (p: StudyProfile) => void;
+
+  // Study plan tasks — persisted so they survive navigation
+  studyPlanTasks: StudyTask[];
+  setStudyPlanTasks: (tasks: StudyTask[]) => void;
+  toggleStudyTask: (id: string) => void;
+
   // Reset all progress (aulas + essays + streak)
   resetAllProgress: () => void;
+}
+
+export interface StudyProfile {
+  urgency: "less1m" | "1-3m" | "3-6m" | "6m+";
+  hoursPerDay: 1 | 2 | 3 | 5;
+  targetScore: 700 | 800 | 900 | 1000;
+  level: "iniciante" | "intermediario" | "avancado";
+  weakCompetencies: number[]; // 1-5, only used if no essay history
+}
+
+export interface StudyTask {
+  id: string;
+  title: string;
+  type: "LESSON" | "ESSAY" | "REVIEW" | "PRACTICE";
+  completed: boolean;
+  dueDate?: string;
+  competency?: number;
+  slug?: string;
 }
 
 export const useAppStore = create<AppState>()(
@@ -140,6 +167,18 @@ export const useAppStore = create<AppState>()(
       userInfo: null,
       setUserInfo: (info) => set({ userInfo: info }),
 
+      studyProfile: null,
+      setStudyProfile: (p) => set({ studyProfile: p }),
+
+      studyPlanTasks: [],
+      setStudyPlanTasks: (tasks) => set({ studyPlanTasks: tasks }),
+      toggleStudyTask: (id) =>
+        set((s) => ({
+          studyPlanTasks: s.studyPlanTasks.map((t) =>
+            t.id === id ? { ...t, completed: !t.completed } : t
+          ),
+        })),
+
       resetAllProgress: () =>
         set({
           completedLessonSlugs: [],
@@ -149,6 +188,8 @@ export const useAppStore = create<AppState>()(
           lastActivityDate: "",
           lastCorrectionResult: null,
           essayDraft: "",
+          studyProfile: null,
+          studyPlanTasks: [],
         }),
     }),
     {
@@ -163,6 +204,8 @@ export const useAppStore = create<AppState>()(
         currentStreak: s.currentStreak,
         maxStreak: s.maxStreak,
         lastActivityDate: s.lastActivityDate,
+        studyProfile: s.studyProfile,
+        studyPlanTasks: s.studyPlanTasks,
       }),
     }
   )
