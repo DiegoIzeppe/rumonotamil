@@ -16,6 +16,29 @@ import { useAppStore } from "@/store/app-store";
 import { getWeeklyTheme } from "@/lib/weekly-theme";
 import { cn, formatDate, getScoreColor, getScoreLabel, getCompetencyLabel } from "@/lib/utils";
 
+const MOTIVATIONAL_PHRASES = [
+  "A nota que você quer começa com a redação que você vai escrever hoje.",
+  "Cada aula é um ponto a mais na sua nota final.",
+  "Banca do ENEM não corrige preguiça. Vai treinar.",
+  "O corretor não vê esforço — vê resultado. Mostre resultado.",
+  "Redação nota 1000 não cai do céu. Você constrói frase a frase.",
+  "Hoje é um bom dia para tirar 200 em C5.",
+  "Quem escreve todo dia chega lá. Simples assim.",
+  "Sua próxima redação pode ser a melhor que você já escreveu.",
+  "C4 fraco? Uma aula resolve. Você tem tempo agora.",
+  "O ENEM cobra argumento. Treine argumento.",
+  "Repertório não se decora — se entende. Vai estudar.",
+  "Cada erro corrigido pela IA é um ponto ganho no ENEM de verdade.",
+  "A diferença entre 600 e 900 é treino. Nada mais.",
+  "Você não precisa ser perfeito hoje. Precisa ser melhor que ontem.",
+  "Quem tem plano de estudos supera quem só tem vontade.",
+  "Proposta de intervenção completa: agente, ação, meio, finalidade. Decora.",
+  "Conectivos variados = C4 mais alto. Use 'ademais' hoje.",
+  "O tempo que você passa aqui é o tempo investido na sua nota.",
+  "Uma redação por dia afasta o 500 longe.",
+  "Filosofia, dado e obra literária num mesmo texto? Isso vale 200 em C2.",
+];
+
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.07 } } },
   item: {
@@ -121,6 +144,9 @@ const EMPTY_WEEKLY = [
 export default function DashboardPage() {
   const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs } = useAppStore();
   const weeklyTheme = getWeeklyTheme();
+  const [motivationalPhrase] = useState(
+    () => MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)]
+  );
 
   const [dbData, setDbData] = useState<UserStats | null>(null);
 
@@ -159,9 +185,14 @@ export default function DashboardPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               Olá, {userName.split(" ")[0]} 👋
             </h1>
-            <p className="text-white/40 mt-1 text-sm">
-              {streakDays} dias consecutivos de estudo. Continue assim!
+            <p className="text-white/60 mt-1 text-sm italic max-w-lg leading-relaxed">
+              "{motivationalPhrase}"
             </p>
+            {streakDays > 0 && (
+              <p className="text-white/30 mt-1 text-xs">
+                🔥 {streakDays} dias consecutivos de estudo
+              </p>
+            )}
           </div>
           <Link
             href="/treinar"

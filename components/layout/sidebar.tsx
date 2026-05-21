@@ -57,14 +57,9 @@ export function Sidebar({ mobile = false, onClose }: SidebarProps) {
       <div className="relative flex flex-col h-full p-4">
         {/* Logo */}
         <div className="flex items-center justify-between mb-8 px-2">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center glow-blue-sm">
-              <Zap className="w-4 h-4 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white leading-none">Rumo à</p>
-              <p className="text-xs font-black gradient-text leading-none">Nota 1000</p>
-            </div>
+          <Link href="/dashboard" className="flex items-center gap-1">
+            <span className="text-sm font-bold text-white">Rumo à</span>
+            <span className="text-sm font-black gradient-text">Nota 1000</span>
           </Link>
           {mobile && (
             <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/5 text-white/50 hover:text-white transition-colors">
