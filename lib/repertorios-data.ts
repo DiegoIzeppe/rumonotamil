@@ -546,6 +546,8 @@ export const repertoires: Repertoire[] = [
   },
 
   // ── CIÊNCIA ──
+  {
+    id: "r19",
     author: "IPCC — Painel Intergovernamental sobre Mudanças Climáticas",
     work: "Relatório AR6 (2022)",
     summary: "O IPCC confirma que as mudanças climáticas são inequivocamente causadas pela ação humana. O aquecimento já atingiu 1,1°C acima do nível pré-industrial, com risco de ultrapassar 1,5°C até 2040.",
