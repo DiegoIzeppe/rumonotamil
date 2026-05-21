@@ -234,17 +234,13 @@ function NotificationsSection() {
 function BillingSection() {
   const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async () => {
+  const handleManage = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cycle: "monthly", paymentMode: "monthly" }),
-      });
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else toast.error(data.error ?? "Erro ao criar sessão de pagamento.");
+      else toast.error(data.error ?? "Portal indisponível. Contate o suporte.");
     } catch {
       toast.error("Erro de conexão.");
     } finally {
@@ -253,73 +249,41 @@ function BillingSection() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="glass rounded-2xl border border-blue-500/20 p-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-semibold text-white">Plano Atual</h2>
-          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 uppercase">
-            Gratuito
-          </span>
-        </div>
-        <p className="text-xs text-white/40 mb-5">Você está no plano gratuito com acesso limitado.</p>
-
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Crown className="w-5 h-5 text-blue-400" />
-            <h3 className="text-sm font-bold text-white">Plano PRO</h3>
-            <span className="ml-auto text-xs text-blue-400 font-bold">R$ 49/mês</span>
-          </div>
-          <div className="space-y-2 mb-5">
-            {(PRO_PLAN.features as string[]).map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-white/60">
-                <Check className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <span>{f}</span>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={handleCheckout}
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold text-sm transition-all hover:shadow-glow disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Zap className="w-4 h-4" />
-            )}
-            {loading ? "Aguarde..." : "Assinar PRO — R$ 49/mês"}
-          </button>
-        </div>
+    <div className="glass rounded-2xl border border-blue-500/20 p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-white">Assinatura</h2>
+        <span className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 uppercase">
+          <Zap className="w-3 h-3" />
+          PRO
+        </span>
       </div>
 
-      <div className="glass rounded-2xl border border-white/5 p-5">
-        <h3 className="text-sm font-semibold text-white mb-2">Comparativo</h3>
-        <div className="space-y-2 text-xs">
-          {[
-            { feature: "Aulas C1-C5", free: true, pro: true },
-            { feature: "Correção por IA", free: "3/mês", pro: "Ilimitada" },
-            { feature: "Assistente IA", free: false, pro: true },
-            { feature: "Simulado ENEM", free: false, pro: true },
-            { feature: "Biblioteca de repertórios", free: "Limitada", pro: "Completa" },
-            { feature: "Plano de estudos personalizado", free: false, pro: true },
-          ].map((row) => (
-            <div key={row.feature} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-              <span className="text-white/60">{row.feature}</span>
-              <div className="flex gap-8">
-                <span className={cn("w-16 text-center", typeof row.free === "boolean" ? (row.free ? "text-green-400" : "text-white/20") : "text-yellow-400")}>
-                  {typeof row.free === "boolean" ? (row.free ? "✓" : "—") : row.free}
-                </span>
-                <span className={cn("w-16 text-center", typeof row.pro === "boolean" ? (row.pro ? "text-blue-400" : "text-white/20") : "text-blue-400")}>
-                  {typeof row.pro === "boolean" ? (row.pro ? "✓" : "—") : row.pro}
-                </span>
-              </div>
-            </div>
-          ))}
-          <div className="flex justify-end gap-8 pt-1 text-[10px] text-white/30 uppercase tracking-wider">
-            <span className="w-16 text-center">Grátis</span>
-            <span className="w-16 text-center text-blue-400/60">PRO</span>
+      <div className="flex items-end gap-1">
+        <span className="text-3xl font-black text-white">R$ 49</span>
+        <span className="text-white/40 mb-1">/mês</span>
+      </div>
+
+      <div className="space-y-2">
+        {(PRO_PLAN.features as string[]).map((f) => (
+          <div key={f} className="flex items-center gap-2.5 text-sm text-white/70">
+            <Check className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            <span>{f}</span>
           </div>
-        </div>
+        ))}
+      </div>
+
+      <div className="pt-2 border-t border-white/5 space-y-2">
+        <button
+          onClick={handleManage}
+          disabled={loading}
+          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20 px-4 py-2 rounded-xl disabled:opacity-50"
+        >
+          {loading
+            ? <div className="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+            : <Crown className="w-3.5 h-3.5" />}
+          Gerenciar assinatura no Stripe
+        </button>
+        <p className="text-[11px] text-white/25">Cancele, troque o plano ou atualize o pagamento pelo portal Stripe.</p>
       </div>
     </div>
   );
