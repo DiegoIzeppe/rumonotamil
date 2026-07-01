@@ -16,7 +16,7 @@ import { useAppStore } from "@/store/app-store";
 import { getWeeklyTheme } from "@/lib/weekly-theme";
 import { MotivationalModal } from "@/components/ui/motivational-modal";
 import { AnimatePresence } from "framer-motion";
-import { cn, formatDate, getScoreColor, getScoreLabel, getCompetencyLabel } from "@/lib/utils";
+import { cn, formatDate, getScoreColor, getScoreLabel, getCompetencyLabel, roundScore } from "@/lib/utils";
 
 const MOTIVATIONAL_PHRASES = [
   "A nota que você quer começa com a redação que você vai escrever hoje.",
@@ -50,7 +50,8 @@ const stagger = {
 };
 
 function ScoreRing({ score }: { score: number }) {
-  const pct = score / 1000;
+  const safeScore = typeof score === "number" && !isNaN(score) ? score : 0;
+  const pct = safeScore / 1000;
   const circumference = 2 * Math.PI * 70;
   const offset = circumference - pct * circumference;
 
@@ -74,10 +75,10 @@ function ScoreRing({ score }: { score: number }) {
         </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-black gradient-text">{score}</span>
+        <span className="text-4xl font-black gradient-text">{safeScore}</span>
         <span className="text-xs text-white/40 font-medium">de 1000</span>
-        <span className={cn("text-xs font-semibold mt-1", getScoreColor(score))}>
-          {getScoreLabel(score)}
+        <span className={cn("text-xs font-semibold mt-1", getScoreColor(safeScore))}>
+          {getScoreLabel(safeScore)}
         </span>
       </div>
     </div>
@@ -144,12 +145,14 @@ const EMPTY_WEEKLY = [
 ];
 
 export default function DashboardPage() {
-  const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs } = useAppStore();
+  const { userInfo, getXP, getLevel, essayHistory, completedLessonSlugs, currentStreak } = useAppStore();
   const weeklyTheme = getWeeklyTheme();
   const [motivationalPhrase, setMotivationalPhrase] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const phrase = MOTIVATIONAL_PHRASES[Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length)];
     setMotivationalPhrase(phrase);
     // Show modal once per browser session
@@ -169,22 +172,56 @@ export default function DashboardPage() {
   }, []);
 
   const userName = dbData?.user.name ?? userInfo?.name ?? "Estudante";
-  const streakDays = dbData?.user.streakDays ?? 0;
-  const userXp = dbData?.user.xp ?? getXP();
-  const userLevel = dbData?.user.level ?? getLevel();
-  const totalEssays = dbData?.stats.totalEssays ?? essayHistory.length;
-  const avgScore = dbData?.stats.avgScore ?? (essayHistory.length > 0
-    ? Math.round(essayHistory.reduce((s, e) => s + e.score, 0) / essayHistory.length)
-    : 0);
+  const streakDays = dbData?.user.streakDays ?? (mounted ? currentStreak : 0);
+  const userXp = dbData?.user.xp ?? (mounted ? getXP() : 0);
+  const userLevel = dbData?.user.level ?? (mounted ? getLevel() : 1);
+  const localHistory = mounted ? essayHistory : [];
+  const safeNum = (n: unknown) => (typeof n === "number" && !isNaN(n) ? n : 0);
+  const totalEssays = dbData?.stats.totalEssays ?? localHistory.length;
+  const avgScore = roundScore(safeNum(dbData?.stats.avgScore) || (localHistory.length > 0
+    ? localHistory.reduce((s, e) => s + safeNum(e.score), 0) / localHistory.length
+    : 0));
   const weeklyData = dbData?.weeklyProgress?.length
     ? dbData.weeklyProgress.map((d) => ({ ...d, essays: 0 }))
-    : EMPTY_WEEKLY;
-  const competencyAvgs = dbData?.stats.competencyAvgs ?? [0, 0, 0, 0, 0];
+    : (() => {
+        const days = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+        const base = days.map((day) => ({ day, score: 0, essays: 0 }));
+        if (!localHistory.length) return base;
+        const now = new Date();
+        const dow = now.getDay();
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+        monday.setHours(0, 0, 0, 0);
+        const result = base.map((d) => ({ ...d }));
+        localHistory.forEach((e) => {
+          const d = new Date(e.date);
+          const diff = Math.floor((d.getTime() - monday.getTime()) / 86400000);
+          if (diff >= 0 && diff < 7) {
+            const slot = result[diff];
+            slot.score = slot.essays === 0 ? safeNum(e.score) : roundScore((slot.score * slot.essays + safeNum(e.score)) / (slot.essays + 1));
+            slot.essays++;
+          }
+        });
+        return result;
+      })();
+  const competencyAvgs = dbData?.stats.competencyAvgs ?? (() => {
+    if (localHistory.length === 0) return [0, 0, 0, 0, 0];
+    const keys = ["competency1", "competency2", "competency3", "competency4", "competency5"] as const;
+    return keys.map((k) =>
+      roundScore(localHistory.reduce((s, e) => s + safeNum(e.feedback?.[k]?.score), 0) / localHistory.length)
+    );
+  })();
   const recentEssays = dbData?.recentEssays?.length
     ? dbData.recentEssays.map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.createdAt }))
-    : essayHistory.slice(0, 5).map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.date }));
+    : localHistory.slice(0, 5).map((e) => ({ id: e.id, title: e.theme, score: e.score, date: e.date }));
 
-  const weeklyDelta = 0;
+  const weeklyDelta = (() => {
+    if (dbData) return 0;
+    if (localHistory.length < 2) return 0;
+    const latest = localHistory[0]?.score ?? 0;
+    const previous = localHistory[localHistory.length - 1]?.score ?? latest;
+    return latest - previous;
+  })();
 
   return (
     <>
@@ -324,8 +361,8 @@ export default function DashboardPage() {
             {/* Mini stats da semana */}
             <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-3 gap-3">
               {[
-                { label: "Melhor nota", value: Math.max(...weeklyData.map(d => d.score)), color: "text-green-400" },
-                { label: "Média", value: Math.round(weeklyData.reduce((s, d) => s + d.score, 0) / weeklyData.length), color: "text-blue-400" },
+                { label: "Melhor nota", value: localHistory.length > 0 ? Math.max(...localHistory.map(e => safeNum(e.score))) : Math.max(0, ...weeklyData.map(d => safeNum(d.score))), color: "text-green-400" },
+                { label: "Média", value: avgScore, color: "text-blue-400" },
                 { label: "Redações", value: totalEssays, color: "text-cyan-400" },
               ].map(s => (
                 <div key={s.label} className="text-center p-2.5 rounded-xl bg-white/8">
@@ -403,7 +440,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-2">
                 {recentEssays.map((essay) => (
-                  <div key={essay.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer">
+                  <Link key={essay.id} href="/historico" className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer">
                     <div className={cn(
                       "w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0",
                       essay.score >= 800 ? "bg-green-500/15 text-green-400" :
@@ -416,7 +453,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-white/30">{formatDate(essay.date)}</p>
                     </div>
                     <ArrowUpRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 ml-auto transition-colors" />
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -450,29 +487,85 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
-          {/* Acesso rápido — links reais */}
+          {/* Acesso rápido — personalizado por competência mais fraca */}
           <motion.div variants={stagger.item} className="glass rounded-2xl p-6 border border-white/10">
             <div className="flex items-center gap-2 mb-4">
               <Layers className="w-4 h-4 text-blue-400" />
-              <h2 className="text-sm font-semibold text-white">Acesso Rápido</h2>
+              <h2 className="text-sm font-semibold text-white">
+                {essayHistory.length > 0 ? "O que estudar agora" : "Acesso Rápido"}
+              </h2>
             </div>
             <div className="space-y-2">
-              {[
-                { label: "Começar C1 — Norma Culta", sub: "Primeira aula do método", href: "/aulas/c1-iniciante", badge: "Iniciante", badgeColor: "text-green-400 bg-green-500/10" },
-                { label: "Correção por IA", sub: "Cole sua redação e receba nota", href: "/correcao-ia", badge: "IA", badgeColor: "text-blue-400 bg-blue-500/10" },
-                { label: "Treinar redação", sub: "Escolha um tema e escreva", href: "/treinar", badge: "Editor", badgeColor: "text-purple-400 bg-purple-500/10" },
-                { label: "Ver todas as aulas", sub: "15 aulas C1 → C5", href: "/aulas", badge: "Método", badgeColor: "text-cyan-400 bg-cyan-500/10" },
-              ].map((item, i) => (
-                <Link key={i} href={item.href}>
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/5">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-white/80 font-medium group-hover:text-white transition-colors">{item.label}</p>
-                      <p className="text-[11px] text-white/35 mt-0.5">{item.sub}</p>
-                    </div>
-                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0", item.badgeColor)}>{item.badge}</span>
-                  </div>
-                </Link>
-              ))}
+              {(() => {
+                const COMP_INFO: Record<number, { label: string; desc: string; href: string; tip: string }> = {
+                  1: { label: "C1 — Norma Culta", desc: "Gramática, ortografia e concordância", href: "/aulas?c=1", tip: "Sua gramática precisa de atenção" },
+                  2: { label: "C2 — Tema e Repertório", desc: "Compreensão do tema e argumentos de área", href: "/aulas?c=2", tip: "Aprofunde seu repertório sociocultural" },
+                  3: { label: "C3 — Argumentação", desc: "Construção e progressão de argumentos", href: "/aulas?c=3", tip: "Seus argumentos precisam de mais solidez" },
+                  4: { label: "C4 — Coesão Textual", desc: "Conectivos e fluidez entre parágrafos", href: "/aulas?c=4", tip: "Trabalhe a coesão e conectivos" },
+                  5: { label: "C5 — Proposta de Intervenção", desc: "Agente, ação, meio e finalidade", href: "/aulas?c=5", tip: "Melhore sua proposta de intervenção" },
+                };
+
+                const fixed = [
+                  { label: "Correção por IA", sub: "Cole sua redação e receba nota", href: "/correcao-ia", badge: "IA", badgeColor: "text-blue-400 bg-blue-500/10" },
+                  { label: "Treinar redação", sub: "Escolha um tema e escreva", href: "/treinar", badge: "Editor", badgeColor: "text-purple-400 bg-purple-500/10" },
+                ];
+
+                if (localHistory.length === 0) {
+                  return [
+                    { label: "Começar C1 — Norma Culta", sub: "Primeira aula do método", href: "/aulas/c1-iniciante", badge: "Iniciante", badgeColor: "text-green-400 bg-green-500/10" },
+                    ...fixed,
+                    { label: "Ver todas as aulas", sub: "15 aulas C1 → C5", href: "/aulas", badge: "Método", badgeColor: "text-cyan-400 bg-cyan-500/10" },
+                  ].map((item, i) => (
+                    <Link key={i} href={item.href}>
+                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/5">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-white/80 font-medium group-hover:text-white transition-colors">{item.label}</p>
+                          <p className="text-[11px] text-white/35 mt-0.5">{item.sub}</p>
+                        </div>
+                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0", item.badgeColor)}>{item.badge}</span>
+                      </div>
+                    </Link>
+                  ));
+                }
+
+                // Rank competencies by score ascending — worst first
+                const ranked = [1, 2, 3, 4, 5]
+                  .map((c) => ({ c, score: competencyAvgs[c - 1] }))
+                  .sort((a, b) => a.score - b.score);
+
+                const weakest = ranked.slice(0, 2);
+
+                return (
+                  <>
+                    {weakest.map(({ c, score }) => {
+                      const info = COMP_INFO[c];
+                      const scoreColor = score < 80 ? "text-red-400 bg-red-500/10" : score < 120 ? "text-orange-400 bg-orange-500/10" : "text-yellow-400 bg-yellow-500/10";
+                      return (
+                        <Link key={c} href={info.href}>
+                          <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/5">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm text-white/80 font-medium group-hover:text-white transition-colors">{info.label}</p>
+                              <p className="text-[11px] text-white/35 mt-0.5">{info.tip} — média {score}/200</p>
+                            </div>
+                            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0", scoreColor)}>Prioridade</span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                    {fixed.map((item, i) => (
+                      <Link key={`f${i}`} href={item.href}>
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/5">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm text-white/80 font-medium group-hover:text-white transition-colors">{item.label}</p>
+                            <p className="text-[11px] text-white/35 mt-0.5">{item.sub}</p>
+                          </div>
+                          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0", item.badgeColor)}>{item.badge}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </>
+                );
+              })()}
             </div>
           </motion.div>
 

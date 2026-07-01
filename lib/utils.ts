@@ -9,6 +9,12 @@ export function formatScore(score: number): string {
   return score.toString().padStart(3, "0");
 }
 
+/** ENEM scores are always reported in multiples of 10 — round any computed average. */
+export function roundScore(score: number): number {
+  if (typeof score !== "number" || isNaN(score)) return 0;
+  return Math.round(score / 10) * 10;
+}
+
 export function getScoreColor(score: number): string {
   if (score >= 900) return "text-yellow-400";
   if (score >= 800) return "text-green-400";

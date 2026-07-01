@@ -48,16 +48,20 @@ const UNLOCK_ORDER = [
 export default function AulasPage() {
   const { completedLessonSlugs } = useAppStore();
   const [dbCompletedSlugs, setDbCompletedSlugs] = useState<Set<string>>(new Set());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetch("/api/lessons/progress")
       .then((r) => r.json())
       .then((d) => { if (d.completedSlugs) setDbCompletedSlugs(new Set(d.completedSlugs)); })
       .catch(() => {});
   }, []);
 
+  const localCompleted = mounted ? completedLessonSlugs : [];
+
   const isCompleted = (slug: string) =>
-    completedLessonSlugs.includes(slug) ||
+    localCompleted.includes(slug) ||
     dbCompletedSlugs.has(slug) ||
     mockLessons.find((l) => l.slug === slug)?.progress === 100;
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE, parseSessionToken } from "@/lib/auth";
+import { roundScore } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get(AUTH_COOKIE)?.value;
@@ -38,14 +39,14 @@ export async function GET(req: NextRequest) {
 
     const completedEssays = dbUser.essays.filter((e) => e.status === "COMPLETED");
     const avgScore = completedEssays.length > 0
-      ? Math.round(completedEssays.reduce((sum, e) => sum + (e.aiFeedback?.score ?? 0), 0) / completedEssays.length)
+      ? roundScore(completedEssays.reduce((sum, e) => sum + (e.aiFeedback?.score ?? 0), 0) / completedEssays.length)
       : 0;
 
     const competencyAvgs = [1, 2, 3, 4, 5].map((c) => {
       const scores = completedEssays
         .map((e) => e.aiFeedback?.[`competency${c}Score` as keyof typeof e.aiFeedback] as number | undefined)
         .filter((s): s is number => s !== undefined);
-      return scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      return scores.length > 0 ? roundScore(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
     });
 
     const weeklyProgress = completedEssays

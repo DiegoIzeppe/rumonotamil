@@ -14,9 +14,11 @@ interface TopbarProps {
 export function Topbar({ onMenuClick }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { getXP, getLevel, userInfo, setUserInfo } = useAppStore();
 
   useEffect(() => {
+    setMounted(true);
     if (!userInfo) {
       fetch("/api/auth/me")
         .then((r) => r.json())
@@ -25,8 +27,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
     }
   }, []);
 
-  const xp = getXP();
-  const level = getLevel();
+  const xp = mounted ? getXP() : 0;
+  const level = mounted ? getLevel() : 1;
   const displayName = userInfo?.name ?? "Estudante";
 
   return (
@@ -55,7 +57,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         {/* XP */}
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-500/20 bg-blue-500/5">
           <Zap className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-semibold text-blue-300">{xp.toLocaleString("pt-BR")}</span>
+          <span className="text-sm font-semibold text-blue-300" suppressHydrationWarning>{xp.toLocaleString("pt-BR")}</span>
           <span className="text-xs text-blue-400/60 hidden md:block">XP</span>
         </div>
 

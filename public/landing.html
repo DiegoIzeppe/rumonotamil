@@ -1000,7 +1000,7 @@
       color: var(--white);
     }
 
-    /* ====== Banco de redações ====== */
+    /* ====== Banco de repertórios ====== */
     .essays {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1018,9 +1018,16 @@
       border-radius: var(--radius-lg);
       padding: 26px;
       overflow: hidden;
-      background: var(--card);
-      border: 1px solid var(--line);
-      transition: transform 0.4s ease;
+      background: var(--bg-3);
+      border: 1px solid var(--line-2);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.35);
+      transition: border-color 0.3s ease, background 0.3s ease, transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+
+    .essay:hover {
+      border-color: rgba(28, 176, 248, 0.4);
+      background: #0d2056;
     }
 
     .essay::before {
@@ -1944,7 +1951,7 @@
         <ul class="nav-links">
           <li><a href="#como">Como funciona</a></li>
           <li><a href="#competencias">Competências</a></li>
-          <li><a href="#exemplos">Exemplos</a></li>
+          <li><a href="#competencias">Competências</a></li>
           <li><a href="#planos">Planos</a></li>
         </ul>
       </nav>
@@ -1983,7 +1990,7 @@
         <span class="word"><span class="accent">a nota 1000</span>.</span>
       </h1>
       <p class="hero-lead reveal">
-        Método estruturado, banco com mais de 200 redações reais nota 1000 e correção por
+        Método estruturado, banco de repertórios curado por tema e competência, e correção por
         inteligência artificial treinada por especialistas do ENEM, analisando competência
         por competência para transformar sua redação em um argumento forte, estratégico e nota máxima.
       </p>
@@ -2002,8 +2009,8 @@
           <div class="stat-label">Competências do ENEM</div>
         </div>
         <div class="stat">
-          <div class="stat-num"><span class="plus">+</span><span class="count" data-target="200">0</span></div>
-          <div class="stat-label">Redações reais 1000</div>
+          <div class="stat-num"><span class="plus">+</span><span class="count" data-target="67">0</span></div>
+          <div class="stat-label">Repertórios curados</div>
         </div>
         <div class="stat">
           <div class="stat-num">IA<span class="suffix">.</span></div>
@@ -2041,8 +2048,8 @@
               <path d="M8 8h8M8 12h8M8 16h5" />
             </svg>
           </div>
-          <h3>Leia exemplos reais</h3>
-          <p>Mais de 200 redações reais nota 1000 anotadas por temática e competência, com análise da banca.</p>
+          <h3>Acesse o banco de repertórios</h3>
+          <p>Repertórios organizados por tema e competência — citações, dados, obras e autores prontos para usar.</p>
         </article>
         <article class="step tilt" data-num="03">
           <div class="step-ico">
@@ -2150,69 +2157,6 @@
     </div>
   </section>
 
-  <!-- ============ BANCO DE REDAÇÕES ============ -->
-  <section class="section" id="exemplos">
-    <div class="container">
-      <div class="section-head reveal">
-        <span class="eyebrow">Banco de redações</span>
-        <h2>200+ redações reais nota 1000, dissecadas.</h2>
-        <p>Aprenda com quem já tirou 1000. Cada redação vem anotada por competência, com a tese e os repertórios
-          destacados.</p>
-      </div>
-
-      <div class="essays reveal-stagger">
-        <article class="essay tilt">
-          <div class="essay-meta">
-            <span class="essay-tag">Desigualdade</span>
-            <span class="essay-year">ENEM 2023</span>
-          </div>
-          <h3>Desafios para o enfrentamento da invisibilidade do trabalho de cuidados realizados pela mulher no Brasil
-          </h3>
-          <p class="essay-excerpt">
-            "Historicamente, mulheres foram destinadas ao cuidado doméstico invisível. No Brasil, desigualdade social e
-            patriarcalismo ainda sustentam essa desvalorização no trabalho das mulheres brasileiras atualmente..."
-          </p>
-          <div class="essay-foot">
-            <span class="badge-1000">1000 pontos</span>
-            <a href="#planos" class="essay-link">Ler completa →</a>
-          </div>
-        </article>
-
-        <article class="essay tilt">
-          <div class="essay-meta">
-            <span class="essay-tag">Envelhecimento</span>
-            <span class="essay-year">ENEM 2025</span>
-          </div>
-          <h3>Perspectivas acerca do envelhecimento na sociedade brasileira</h3>
-          <p class="essay-excerpt">
-            "O livro “A casa dos budas ditosos”, escrito pelo baiano João Ubaldo Ribeiro, conta a história de CLB, uma
-            idosa que, enfrentando estereótipos associados à velhice..."
-          </p>
-          <div class="essay-foot">
-            <span class="badge-1000">1000 pontos</span>
-            <a href="#planos" class="essay-link">Ler completa →</a>
-          </div>
-        </article>
-
-        <article class="essay tilt">
-          <div class="essay-meta">
-            <span class="essay-tag">Valorização</span>
-            <span class="essay-year">ENEM 2024</span>
-          </div>
-          <h3>Desafios para a valorização da herança africana no Brasil</h3>
-          <p class="essay-excerpt">
-            "O álbum “Duas Cidades”, da banda Baiana System, aborda o apagamento da influência africana no Brasil,
-            evidenciando sua desvalorização histórica e cultural atualmente..."
-          </p>
-          <div class="essay-foot">
-            <span class="badge-1000">1000 pontos</span>
-            <a href="#planos" class="essay-link">Ler completa →</a>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ CORREÇÃO IA ============ -->
   <section class="section" id="ia">
     <div class="container">
@@ -2220,8 +2164,8 @@
         <div class="reveal">
           <span class="eyebrow">Correção por IA</span>
           <h2 style="margin: 20px 0 16px;">Sua redação devolvida em segundos — competência por competência.</h2>
-          <p class="lead">Uma inteligência artificial treinada por especialistas em redação do ENEM e alimentada com
-            milhares de redações reais nota 1000. Receba correção competência por competência, feedback detalhado em
+          <p class="lead">Uma inteligência artificial treinada por especialistas em redação do ENEM e calibrada com
+            os critérios reais da banca do INEP. Receba correção competência por competência, feedback detalhado em
             cada trecho e um plano estratégico de melhoria para evoluir sua nota de forma prática.</p>
 
           <div class="ai-features">
@@ -2348,7 +2292,7 @@
           <span class="plan-trial">Cancele quando quiser</span>
           <ul class="plan-features">
             <li><span class="chk">✓</span> Método completo — C1 a C5</li>
-            <li><span class="chk">✓</span> Banco de redações nota 1000 com análise</li>
+            <li><span class="chk">✓</span> Banco de repertórios por tema e competência</li>
             <li><span class="chk">✓</span> Correção por IA — ilimitada</li>
             <li><span class="chk">✓</span> Assistente IA para dúvidas</li>
             <li><span class="chk">✓</span> Simulado ENEM com cronômetro</li>
@@ -2386,8 +2330,8 @@
         </article>
         <article class="testi tilt">
           <div class="stars">★★★★★</div>
-          <p class="testi-text">"O banco de redações reais foi o que mudou o jogo. Comecei a entender qual era o padrão
-            da banca, não só repetir o que professor falava."</p>
+          <p class="testi-text">"O banco de repertórios foi o que mudou o jogo. Parei de inventar argumentos fracos e
+            comecei a usar dados e autores reais — a banca sentiu na hora."</p>
           <div class="testi-foot">
             <div class="avatar">LP</div>
             <div>
@@ -2439,16 +2383,16 @@
             </div>
           </div>
           <div class="faq-item">
-            <button class="faq-q">As redações nota 1000 são reais?
+            <button class="faq-q">Como funciona o banco de repertórios?
               <span class="faq-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <path d="M12 5v14M5 12h14" />
                 </svg></span>
             </button>
             <div class="faq-a">
-              <div class="faq-a-inner">Sim — todas são redações de candidatos que tiraram 1000 em edições oficiais do
-                ENEM, organizadas por tema, ano e competência destacada. Adicionamos análises da banca e comentários
-                sobre repertório e estrutura.</div>
+              <div class="faq-a-inner">O banco reúne citações, dados estatísticos, obras literárias, filmes e fatos
+                históricos organizados por tema (desigualdade, tecnologia, saúde, meio ambiente…) e por competência do
+                ENEM. Cada repertório vem com sugestão de como inserir na redação sem parecer forçado.</div>
             </div>
           </div>
           <div class="faq-item">
@@ -2503,15 +2447,14 @@
             <span class="logo-mark"></span>
             <span class="logo-text">Redação <span>Nota 1000</span></span>
           </a>
-          <p class="footer-tag">A plataforma de redação ENEM com método, banco de exemplos e correção por IA. Feita por
-            quem já tirou 1000.</p>
+          <p class="footer-tag">A plataforma de redação ENEM com método, banco de repertórios e correção por IA. Feita por especialistas em nota máxima.</p>
         </div>
         <div>
           <h5>Produto</h5>
           <ul>
             <li><a href="#como">Como funciona</a></li>
             <li><a href="#competencias">Competências</a></li>
-            <li><a href="#exemplos">Banco de redações</a></li>
+            <li><a href="#planos">Planos</a></li>
             <li><a href="#planos">Planos e preços</a></li>
           </ul>
         </div>

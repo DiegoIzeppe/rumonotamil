@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -9,7 +9,7 @@ import {
   ChevronRight, ArrowRight, Brain, RefreshCw, X,
 } from "lucide-react";
 import { useAppStore, type StudyProfile, type StudyTask } from "@/store/app-store";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, roundScore } from "@/lib/utils";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -59,6 +59,42 @@ const weekDays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
 // ─── Plan generator ───────────────────────────────────────────────────────────
 
+const COMP_NAMES: Record<number, string> = {
+  1: "Norma Culta (C1)", 2: "Tema e Repertório (C2)", 3: "Argumentação (C3)",
+  4: "Coesão Textual (C4)", 5: "Proposta de Intervenção (C5)",
+};
+
+const ESSAY_FOCUS: Record<number, string[]> = {
+  1: [
+    "Redação com foco em C1 — escreva sem erros de concordância e regência",
+    "Revisão de C1 — reescreva 1 parágrafo da última redação corrigindo erros gramaticais",
+  ],
+  2: [
+    "Redação com foco em C2 — use pelo menos 2 repertórios de áreas diferentes",
+    "Prática de C2 — escreva 3 parágrafos introdutórios com repertório para o mesmo tema",
+  ],
+  3: [
+    "Redação com foco em C3 — aplique o padrão P.E.E. (Ponto + Evidência + Explicação)",
+    "Prática de C3 — escreva 2 parágrafos de desenvolvimento completos com dados reais",
+  ],
+  4: [
+    "Redação com foco em C4 — não repita 'além disso', use conectivos variados",
+    "Prática de C4 — reescreva a conclusão da última redação com conectivos conclusivos variados",
+  ],
+  5: [
+    "Redação com foco em C5 — proposta com agente + ação + meio + finalidade + efeito esperado",
+    "Prática de C5 — escreva 5 propostas de intervenção para temas diferentes em 20 minutos",
+  ],
+};
+
+const REVIEW_FOCUS: Record<number, string> = {
+  1: "Revisão C1 — liste e corrija todos os erros gramaticais da sua última redação",
+  2: "Revisão C2 — Monte um banco de 6 repertórios para o tema mais difícil para você",
+  3: "Revisão C3 — mapeie os argumentos da sua última redação: estão completos com evidência?",
+  4: "Revisão C4 — substitua todos os conectivos repetidos da sua última redação por alternativas",
+  5: "Revisão C5 — verifique se a proposta da última redação tem os 4 elementos obrigatórios",
+};
+
 function generatePlan(
   profile: StudyProfile,
   completedSlugs: string[],
@@ -74,77 +110,95 @@ function generatePlan(
     return d.toISOString().slice(0, 10);
   };
 
-  // Determine weakest competencies
+  // Determine competency order (weakest first) from real data or profile
   let weakOrder: number[];
+  let compAvgs: Record<number, number> = {};
   if (essayHistory.length > 0) {
-    // Calculate avg per competency from real essays
     const avgs = [1, 2, 3, 4, 5].map((c) => {
       const key = `competency${c}` as keyof typeof essayHistory[0]["feedback"];
       const scores = essayHistory.map((e) => (e.feedback[key] as any)?.score ?? 0).filter((s) => s > 0);
-      return { c, avg: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100 };
+      const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
+      compAvgs[c] = roundScore(avg);
+      return { c, avg };
     });
     weakOrder = avgs.sort((a, b) => a.avg - b.avg).map((x) => x.c);
   } else {
-    // Use profile weak competencies, then fill with remainder
     const rest = [1, 2, 3, 4, 5].filter((c) => !profile.weakCompetencies.includes(c));
     weakOrder = [...profile.weakCompetencies, ...rest];
+    weakOrder.forEach((c) => { compAvgs[c] = 0; });
   }
 
-  // Urgency → how many lessons to include
-  const urgencyLessons = { "less1m": 3, "1-3m": 6, "3-6m": 9, "6m+": 12 }[profile.urgency];
-  // Hours → essays per week
-  const essaysPerWeek = profile.hoursPerDay >= 3 ? 3 : profile.hoursPerDay >= 2 ? 2 : 1;
+  // How many lessons based on urgency + skip competencies already ≥ 160
+  const urgencyLessons = { "less1m": 4, "1-3m": 8, "3-6m": 12, "6m+": 15 }[profile.urgency];
+  const daysBetweenLessons = Math.max(1, Math.round(3 / (profile.hoursPerDay || 2)));
+  const essaysPerCycle = profile.hoursPerDay >= 3 ? 3 : profile.hoursPerDay >= 2 ? 2 : 1;
 
   let lessonCount = 0;
   for (const comp of weakOrder) {
     if (lessonCount >= urgencyLessons) break;
+    // Skip competency if already strong (≥ 160 average) unless urgency is short
+    if (compAvgs[comp] >= 160 && profile.urgency !== "less1m") continue;
+
     const lessons = COMP_LESSONS[comp].filter((l) => !completedSlugs.includes(l.slug));
-    for (const lesson of lessons) {
+    // For advanced students skip iniciante level
+    const filtered = profile.level === "avancado"
+      ? lessons.filter((l) => !l.slug.includes("iniciante"))
+      : profile.level === "intermediario"
+      ? lessons.filter((l) => !l.slug.includes("iniciante") || lessons.length === 1)
+      : lessons;
+    const toAdd = filtered.length > 0 ? filtered : lessons;
+
+    for (const lesson of toAdd) {
       if (lessonCount >= urgencyLessons) break;
+      const avgNote = compAvgs[comp] > 0 ? ` — sua média atual: ${compAvgs[comp]}/200` : "";
       tasks.push({
         id: `task-lesson-${lesson.slug}`,
-        title: `Aula: ${lesson.title}`,
+        title: `${lesson.title}${avgNote}`,
         type: "LESSON",
         completed: false,
         competency: comp,
         slug: lesson.slug,
         dueDate: addDays(dayOffset),
       });
-      dayOffset += Math.max(1, Math.round(3 / profile.hoursPerDay));
+      dayOffset += daysBetweenLessons;
       lessonCount++;
     }
-    // Add a review after each competency block
-    if (lessons.length > 0 && lessonCount < urgencyLessons) {
-      tasks.push({
-        id: `task-review-c${comp}-${dayOffset}`,
-        title: `Revisão: Exercícios práticos de C${comp}`,
-        type: "REVIEW",
-        completed: false,
-        competency: comp,
-        dueDate: addDays(dayOffset),
-      });
-      dayOffset += 1;
-    }
+
+    // Essay focused on this competency
+    const essayOptions = ESSAY_FOCUS[comp] ?? [`Redação com foco em ${COMP_NAMES[comp]}`];
+    tasks.push({
+      id: `task-essay-c${comp}-${dayOffset}`,
+      title: essayOptions[0],
+      type: "ESSAY",
+      completed: false,
+      competency: comp,
+      dueDate: addDays(dayOffset),
+    });
+    dayOffset += daysBetweenLessons;
+
+    // Review for this competency
+    tasks.push({
+      id: `task-review-c${comp}-${dayOffset}`,
+      title: REVIEW_FOCUS[comp] ?? `Revisão de ${COMP_NAMES[comp]}`,
+      type: "REVIEW",
+      completed: false,
+      competency: comp,
+      dueDate: addDays(dayOffset),
+    });
+    dayOffset += 1;
   }
 
-  // Add essays distributed throughout
-  const essayTitles = [
-    "Redação: Tema da semana",
-    "Redação: Foco em C5 — Proposta de intervenção",
-    "Redação: Foco em coesão — Variar conectivos",
-    "Redação: Simulado cronometrado",
-  ];
-  for (let i = 0; i < essaysPerWeek && i < essayTitles.length; i++) {
+  // Simulado at the end if time allows
+  if (profile.urgency !== "less1m" && essaysPerCycle >= 2) {
     tasks.push({
-      id: `task-essay-${i + 1}`,
-      title: essayTitles[i],
-      type: i === 3 ? "PRACTICE" : "ESSAY",
+      id: "task-simulado-final",
+      title: "Simulado cronometrado — redação completa em 1h sem assistente",
+      type: "PRACTICE",
       completed: false,
-      dueDate: addDays(Math.round((i + 1) * (dayOffset / (essaysPerWeek + 1)))),
+      dueDate: addDays(dayOffset + 2),
     });
   }
 
-  // Sort by dueDate
   return tasks.sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
 }
 
@@ -379,14 +433,21 @@ export default function PlanoDeEstudosPage() {
     studyPlanTasks, setStudyPlanTasks, toggleStudyTask,
   } = useAppStore();
 
+  const [mounted, setMounted] = useState(false);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  const hasEnoughData = essayHistory.length >= 2 || studyProfile !== null;
+  // Hydration-safe values
+  const localHistory = mounted ? essayHistory : [];
+  const localSlugs   = mounted ? completedLessonSlugs : [];
+  const localTasks   = mounted ? studyPlanTasks : [];
+  const localProfile = mounted ? studyProfile : null;
+
+  const hasEnoughData = localHistory.length >= 2 || localProfile !== null;
 
   const handleGenerateClick = () => {
     if (hasEnoughData) {
-      runGeneration(studyProfile);
+      runGeneration(localProfile);
     } else {
       setShowQuestionnaire(true);
     }
@@ -394,7 +455,7 @@ export default function PlanoDeEstudosPage() {
 
   const runGeneration = async (profile: StudyProfile | null) => {
     setGenerating(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 700));
     const effectiveProfile: StudyProfile = profile ?? {
       urgency: "3-6m",
       hoursPerDay: 2,
@@ -402,7 +463,7 @@ export default function PlanoDeEstudosPage() {
       level: "intermediario",
       weakCompetencies: [1, 2, 3, 4, 5],
     };
-    const tasks = generatePlan(effectiveProfile, completedLessonSlugs, essayHistory);
+    const tasks = generatePlan(effectiveProfile, localSlugs, localHistory);
     setStudyPlanTasks(tasks);
     setGenerating(false);
   };
@@ -413,19 +474,33 @@ export default function PlanoDeEstudosPage() {
     runGeneration(profile);
   };
 
-  const tasks = studyPlanTasks;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Auto-generate once on mount if profile exists but no tasks yet
+  useEffect(() => {
+    if (!mounted) return;
+    if (studyPlanTasks.length === 0 && (studyProfile !== null || essayHistory.length >= 2)) {
+      runGeneration(studyProfile);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
+  const tasks = localTasks;
   const completed = tasks.filter((t) => t.completed).length;
   const totalTasks = tasks.length;
   const progressPct = totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0;
 
-  // Compute AI insight from worst competency
-  const worstComp = essayHistory.length > 0
-    ? [1, 2, 3, 4, 5].map((c) => {
-        const key = `competency${c}` as keyof typeof essayHistory[0]["feedback"];
-        const scores = essayHistory.map((e) => (e.feedback[key] as any)?.score ?? 0).filter((s) => s > 0);
-        return { c, avg: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 200 };
-      }).sort((a, b) => a.avg - b.avg)[0]?.c
-    : studyProfile?.weakCompetencies[0] ?? 4;
+  // Compute competency averages from real data
+  const compAvgs = [1, 2, 3, 4, 5].map((c) => {
+    const key = `competency${c}` as keyof typeof localHistory[0]["feedback"];
+    const scores = localHistory.map((e) => (e.feedback[key] as any)?.score ?? 0).filter((s) => s > 0);
+    return { c, avg: scores.length > 0 ? roundScore(scores.reduce((a, b) => a + b, 0) / scores.length) : 0 };
+  });
+  const worstComp = localHistory.length > 0
+    ? compAvgs.filter((x) => x.avg > 0).sort((a, b) => a.avg - b.avg)[0]?.c ?? 4
+    : localProfile?.weakCompetencies[0] ?? 4;
 
   const compLabels: Record<number, string> = {
     1: "Norma Culta (C1)", 2: "Repertório (C2)", 3: "Argumentação (C3)",
@@ -489,21 +564,21 @@ export default function PlanoDeEstudosPage() {
           </div>
 
           {/* Profile summary (if set) */}
-          {studyProfile && (
+          {localProfile && (
             <div className="flex flex-wrap gap-2">
               {[
-                { label: { "less1m": "< 1 mês", "1-3m": "1-3 meses", "3-6m": "3-6 meses", "6m+": "+6 meses" }[studyProfile.urgency], icon: "📅" },
-                { label: `${studyProfile.hoursPerDay}h/dia`, icon: "⏱️" },
-                { label: `Meta ${studyProfile.targetScore}pts`, icon: "🎯" },
-                { label: { iniciante: "Iniciante", intermediario: "Intermediário", avancado: "Avançado" }[studyProfile.level], icon: "📊" },
+                { label: { "less1m": "< 1 mês", "1-3m": "1-3 meses", "3-6m": "3-6 meses", "6m+": "+6 meses" }[localProfile.urgency], icon: "📅" },
+                { label: `${localProfile.hoursPerDay}h/dia`, icon: "⏱️" },
+                { label: `Meta ${localProfile.targetScore}pts`, icon: "🎯" },
+                { label: { iniciante: "Iniciante", intermediario: "Intermediário", avancado: "Avançado" }[localProfile.level], icon: "📊" },
               ].map((tag) => (
                 <span key={tag.label} className="flex items-center gap-1.5 text-xs text-white/50 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
                   {tag.icon} {tag.label}
                 </span>
               ))}
-              {essayHistory.length > 0 && (
+              {localHistory.length > 0 && (
                 <span className="flex items-center gap-1.5 text-xs text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
-                  <Brain className="w-3 h-3" /> Baseado em {essayHistory.length} redações reais
+                  <Brain className="w-3 h-3" /> Baseado em {localHistory.length} redações reais
                 </span>
               )}
             </div>
@@ -676,22 +751,45 @@ export default function PlanoDeEstudosPage() {
 
                 {/* AI insight */}
                 <div className="glass rounded-2xl p-5 border border-blue-500/10 bg-blue-500/3">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="w-4 h-4 text-blue-400" />
                     <p className="text-sm font-semibold text-white">
-                      {essayHistory.length > 0 ? "Insight das suas redações" : "Foco recomendado"}
+                      {localHistory.length > 0 ? "Suas competências" : "Foco recomendado"}
                     </p>
                   </div>
-                  <p className="text-sm text-white/60 leading-relaxed">
-                    {essayHistory.length > 0
-                      ? `Suas redações mostram que ${compLabels[worstComp]} é sua competência mais fraca. Priorize essas aulas no plano.`
-                      : `Com base no seu perfil, comece por ${compLabels[worstComp]}. Fundamentos sólidos aceleram todas as outras competências.`}
-                  </p>
+                  {localHistory.length > 0 ? (
+                    <div className="space-y-2 mb-3">
+                      {compAvgs.sort((a, b) => a.avg - b.avg).map(({ c, avg }) => (
+                        <div key={c} className="flex items-center gap-2">
+                          <span className="text-[11px] text-white/40 w-5">C{c}</span>
+                          <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full transition-all",
+                                avg >= 160 ? "bg-green-500" : avg >= 120 ? "bg-yellow-500" : "bg-red-500"
+                              )}
+                              style={{ width: avg > 0 ? `${(avg / 200) * 100}%` : "4%" }}
+                            />
+                          </div>
+                          <span className={cn(
+                            "text-[11px] font-bold w-12 text-right",
+                            avg >= 160 ? "text-green-400" : avg >= 120 ? "text-yellow-400" : avg > 0 ? "text-red-400" : "text-white/20"
+                          )}>
+                            {avg > 0 ? `${avg}/200` : "—"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/60 leading-relaxed mb-3">
+                      Com base no seu perfil, comece por {compLabels[worstComp]}. Fundamentos sólidos aceleram todas as outras competências.
+                    </p>
+                  )}
                   <Link
                     href={`/aulas/${compSlug[worstComp]}`}
-                    className="mt-3 flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
                   >
-                    Ir para essa aula <ArrowRight className="w-3 h-3" />
+                    Aula de {compLabels[worstComp]} <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>

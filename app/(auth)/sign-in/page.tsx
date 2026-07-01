@@ -3,19 +3,103 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Zap, ArrowRight, Loader2, AlertCircle, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Zap, ArrowRight, Loader2, AlertCircle, Lock, Mail, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+function TwoFactorStep({ from }: { from: string }) {
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.length < 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/2fa/login-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Código incorreto.");
+        setLoading(false);
+        return;
+      }
+      router.push(from);
+      router.refresh();
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleVerify} className="space-y-4">
+      <div className="flex items-center gap-3 p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/5">
+        <ShieldCheck className="w-5 h-5 text-blue-400 flex-shrink-0" />
+        <p className="text-sm text-white/60">Digite o código do seu app autenticador ou um código de backup.</p>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
+          Código de verificação
+        </label>
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/[^0-9A-Za-z-]/g, "").slice(0, 11))}
+          placeholder="000000"
+          required
+          autoFocus
+          style={{ background: "rgba(255,255,255,0.05)" }}
+          className={cn(
+            "w-full px-4 py-3.5 rounded-xl text-center text-lg font-mono tracking-[0.3em] text-white placeholder:text-white/20 outline-none transition-all border",
+            error ? "border-red-500/40" : "border-white/10 focus:border-blue-500/50"
+          )}
+        />
+      </div>
+      {error && (
+        <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-red-500/25" style={{ background: "rgba(239,68,68,0.08)" }}>
+          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-300">{error}</p>
+        </div>
+      )}
+      <button
+        type="submit"
+        disabled={loading || code.length < 6}
+        className={cn(
+          "w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all",
+          code.length >= 6 && !loading
+            ? "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white hover:shadow-glow"
+            : "bg-white/5 border border-white/8 text-white/25 cursor-not-allowed"
+        )}
+      >
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Verificando...</> : <>Confirmar <ArrowRight className="w-4 h-4" /></>}
+      </button>
+    </form>
+  );
+}
+
+// Only allow same-origin internal paths as post-login redirect target.
+// Blocks open-redirect via ?from=https://evil.com or ?from=//evil.com.
+function safeRedirect(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/dashboard";
+  return raw;
+}
 
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? "/dashboard";
+  const from = safeRedirect(searchParams.get("from"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [needs2FA, setNeeds2FA] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +123,12 @@ function SignInForm() {
         return;
       }
 
+      if (data.requires2FA) {
+        setNeeds2FA(true);
+        setLoading(false);
+        return;
+      }
+
       router.push(from);
       router.refresh();
     } catch {
@@ -46,6 +136,10 @@ function SignInForm() {
       setLoading(false);
     }
   };
+
+  if (needs2FA) {
+    return <TwoFactorStep from={from} />;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

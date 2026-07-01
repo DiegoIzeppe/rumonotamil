@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateCredentials, createSessionToken, AUTH_COOKIE, COOKIE_MAX_AGE } from "@/lib/auth";
+import {
+  validateCredentials, createSessionToken, AUTH_COOKIE, COOKIE_MAX_AGE,
+  is2FAEnabled, createPending2FAToken, PENDING_2FA_COOKIE,
+  DEMO_2FA_COOKIE, parseDemo2FAState,
+} from "@/lib/auth";
+import { rateLimit, rateLimitResponse, getClientIp } from "@/lib/api-auth";
 import { z } from "zod";
 
 const schema = z.object({
@@ -9,6 +14,10 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Brute-force protection: cap login attempts per IP (10/min) — fails closed.
+    const ip = getClientIp(req);
+    if (!rateLimit(`login:${ip}`, 10, 60_000)) return rateLimitResponse();
+
     const body = await req.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
@@ -16,10 +25,30 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password } = parsed.data;
+    // Second bucket keyed by email so one target can't be hammered from a botnet
+    // rotating IPs (still generous enough for legit retries).
+    if (!rateLimit(`login-email:${email.toLowerCase()}`, 15, 60_000)) return rateLimitResponse();
+
     const { user, error } = await validateCredentials(email, password);
 
     if (error || !user) {
       return NextResponse.json({ error: error ?? "Credenciais inválidas." }, { status: 401 });
+    }
+
+    const demoState = parseDemo2FAState(req.cookies.get(DEMO_2FA_COOKIE)?.value);
+
+    // 2FA enabled → issue short-lived pending token instead of full session
+    if (await is2FAEnabled(user, demoState)) {
+      const pendingToken = createPending2FAToken(user);
+      const res = NextResponse.json({ success: true, requires2FA: true });
+      res.cookies.set(PENDING_2FA_COOKIE, pendingToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 5,
+        path: "/",
+      });
+      return res;
     }
 
     const token = createSessionToken(user);

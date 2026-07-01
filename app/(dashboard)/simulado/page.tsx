@@ -2,29 +2,22 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
-import { getColetaneaForTheme } from "@/lib/coletanea-data";
-import { ColetaneaView } from "@/components/ui/coletanea";
+import { SIMULADO_THEMES, SimuladoTheme } from "@/lib/simulado-themes";
+import { MotivationalModal } from "@/components/ui/motivational-modal";
+import { useAppStore } from "@/store/app-store";
 import {
-  Timer, Play, Pause, RotateCcw, Send, AlertTriangle,
+  Timer, Play, Send, AlertTriangle,
   CheckCircle2, Target, Clock, Hash, AlignLeft,
-  ChevronRight, Shuffle, Maximize2, Minimize2,
+  ChevronRight, Shuffle, Maximize2, Minimize2, BookOpen, RotateCcw,
+  ChevronDown, ChevronUp,
 } from "lucide-react";
 import { cn, wordCount } from "@/lib/utils";
-
-const THEMES = [
-  { title: "O impacto das redes sociais na democracia brasileira", difficulty: "Médio" },
-  { title: "Desafios para a valorização dos povos indígenas no Brasil", difficulty: "Difícil" },
-  { title: "A invisibilidade do trabalho doméstico feminino na sociedade contemporânea", difficulty: "Médio" },
-  { title: "Crise de saúde mental entre jovens na era digital", difficulty: "Fácil" },
-  { title: "Racismo estrutural e suas manifestações no mercado de trabalho", difficulty: "Difícil" },
-  { title: "Desafios para a implementação da educação ambiental no Brasil", difficulty: "Médio" },
-  { title: "O papel do Estado no combate à desinformação", difficulty: "Médio" },
-  { title: "Desigualdade de acesso à tecnologia no Brasil", difficulty: "Fácil" },
-];
+import toast from "react-hot-toast";
 
 const DURATIONS = [
   { label: "30 min", seconds: 30 * 60 },
@@ -32,7 +25,15 @@ const DURATIONS = [
   { label: "90 min", seconds: 90 * 60 },
 ];
 
-type Phase = "setup" | "writing" | "finished";
+const SIMULADO_PHRASES = [
+  "A pressão que você sente agora é o peso de um futuro que você está construindo.",
+  "No ENEM real não tem segunda chance — simule como se fosse a hora.",
+  "Cada palavra escrita hoje é treino para a nota 1000.",
+  "O caminho para a aprovação passa por aqui. Foco total.",
+  "Redação nota 1000 não acontece por acaso — acontece por treino.",
+];
+
+type Phase = "setup" | "modal" | "writing" | "finished";
 
 function formatTime(s: number) {
   const m = Math.floor(s / 60);
@@ -40,17 +41,77 @@ function formatTime(s: number) {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
+function DifficultyBadge({ d }: { d: string }) {
+  return (
+    <span className={cn(
+      "text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0",
+      d === "Médio"
+        ? "text-blue-400 border-blue-500/25 bg-blue-500/8"
+        : "text-orange-400 border-orange-500/25 bg-orange-500/8"
+    )}>
+      {d}
+    </span>
+  );
+}
+
+function TextsPanel({ texts, collapsed = false }: { texts: SimuladoTheme["texts"]; collapsed?: boolean }) {
+  const [open, setOpen] = useState(!collapsed);
+  return (
+    <div className="glass rounded-2xl border border-white/8 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3.5 border-b border-white/6 hover:bg-white/2 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-4 h-4 text-blue-400" />
+          <p className="text-sm font-semibold text-white">Textos Motivadores</p>
+          <span className="text-xs text-white/35 font-medium">({texts.length} textos)</span>
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+      </button>
+      {open && (
+        <div className="p-5 space-y-5">
+          {texts.map((t) => (
+            <div key={t.id} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{t.label}</span>
+                <span className={cn(
+                  "text-[10px] px-1.5 py-0.5 rounded border font-medium",
+                  t.type === "dado" ? "text-purple-400 border-purple-500/25 bg-purple-500/8" :
+                  t.type === "poema" ? "text-pink-400 border-pink-500/25 bg-pink-500/8" :
+                  t.type === "charge" ? "text-yellow-400 border-yellow-500/25 bg-yellow-500/8" :
+                  "text-white/40 border-white/10 bg-white/4"
+                )}>
+                  {t.type === "dado" ? "Dado" : t.type === "poema" ? "Poema" : t.type === "charge" ? "Charge" : "Texto"}
+                </span>
+              </div>
+              <p className="text-sm text-white/75 leading-[1.8]">{t.content}</p>
+              <p className="text-xs text-white/30 italic">{t.source}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SimuladoPage() {
+  const router = useRouter();
+  const { setPendingEssayMeta, setLastCorrectionResult, setCurrentTheme } = useAppStore();
+
   const [phase, setPhase] = useState<Phase>("setup");
-  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
+  const [selectedTheme, setSelectedTheme] = useState<SimuladoTheme>(SIMULADO_THEMES[0]);
   const [duration, setDuration] = useState(DURATIONS[1]);
   const [timeLeft, setTimeLeft] = useState(duration.seconds);
   const [running, setRunning] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [modalPhrase, setModalPhrase] = useState("");
+  const [correcting, setCorrecting] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: "Comece a escrever sua redação..." }),
@@ -85,7 +146,13 @@ export default function SimuladoPage() {
     return () => clearInterval(intervalRef.current!);
   }, [running, phase]);
 
-  const handleStart = () => {
+  const handleClickStart = () => {
+    const phrase = SIMULADO_PHRASES[Math.floor(Math.random() * SIMULADO_PHRASES.length)];
+    setModalPhrase(phrase);
+    setPhase("modal");
+  };
+
+  const handleModalClose = () => {
     setTimeLeft(duration.seconds);
     setPhase("writing");
     setRunning(true);
@@ -96,6 +163,7 @@ export default function SimuladoPage() {
 
   const handleFinish = () => {
     setRunning(false);
+    clearInterval(intervalRef.current!);
     setPhase("finished");
   };
 
@@ -108,7 +176,51 @@ export default function SimuladoPage() {
     editor?.setEditable(false);
   };
 
-  const randomTheme = () => setSelectedTheme(THEMES[Math.floor(Math.random() * THEMES.length)]);
+  const randomTheme = () => {
+    const t = SIMULADO_THEMES[Math.floor(Math.random() * SIMULADO_THEMES.length)];
+    setSelectedTheme(t);
+  };
+
+  const handleCorrectWithAI = async () => {
+    const content = editor?.getText() ?? "";
+    if (!editor || content.trim().length < 100) {
+      toast.error("Redação muito curta para corrigir (mínimo 100 caracteres).");
+      return;
+    }
+    setCorrecting(true);
+    try {
+      setCurrentTheme(selectedTheme.title);
+      setPendingEssayMeta({
+        wasSimulado: true,
+        usedAssistant: false,
+        themeDifficulty: selectedTheme.difficulty,
+      });
+      const res = await fetch("/api/ai/correct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, theme: selectedTheme.title }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Erro ao corrigir redação"); return; }
+      setLastCorrectionResult({ feedback: data.feedback, essayText: content });
+      window.location.href = "/correcao-ia";
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
+    } finally {
+      setCorrecting(false);
+    }
+  };
+
+  // ── MODAL ──
+  if (phase === "modal") {
+    return (
+      <MotivationalModal
+        phrase={modalPhrase}
+        onClose={handleModalClose}
+        variant="simulado"
+      />
+    );
+  }
 
   // ── SETUP ──
   if (phase === "setup") {
@@ -152,40 +264,46 @@ export default function SimuladoPage() {
                 <Target className="w-4 h-4 text-blue-400" />
                 <p className="text-sm font-semibold text-white">Escolha o tema</p>
               </div>
-              <button onClick={randomTheme} className="flex items-center gap-1.5 text-xs text-white/45 hover:text-white/80 transition-colors border border-white/8 rounded-lg px-2.5 py-1.5">
+              <button
+                onClick={randomTheme}
+                className="flex items-center gap-1.5 text-xs text-white/45 hover:text-white/80 transition-colors border border-white/8 rounded-lg px-2.5 py-1.5"
+              >
                 <Shuffle className="w-3.5 h-3.5" />
                 Aleatório
               </button>
             </div>
             <div className="p-4 space-y-2">
-              {THEMES.map((t, i) => (
+              {SIMULADO_THEMES.map((t) => (
                 <button
-                  key={i}
+                  key={t.id}
                   onClick={() => setSelectedTheme(t)}
                   className={cn(
-                    "w-full text-left p-3.5 rounded-xl border transition-all",
-                    selectedTheme === t
+                    "w-full text-left p-4 rounded-xl border transition-all",
+                    selectedTheme.id === t.id
                       ? "border-blue-500/35 bg-blue-500/10"
                       : "border-white/5 hover:border-white/12 hover:bg-white/3"
                   )}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className={cn("text-sm font-medium leading-snug", selectedTheme === t ? "text-white" : "text-white/65")}>
+                  <div className="flex items-start justify-between gap-3 mb-1.5">
+                    <p className={cn("text-sm font-semibold leading-snug", selectedTheme.id === t.id ? "text-white" : "text-white/70")}>
                       {t.title}
                     </p>
-                    <span className={cn(
-                      "text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0",
-                      t.difficulty === "Fácil" ? "text-green-400 border-green-500/25 bg-green-500/8" :
-                      t.difficulty === "Médio" ? "text-blue-400 border-blue-500/25 bg-blue-500/8" :
-                      "text-orange-400 border-orange-500/25 bg-orange-500/8"
-                    )}>
-                      {t.difficulty}
-                    </span>
+                    <DifficultyBadge d={t.difficulty} />
                   </div>
+                  <p className="text-xs text-white/35">{t.category} · {t.texts.length} textos motivadores</p>
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Selected theme instrucao */}
+          <div className="glass rounded-2xl p-5 border border-blue-500/15 bg-blue-500/3">
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Instrução oficial</p>
+            <p className="text-sm text-white/70 leading-[1.8]">{selectedTheme.instrucao}</p>
+          </div>
+
+          {/* Texts preview */}
+          <TextsPanel texts={selectedTheme.texts} collapsed />
 
           {/* Duration */}
           <div className="glass rounded-2xl p-5 border border-white/8">
@@ -211,12 +329,9 @@ export default function SimuladoPage() {
             </div>
           </div>
 
-          {/* Coletânea — setup */}
-          <ColetaneaView coletanea={getColetaneaForTheme(selectedTheme.title) ?? { theme: selectedTheme.title, texts: [] }} collapsed />
-
           {/* Start */}
           <button
-            onClick={handleStart}
+            onClick={handleClickStart}
             className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 hover:to-orange-300 text-white font-bold text-base transition-all hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]"
           >
             <Play className="w-5 h-5" />
@@ -248,14 +363,14 @@ export default function SimuladoPage() {
             {[
               { label: "Palavras", value: words, icon: Hash },
               { label: "Parágrafos", value: paragraphs, icon: AlignLeft },
-              { label: "Tempo usado", value: `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`, icon: Clock },
-            ].map((s2) => {
-              const Icon = s2.icon;
+              { label: "Tempo usado", value: `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`, icon: Clock },
+            ].map((stat) => {
+              const Icon = stat.icon;
               return (
-                <div key={s2.label} className="glass rounded-xl p-4 border border-white/8 text-center">
+                <div key={stat.label} className="glass rounded-xl p-4 border border-white/8 text-center">
                   <Icon className="w-4 h-4 text-blue-400 mx-auto mb-2" />
-                  <p className="text-2xl font-black text-white">{s2.value}</p>
-                  <p className="text-xs text-white/35 mt-0.5">{s2.label}</p>
+                  <p className="text-2xl font-black text-white">{stat.value}</p>
+                  <p className="text-xs text-white/35 mt-0.5">{stat.label}</p>
                 </div>
               );
             })}
@@ -270,14 +385,24 @@ export default function SimuladoPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={handleReset} className="flex items-center justify-center gap-2 py-3.5 rounded-xl glass border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-all text-sm font-semibold">
+            <button
+              onClick={handleReset}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl glass border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-all text-sm font-semibold"
+            >
               <RotateCcw className="w-4 h-4" />
               Novo simulado
             </button>
-            <a href="/correcao-ia" className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold transition-all hover:shadow-glow">
-              <Send className="w-4 h-4" />
-              Corrigir com IA
-            </a>
+            <button
+              onClick={handleCorrectWithAI}
+              disabled={correcting}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-semibold transition-all hover:shadow-glow disabled:opacity-60"
+            >
+              {correcting ? (
+                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Corrigindo...</>
+              ) : (
+                <><Send className="w-4 h-4" />Corrigir com IA</>
+              )}
+            </button>
           </div>
         </motion.div>
       </div>
@@ -294,13 +419,11 @@ export default function SimuladoPage() {
           "flex items-center gap-4 p-3 rounded-2xl border",
           isUrgent ? "glass border-red-500/30 bg-red-500/5" : "glass border-white/8"
         )}>
-          {/* Timer */}
           <div className={cn("flex items-center gap-2 font-mono text-2xl font-black", isUrgent ? "text-red-400" : "text-white")}>
             {isUrgent && <AlertTriangle className="w-5 h-5 animate-pulse" />}
             {formatTime(timeLeft)}
           </div>
 
-          {/* Progress bar */}
           <div className="flex-1 h-2 bg-white/6 rounded-full overflow-hidden">
             <div
               className={cn("h-full rounded-full transition-all duration-1000", isUrgent ? "bg-red-500" : "bg-blue-500")}
@@ -308,7 +431,6 @@ export default function SimuladoPage() {
             />
           </div>
 
-          {/* Stats */}
           <div className="hidden sm:flex items-center gap-4 text-xs text-white/40">
             <span className={cn("font-semibold", words >= 250 && words <= 350 ? "text-green-400" : "")}>
               {words} palavras
@@ -316,9 +438,11 @@ export default function SimuladoPage() {
             <span>{paragraphs} parágrafos</span>
           </div>
 
-          {/* Controls */}
           <div className="flex items-center gap-1.5">
-            <button onClick={() => setFullscreen(!fullscreen)} className="p-2 rounded-lg hover:bg-white/6 text-white/35 hover:text-white transition-colors">
+            <button
+              onClick={() => setFullscreen(!fullscreen)}
+              className="p-2 rounded-lg hover:bg-white/6 text-white/35 hover:text-white transition-colors"
+            >
               {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
             <button
@@ -331,19 +455,21 @@ export default function SimuladoPage() {
           </div>
         </div>
 
-        {/* Theme */}
-        <div className="flex items-start gap-3 p-4 glass rounded-xl border border-white/8">
-          <Target className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[11px] font-bold text-white/35 uppercase tracking-wider mb-0.5">Tema</p>
-            <p className="text-sm font-semibold text-white leading-snug">{selectedTheme.title}</p>
+        {/* Theme + instrucao */}
+        <div className="glass rounded-xl border border-white/8 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            <p className="text-[11px] font-bold text-white/35 uppercase tracking-wider">Tema</p>
+            <DifficultyBadge d={selectedTheme.difficulty} />
           </div>
+          <p className="text-sm font-semibold text-white leading-snug">{selectedTheme.title}</p>
+          <p className="text-xs text-white/50 leading-relaxed">{selectedTheme.instrucao}</p>
         </div>
 
-        {/* Coletânea — writing */}
-        <ColetaneaView coletanea={getColetaneaForTheme(selectedTheme.title) ?? { theme: selectedTheme.title, texts: [] }} collapsed />
+        {/* Texts — collapsed by default during writing */}
+        <TextsPanel texts={selectedTheme.texts} collapsed />
 
-        {/* Warning overlay */}
+        {/* 5-min warning */}
         <AnimatePresence>
           {showWarning && (
             <motion.div
@@ -370,7 +496,7 @@ export default function SimuladoPage() {
             <p className="text-xs text-white/30">Redação — escreva com atenção</p>
             <p className="text-xs text-white/20">Sem assistente ativo</p>
           </div>
-          <div className="px-6 py-5 min-h-[500px]">
+          <div className="px-6 py-5 min-h-[500px] bg-[#080c14]">
             <EditorContent editor={editor} />
           </div>
         </div>

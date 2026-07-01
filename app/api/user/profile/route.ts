@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE, parseSessionToken, createSessionToken } from "@/lib/auth";
+import { AUTH_COOKIE, COOKIE_MAX_AGE, parseSessionToken, createSessionToken } from "@/lib/auth";
 import { z } from "zod";
 
 const schema = z.object({
@@ -28,6 +28,12 @@ export async function PUT(req: NextRequest) {
   // Return updated session token so client can refresh userInfo
   const newToken = createSessionToken({ ...user, name: parsed.data.name });
   const res = NextResponse.json({ success: true, name: parsed.data.name });
-  res.cookies.set(AUTH_COOKIE, newToken, { httpOnly: true, path: "/" });
+  res.cookies.set(AUTH_COOKIE, newToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: COOKIE_MAX_AGE,
+    path: "/",
+  });
   return res;
 }

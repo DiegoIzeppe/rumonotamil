@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -7,7 +8,7 @@ import {
 } from "recharts";
 import { TrendingUp, Target, Brain, Flame, BarChart3, Zap, PenLine } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
-import { cn, getCompetencyLabel } from "@/lib/utils";
+import { cn, getCompetencyLabel, roundScore } from "@/lib/utils";
 import Link from "next/link";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -22,21 +23,28 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+const safeNum = (n: unknown) => (typeof n === "number" && !isNaN(n) ? n : 0);
+
 export default function DesempenhoPage() {
-  const { essayHistory, completedLessonSlugs } = useAppStore();
+  const { essayHistory: storeHistory, completedLessonSlugs: storeLessons } = useAppStore();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const essayHistory = mounted ? storeHistory : [];
+  const completedLessonSlugs = mounted ? storeLessons : [];
 
   const totalEssays = essayHistory.length;
   const avgScore = totalEssays > 0
-    ? Math.round(essayHistory.reduce((s, e) => s + e.score, 0) / totalEssays)
+    ? roundScore(essayHistory.reduce((s, e) => s + safeNum(e.score), 0) / totalEssays)
     : 0;
-  const bestScore = totalEssays > 0 ? Math.max(...essayHistory.map((e) => e.score)) : 0;
+  const bestScore = totalEssays > 0 ? Math.max(...essayHistory.map((e) => safeNum(e.score))) : 0;
 
   const competencyAvgs = [1, 2, 3, 4, 5].map((c) => {
     const key = `competency${c}` as keyof typeof essayHistory[0]["feedback"];
     const scores = essayHistory
-      .map((e) => (e.feedback[key] as any)?.score ?? 0)
+      .map((e) => safeNum((e.feedback?.[key] as any)?.score))
       .filter((s) => s > 0);
-    return scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    return scores.length > 0 ? roundScore(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
   });
 
   const chartData = essayHistory
@@ -45,7 +53,7 @@ export default function DesempenhoPage() {
     .slice(-8)
     .map((e, i) => ({
       name: `#${i + 1}`,
-      score: e.score,
+      score: safeNum(e.score),
     }));
 
   const radarData = [1, 2, 3, 4, 5].map((c, i) => ({

@@ -307,6 +307,7 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
   const [usedAssistant, setUsedAssistant] = useState(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: "Comece sua redação aqui. Escreva com foco e clareza..." }),

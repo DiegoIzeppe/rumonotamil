@@ -18,6 +18,7 @@ export interface EssayHistoryEntry {
   usedAssistant?: boolean;
   themeDifficulty?: string; // "Fácil" | "Médio" | "Difícil"
   previousScore?: number; // for improvement tracking
+  essayText?: string; // original text — enables annotated view in /historico
 }
 
 function todayStr() {
@@ -61,14 +62,16 @@ interface AppState {
   // +50 per lesson completed
   // +50 per training essay (wasSimulado = false)
   // +score per simulado essay (wasSimulado = true)
-  // +50 per achievement unlocked
+  // +variable per achievement (25/50/100/200/500 by tier)
   // +1000 per 10-day streak milestone (10d, 20d, 30d...)
   getXP: () => number;
   getLevel: () => number;
 
-  // Synced from ranking page after computing achievements to avoid circular dep
+  // Synced from ranking page — total XP from achievements (varies by tier)
   unlockedAchievementCount: number;
   setUnlockedAchievementCount: (n: number) => void;
+  unlockedAchievementXP: number;
+  setUnlockedAchievementXP: (xp: number) => void;
 
   // Streak tracking
   currentStreak: number;
@@ -147,21 +150,16 @@ export const useAppStore = create<AppState>()(
 
       getXP: () => {
         const s = get();
-        const lessonXP      = s.completedLessonSlugs.length * 50;
-        const trainingXP    = s.essayHistory.filter((e) => !e.wasSimulado).length * 50;
-        const simuladoXP    = s.essayHistory.filter((e) => e.wasSimulado).reduce((sum, e) => sum + e.score, 0);
-        const achievementXP = s.unlockedAchievementCount * 50;
-        const streakMilestonesXP = Math.floor(Math.max(s.currentStreak, s.maxStreak) / 10) * 1000;
+        const num = (n: unknown) => (typeof n === "number" && !isNaN(n) ? n : 0);
+        const lessonXP           = s.completedLessonSlugs.length * 50;
+        const trainingXP         = s.essayHistory.filter((e) => !e.wasSimulado).length * 50;
+        const simuladoXP         = s.essayHistory.filter((e) => e.wasSimulado).reduce((sum, e) => sum + num(e.score), 0);
+        const achievementXP      = num(s.unlockedAchievementXP);
+        const streakMilestonesXP = Math.floor(Math.max(num(s.currentStreak), num(s.maxStreak)) / 10) * 1000;
         return lessonXP + trainingXP + simuladoXP + achievementXP + streakMilestonesXP;
       },
       getLevel: () => {
-        const s = get();
-        const lessonXP      = s.completedLessonSlugs.length * 50;
-        const trainingXP    = s.essayHistory.filter((e) => !e.wasSimulado).length * 50;
-        const simuladoXP    = s.essayHistory.filter((e) => e.wasSimulado).reduce((sum, e) => sum + e.score, 0);
-        const achievementXP = s.unlockedAchievementCount * 50;
-        const streakMilestonesXP = Math.floor(Math.max(s.currentStreak, s.maxStreak) / 10) * 1000;
-        const xp = lessonXP + trainingXP + simuladoXP + achievementXP + streakMilestonesXP;
+        const xp = get().getXP();
         if (xp >= 10000) return 5;
         if (xp >= 5000)  return 4;
         if (xp >= 2000)  return 3;
@@ -198,6 +196,8 @@ export const useAppStore = create<AppState>()(
 
       unlockedAchievementCount: 0,
       setUnlockedAchievementCount: (n) => set({ unlockedAchievementCount: n }),
+      unlockedAchievementXP: 0,
+      setUnlockedAchievementXP: (xp) => set({ unlockedAchievementXP: xp }),
 
       pendingEssayMeta: null,
       setPendingEssayMeta: (m) => set({ pendingEssayMeta: m }),
@@ -226,6 +226,7 @@ export const useAppStore = create<AppState>()(
           studyProfile: null,
           studyPlanTasks: [],
           unlockedAchievementCount: 0,
+          unlockedAchievementXP: 0,
         }),
     }),
     {
@@ -243,6 +244,7 @@ export const useAppStore = create<AppState>()(
         studyProfile: s.studyProfile,
         studyPlanTasks: s.studyPlanTasks,
         unlockedAchievementCount: s.unlockedAchievementCount,
+        unlockedAchievementXP: s.unlockedAchievementXP,
       }),
     }
   )

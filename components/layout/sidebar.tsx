@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Timer,
   BookMarked,
+  History,
 } from "lucide-react";
 
 const navItems = [
@@ -26,6 +27,7 @@ const navItems = [
 { href: "/treinar", label: "Treinar Redação", icon: PenLine },
   { href: "/simulado", label: "Simulado ENEM", icon: Timer },
   { href: "/correcao-ia", label: "Correção IA", icon: Brain },
+  { href: "/historico", label: "Histórico", icon: History },
   { href: "/repertorios", label: "Repertórios", icon: BookMarked },
   { href: "/desempenho", label: "Desempenho", icon: BarChart3 },
   { href: "/plano-de-estudos", label: "Plano de Estudos", icon: CalendarDays },

@@ -116,16 +116,17 @@ export function computeUnlocked(stats: AchievementStats): Set<string> {
   const unlocked = new Set<string>();
   const streak = Math.max(currentStreak, maxStreak);
 
+  const num = (n: unknown) => (typeof n === "number" && !isNaN(n) ? n : 0);
   const total = essays.length;
-  const scores = essays.map((e) => e.score);
+  const scores = essays.map((e) => num(e.score));
   const bestScore = scores.length > 0 ? Math.max(...scores) : 0;
   const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
-  const c1scores = essays.map((e) => e.feedback.competency1?.score ?? 0);
-  const c2scores = essays.map((e) => e.feedback.competency2?.score ?? 0);
-  const c3scores = essays.map((e) => e.feedback.competency3?.score ?? 0);
-  const c4scores = essays.map((e) => e.feedback.competency4?.score ?? 0);
-  const c5scores = essays.map((e) => e.feedback.competency5?.score ?? 0);
+  const c1scores = essays.map((e) => num(e.feedback?.competency1?.score));
+  const c2scores = essays.map((e) => num(e.feedback?.competency2?.score));
+  const c3scores = essays.map((e) => num(e.feedback?.competency3?.score));
+  const c4scores = essays.map((e) => num(e.feedback?.competency4?.score));
+  const c5scores = essays.map((e) => num(e.feedback?.competency5?.score));
 
   // Escrita
   if (total >= 1)   unlocked.add("first_essay");
@@ -247,13 +248,80 @@ export function computeUnlocked(stats: AchievementStats): Set<string> {
   return unlocked;
 }
 
-export const TIER_CONFIG: Record<AchievementTier, { label: string; color: string; border: string; glow: string; bg: string }> = {
-  bronze:    { label: "Bronze",    color: "text-orange-700",  border: "border-orange-700/30", glow: "",                                        bg: "bg-orange-900/20" },
-  silver:    { label: "Prata",     color: "text-gray-300",    border: "border-gray-400/30",   glow: "shadow-[0_0_8px_rgba(156,163,175,0.3)]",  bg: "bg-gray-700/20"  },
-  gold:      { label: "Ouro",      color: "text-yellow-400",  border: "border-yellow-400/30", glow: "shadow-[0_0_12px_rgba(251,191,36,0.3)]",  bg: "bg-yellow-900/20" },
-  diamond:   { label: "Diamante",  color: "text-cyan-300",    border: "border-cyan-400/30",   glow: "shadow-[0_0_16px_rgba(103,232,249,0.3)]", bg: "bg-cyan-900/20"  },
-  legendary: { label: "Lendário",  color: "text-purple-400",  border: "border-purple-500/30", glow: "shadow-[0_0_20px_rgba(168,85,247,0.4)]",  bg: "bg-purple-900/20" },
-  secret:    { label: "Secreta",   color: "text-pink-400",    border: "border-pink-500/30",   glow: "shadow-[0_0_14px_rgba(236,72,153,0.3)]",  bg: "bg-pink-900/20"  },
+// XP awarded when achievement is unlocked
+export const TIER_XP: Record<AchievementTier, number> = {
+  bronze:    25,
+  silver:    50,
+  gold:      100,
+  diamond:   200,
+  legendary: 500,
+  secret:    150,
+};
+
+export const TIER_CONFIG: Record<AchievementTier, {
+  label: string;
+  xp: number;
+  color: string;
+  textColor: string;
+  border: string;
+  glow: string;
+  bg: string;
+  barColor: string;
+}> = {
+  bronze: {
+    label: "Iniciante", xp: 25,
+    color: "text-orange-300",
+    textColor: "text-orange-300",
+    border: "border-orange-500/30",
+    glow: "",
+    bg: "bg-gradient-to-b from-orange-900/20 to-orange-950/10",
+    barColor: "bg-orange-400",
+  },
+  silver: {
+    label: "Intermediário", xp: 50,
+    color: "text-blue-300",
+    textColor: "text-blue-200",
+    border: "border-blue-400/35",
+    glow: "shadow-[0_0_10px_rgba(96,165,250,0.2)]",
+    bg: "bg-gradient-to-b from-blue-900/20 to-blue-950/10",
+    barColor: "bg-blue-400",
+  },
+  gold: {
+    label: "Avançado", xp: 100,
+    color: "text-yellow-300",
+    textColor: "text-yellow-200",
+    border: "border-yellow-400/40",
+    glow: "shadow-[0_0_14px_rgba(251,191,36,0.25)]",
+    bg: "bg-gradient-to-b from-yellow-900/20 to-yellow-950/10",
+    barColor: "bg-yellow-400",
+  },
+  diamond: {
+    label: "Raro", xp: 200,
+    color: "text-cyan-300",
+    textColor: "text-cyan-200",
+    border: "border-cyan-400/40",
+    glow: "shadow-[0_0_18px_rgba(103,232,249,0.3)]",
+    bg: "bg-gradient-to-b from-cyan-900/20 to-cyan-950/10",
+    barColor: "bg-cyan-400",
+  },
+  legendary: {
+    label: "Lendário", xp: 500,
+    color: "text-purple-300",
+    textColor: "text-purple-200",
+    border: "border-purple-500/50",
+    glow: "shadow-[0_0_24px_rgba(168,85,247,0.4)]",
+    bg: "bg-gradient-to-b from-purple-900/25 to-purple-950/15",
+    barColor: "bg-purple-500",
+  },
+  secret: {
+    label: "Secreta", xp: 150,
+    color: "text-pink-300",
+    textColor: "text-pink-200",
+    border: "border-pink-500/40",
+    glow: "shadow-[0_0_16px_rgba(236,72,153,0.3)]",
+    bg: "bg-gradient-to-b from-pink-900/20 to-pink-950/10",
+    barColor: "bg-pink-500",
+  },
 };
 
 export const CATEGORY_LABELS: Record<AchievementCategory, string> = {

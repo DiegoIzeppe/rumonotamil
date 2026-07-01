@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE, parseSessionToken } from "@/lib/auth";
+import { rateLimit, rateLimitResponse } from "@/lib/api-auth";
 import { z } from "zod";
 
 const schema = z.object({
@@ -11,6 +12,9 @@ export async function POST(req: NextRequest) {
   const token = req.cookies.get(AUTH_COOKIE)?.value;
   const user = token ? parseSessionToken(token) : null;
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
+  // Prevent brute-forcing the current password from a hijacked/borrowed session.
+  if (!rateLimit(`change-pw:${user.id}`, 5, 60_000)) return rateLimitResponse();
 
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);

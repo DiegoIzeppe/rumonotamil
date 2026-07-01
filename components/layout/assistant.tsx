@@ -37,6 +37,7 @@ async function getAIResponse(messages: Message[]): Promise<string> {
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
+    if (typeof data.response !== "string" || !data.response.trim()) throw new Error();
     return data.response;
   } catch {
     return "Não consegui processar sua pergunta agora. Tente novamente ou reformule a pergunta.";
@@ -60,6 +61,9 @@ function MessageBubble({ msg }: { msg: Message }) {
       )}>
         <span dangerouslySetInnerHTML={{
           __html: msg.content
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
             .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
             .replace(/\*(.*?)\*/g, '<em class="italic text-blue-200">$1</em>')
             .replace(/\n/g, "<br />")

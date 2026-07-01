@@ -280,13 +280,31 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
         }),
       });
       const data = await res.json();
-      setResult(data);
+      // Guard against error responses (rate limit, validation, 500) which
+      // lack score/strengths/improvements and would crash the result render.
+      if (!res.ok || typeof data.score !== "number" || !Array.isArray(data.strengths)) {
+        setResult({
+          score: 0,
+          feedback: data.error ?? "Não foi possível avaliar agora. Tente novamente em instantes.",
+          strengths: [],
+          improvements: [],
+          correctedVersion: null,
+        });
+        return;
+      }
+      setResult({
+        score: data.score,
+        feedback: data.feedback ?? "",
+        strengths: Array.isArray(data.strengths) ? data.strengths : [],
+        improvements: Array.isArray(data.improvements) ? data.improvements : [],
+        correctedVersion: data.correctedVersion ?? null,
+      });
     } catch {
       setResult({
-        score: 7,
-        feedback: "Boa resposta! Continue praticando para aprimorar ainda mais.",
-        strengths: ["Boa tentativa", "Demonstrou entendimento do tema"],
-        improvements: ["Adicione mais detalhes", "Use exemplos concretos"],
+        score: 0,
+        feedback: "Erro de conexão. Verifique sua internet e tente novamente.",
+        strengths: [],
+        improvements: [],
         correctedVersion: null,
       });
     } finally {

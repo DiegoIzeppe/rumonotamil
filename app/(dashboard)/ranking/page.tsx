@@ -7,6 +7,7 @@ import { useAppStore } from "@/store/app-store";
 import {
   ACHIEVEMENTS,
   TIER_CONFIG,
+  TIER_XP,
   CATEGORY_LABELS,
   computeUnlocked,
   type AchievementCategory,
@@ -25,36 +26,45 @@ function AchievementCard({
   unlocked: boolean;
 }) {
   const tier = TIER_CONFIG[ach.tier];
+  if (!unlocked) {
+    return (
+      <div className="relative rounded-2xl border border-white/5 bg-white/2 p-4 flex flex-col items-center gap-2 text-center opacity-35 grayscale">
+        {ach.secret
+          ? <Lock className="w-7 h-7 text-white/20" />
+          : <span className="text-3xl leading-none">{ach.emoji}</span>
+        }
+        <p className="text-[11px] font-semibold text-white/20 leading-snug">
+          {ach.secret ? "???" : ach.title}
+        </p>
+        <span className="text-[9px] text-white/15">+{tier.xp} XP</span>
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
-        "relative rounded-2xl border p-4 flex flex-col items-center gap-2 text-center transition-all",
-        unlocked ? cn(tier.bg, tier.border, tier.glow) : "bg-white/2 border-white/5 opacity-40 grayscale"
+        "relative rounded-2xl border p-4 flex flex-col items-center gap-2 text-center transition-all overflow-hidden",
+        tier.bg, tier.border, tier.glow
       )}
     >
-      {!unlocked && ach.secret && (
-        <Lock className="w-6 h-6 text-white/15" />
-      )}
-      {(!ach.secret || unlocked) && (
-        <span className="text-3xl leading-none">{ach.emoji}</span>
-      )}
-      <div>
-        <p className={cn("text-xs font-bold leading-snug", unlocked ? tier.color : "text-white/20")}>
-          {ach.secret && !unlocked ? "???" : ach.title}
-        </p>
-        {unlocked && (
-          <p className="text-[10px] text-white/40 leading-tight mt-0.5 line-clamp-2">
-            {ach.description}
-          </p>
-        )}
+      {/* Colored top bar */}
+      <div className={cn("absolute top-0 left-0 right-0 h-0.5", tier.barColor)} />
+
+      <span className="text-3xl leading-none mt-1">{ach.emoji}</span>
+
+      <div className="flex-1">
+        <p className="text-[11px] font-bold text-white/90 leading-snug">{ach.title}</p>
+        <p className="text-[9px] text-white/45 leading-tight mt-0.5 line-clamp-2">{ach.description}</p>
       </div>
-      {unlocked && (
-        <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border", tier.color, tier.border)}>
-          {tier.label}
-        </span>
-      )}
+
+      {/* XP + tier label */}
+      <div className="flex flex-col items-center gap-0.5 w-full">
+        <span className={cn("text-[10px] font-black", tier.textColor)}>+{tier.xp} XP</span>
+        <span className={cn("text-[8px] font-bold uppercase tracking-wider opacity-70", tier.color)}>{tier.label}</span>
+      </div>
     </motion.div>
   );
 }
@@ -107,19 +117,36 @@ function CategorySection({
 }
 
 export default function RankingPage() {
-  const { getXP, getLevel, essayHistory, completedLessonSlugs, currentStreak, maxStreak, setUnlockedAchievementCount } = useAppStore();
-  const xp = getXP();
-  const level = getLevel();
+  const { getXP, getLevel, essayHistory, completedLessonSlugs, currentStreak, maxStreak, setUnlockedAchievementCount, setUnlockedAchievementXP } = useAppStore();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const localHistory = mounted ? essayHistory : [];
+  const localLessons = mounted ? completedLessonSlugs : [];
+  const localStreak  = mounted ? currentStreak : 0;
+  const localMax     = mounted ? maxStreak : 0;
+
+  const xp    = mounted ? getXP() : 0;
+  const level = mounted ? getLevel() : 1;
 
   const unlockedKeys = computeUnlocked({
-    essays: essayHistory,
-    completedLessons: completedLessonSlugs.length,
-    currentStreak,
-    maxStreak,
+    essays: localHistory,
+    completedLessons: localLessons.length,
+    currentStreak: localStreak,
+    maxStreak: localMax,
   });
 
-  // Sync achievement count so getXP includes achievement XP
-  useEffect(() => { setUnlockedAchievementCount(unlockedKeys.size); }, [unlockedKeys.size]);
+  const totalAchXP = Array.from(unlockedKeys).reduce((sum, key) => {
+    const ach = ACHIEVEMENTS.find((a) => a.key === key);
+    return sum + (ach ? TIER_XP[ach.tier] : 0);
+  }, 0);
+
+  // Sync achievement count + XP so getXP() stays accurate
+  useEffect(() => {
+    if (!mounted) return;
+    setUnlockedAchievementCount(unlockedKeys.size);
+    setUnlockedAchievementXP(totalAchXP);
+  }, [unlockedKeys.size, totalAchXP, mounted]);
 
   const totalAchs = ACHIEVEMENTS.length;
   const unlockedCount = unlockedKeys.size;
@@ -166,11 +193,11 @@ export default function RankingPage() {
 
           {/* XP breakdown */}
           {(() => {
-            const lessonXP   = completedLessonSlugs.length * 50;
-            const trainXP    = essayHistory.filter((e) => !e.wasSimulado).length * 50;
-            const simXP      = essayHistory.filter((e) => e.wasSimulado).reduce((s, e) => s + e.score, 0);
-            const achXP      = unlockedKeys.size * 50;
-            const streakXP   = Math.floor(Math.max(currentStreak, maxStreak) / 10) * 1000;
+            const lessonXP   = localLessons.length * 50;
+            const trainXP    = localHistory.filter((e) => !e.wasSimulado).length * 50;
+            const simXP      = localHistory.filter((e) => e.wasSimulado).reduce((s, e) => s + (typeof e.score === "number" && !isNaN(e.score) ? e.score : 0), 0);
+            const achXP      = totalAchXP;
+            const streakXP   = Math.floor(Math.max(localStreak, localMax) / 10) * 1000;
             return (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
                 {[
@@ -195,9 +222,9 @@ export default function RankingPage() {
           {/* Quick stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Redações", value: essayHistory.length, icon: "✍️" },
-              { label: "Streak atual", value: `${currentStreak}d`, icon: "🔥" },
-              { label: "Streak máx.", value: `${maxStreak}d`, icon: "⚡" },
+              { label: "Redações", value: localHistory.length, icon: "✍️" },
+              { label: "Streak atual", value: `${localStreak}d`, icon: "🔥" },
+              { label: "Streak máx.", value: `${localMax}d`, icon: "⚡" },
             ].map((s) => (
               <div key={s.label} className="text-center p-3 rounded-xl bg-white/3 border border-white/5">
                 <p className="text-lg">{s.icon}</p>
@@ -218,10 +245,10 @@ export default function RankingPage() {
           <p className="text-sm text-white/70 mb-3">Escreva 3 redações esta semana.</p>
           <div className="flex gap-2 mb-2">
             {[1, 2, 3].map((n) => (
-              <div key={n} className={cn("flex-1 h-2 rounded-full", essayHistory.length >= n ? "bg-yellow-400" : "bg-white/10")} />
+              <div key={n} className={cn("flex-1 h-2 rounded-full", localHistory.length >= n ? "bg-yellow-400" : "bg-white/10")} />
             ))}
           </div>
-          <p className="text-[11px] text-white/30">{Math.min(essayHistory.length, 3)}/3 concluídas esta semana</p>
+          <p className="text-[11px] text-white/30">{Math.min(localHistory.length, 3)}/3 concluídas esta semana</p>
         </div>
 
         {/* Ranking placeholder */}

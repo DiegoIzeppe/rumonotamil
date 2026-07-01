@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  User, Bell, CreditCard, Shield, LogOut, RotateCcw,
+  User, CreditCard, Shield, LogOut, RotateCcw,
   ChevronRight, Check, Camera, Lock, Trash2, Eye, EyeOff,
-  Send, Crown, Zap, AlertCircle, CheckCircle2,
+  Crown, Zap, AlertCircle, CheckCircle2, ShieldCheck, Copy, X,
 } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { PRO_PLAN } from "@/lib/stripe";
@@ -15,7 +15,6 @@ import toast from "react-hot-toast";
 
 const sections = [
   { id: "profile", label: "Perfil", icon: User },
-  { id: "notifications", label: "Notificações", icon: Bell },
   { id: "billing", label: "Assinatura", icon: CreditCard },
   { id: "security", label: "Segurança", icon: Shield },
 ];
@@ -124,111 +123,6 @@ function ProfileSection() {
   );
 }
 
-// ─── Notifications ────────────────────────────────────────────────────────────
-
-const NOTIF_ITEMS = [
-  { key: "essayCorrected", label: "Redação corrigida", desc: "Quando a IA terminar a correção" },
-  { key: "weeklyTheme", label: "Novo tema semanal", desc: "Toda segunda-feira" },
-  { key: "achievements", label: "Conquistas desbloqueadas", desc: "Quando ganhar um badge" },
-  { key: "streak", label: "Lembrete de streak", desc: "Aviso antes de perder o streak" },
-  { key: "newsletter", label: "Newsletter mensal", desc: "Dicas e conteúdos extras" },
-] as const;
-
-type NotifKey = typeof NOTIF_ITEMS[number]["key"];
-
-function NotificationsSection() {
-  const { userInfo } = useAppStore();
-  const [prefs, setPrefs] = useState<Record<NotifKey, boolean>>({
-    essayCorrected: true, weeklyTheme: true, achievements: true, streak: false, newsletter: false,
-  });
-  const [saving, setSaving] = useState(false);
-  const [testMsg, setTestMsg] = useState("");
-
-  const toggle = (key: NotifKey) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await fetch("/api/notifications/preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(prefs),
-      });
-      toast.success("Preferências salvas!");
-    } catch {
-      toast.error("Erro ao salvar.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleTestEmail = async () => {
-    setTestMsg("");
-    try {
-      const res = await fetch("/api/notifications/preferences", { method: "POST" });
-      const data = await res.json();
-      setTestMsg(data.message ?? (data.success ? "Email enviado!" : "Erro ao enviar."));
-      if (data.success) toast.success("Email de teste enviado!");
-      else toast.error(data.message ?? "Erro ao enviar email.");
-    } catch {
-      toast.error("Erro de conexão.");
-    }
-  };
-
-  return (
-    <div className="glass rounded-2xl border border-white/5 p-6 space-y-4">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-white">Notificações por Email</h2>
-          {userInfo?.email && (
-            <p className="text-xs text-white/40 mt-0.5">Enviadas para <span className="text-blue-400">{userInfo.email}</span></p>
-          )}
-        </div>
-        <button
-          onClick={handleTestEmail}
-          className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20 px-3 py-1.5 rounded-lg"
-        >
-          <Send className="w-3.5 h-3.5" />
-          Enviar teste
-        </button>
-      </div>
-
-      {testMsg && (
-        <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-500/5 border border-blue-500/15 text-xs text-blue-300">
-          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-          {testMsg}
-        </div>
-      )}
-
-      <div className="space-y-2">
-        {NOTIF_ITEMS.map((item) => (
-          <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-white/3 border border-white/5">
-            <div>
-              <p className="text-sm font-medium text-white">{item.label}</p>
-              <p className="text-xs text-white/40 mt-0.5">{item.desc}</p>
-            </div>
-            <button
-              onClick={() => toggle(item.key)}
-              className={cn("w-10 h-6 rounded-full transition-all relative flex-shrink-0", prefs[item.key] ? "bg-blue-500" : "bg-white/10")}
-            >
-              <span className={cn("absolute top-1 w-4 h-4 bg-white rounded-full transition-all", prefs[item.key] ? "left-5" : "left-1")} />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-white/10 disabled:text-white/30 text-white text-sm font-semibold transition-all flex items-center gap-2"
-      >
-        {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
-        {saving ? "Salvando..." : "Salvar preferências"}
-      </button>
-    </div>
-  );
-}
-
 // ─── Billing ──────────────────────────────────────────────────────────────────
 
 function BillingSection() {
@@ -264,7 +158,7 @@ function BillingSection() {
       </div>
 
       <div className="space-y-2">
-        {(PRO_PLAN.features as string[]).map((f) => (
+        {([...PRO_PLAN.features]).map((f) => (
           <div key={f} className="flex items-center gap-2.5 text-sm text-white/70">
             <Check className="w-4 h-4 text-blue-400 flex-shrink-0" />
             <span>{f}</span>
@@ -290,6 +184,263 @@ function BillingSection() {
 }
 
 // ─── Security ─────────────────────────────────────────────────────────────────
+
+// ─── 2FA ──────────────────────────────────────────────────────────────────────
+
+type SetupData = { secret: string; qrDataUrl: string; backupCodes: string[] };
+
+function TwoFactorBlock() {
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [setupData, setSetupData] = useState<SetupData | null>(null);
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [disablePw, setDisablePw] = useState("");
+  const [codesSaved, setCodesSaved] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/2fa/status")
+      .then((r) => r.json())
+      .then((d) => setEnabled(!!d.enabled))
+      .catch(() => setEnabled(false));
+  }, []);
+
+  const startSetup = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/2fa/setup", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Erro ao iniciar configuração."); return; }
+      setSetupData(data);
+      setSetupOpen(true);
+      setCodesSaved(false);
+      setCode("");
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmSetup = async () => {
+    if (code.length !== 6) { toast.error("Digite o código de 6 dígitos."); return; }
+    if (!codesSaved) { toast.error("Confirme que salvou os códigos de backup."); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/2fa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Código inválido."); return; }
+      toast.success("2FA ativado com sucesso!");
+      setEnabled(true);
+      setSetupOpen(false);
+      setSetupData(null);
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisable = async () => {
+    if (!disablePw) { toast.error("Digite sua senha."); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/2fa/disable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: disablePw }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error ?? "Erro ao desativar."); return; }
+      toast.success("2FA desativado.");
+      setEnabled(false);
+      setDisableOpen(false);
+      setDisablePw("");
+    } catch {
+      toast.error("Erro de conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copySecret = () => {
+    if (!setupData) return;
+    navigator.clipboard.writeText(setupData.secret);
+    toast.success("Chave copiada!");
+  };
+
+  const copyBackupCodes = () => {
+    if (!setupData) return;
+    navigator.clipboard.writeText(setupData.backupCodes.join("\n"));
+    toast.success("Códigos copiados!");
+  };
+
+  return (
+    <div className="rounded-xl border border-white/5 overflow-hidden">
+      <div className="flex items-center gap-3 p-4">
+        <div className={cn(
+          "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
+          enabled ? "bg-green-500/15" : "bg-white/5"
+        )}>
+          {enabled ? <ShieldCheck className="w-4 h-4 text-green-400" /> : <Shield className="w-4 h-4 text-white/50" />}
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-white/80">Autenticação em dois fatores</p>
+          <p className="text-xs text-white/30 mt-0.5">
+            {enabled === null ? "Carregando..." : enabled ? "Ativado — sua conta está protegida" : "Adicione uma camada extra de segurança"}
+          </p>
+        </div>
+        {enabled === null ? null : enabled ? (
+          <button
+            onClick={() => setDisableOpen(true)}
+            className="text-xs text-red-400/70 hover:text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Desativar
+          </button>
+        ) : (
+          <button
+            onClick={startSetup}
+            disabled={loading}
+            className="text-xs text-blue-400 hover:text-blue-300 border border-blue-500/25 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {loading ? "Aguarde..." : "Ativar"}
+          </button>
+        )}
+      </div>
+
+      {/* Setup modal */}
+      {setupOpen && setupData && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="glass border border-white/10 rounded-2xl w-full max-w-md shadow-glass overflow-hidden max-h-[90vh] overflow-y-auto"
+          >
+            <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Configurar 2FA</h3>
+              <button onClick={() => { setSetupOpen(false); setSetupData(null); }} className="text-white/30 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-5">
+              <div>
+                <p className="text-sm text-white/60 mb-3">
+                  1. Escaneie o QR code com Google Authenticator, Authy ou similar.
+                </p>
+                <div className="bg-white rounded-xl p-3 flex items-center justify-center">
+                  <img src={setupData.qrDataUrl} alt="QR code 2FA" className="w-48 h-48" />
+                </div>
+                <button
+                  onClick={copySecret}
+                  className="mt-2 w-full flex items-center justify-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                >
+                  <Copy className="w-3 h-3" /> Ou digite manualmente: <span className="font-mono">{setupData.secret}</span>
+                </button>
+              </div>
+
+              <div>
+                <p className="text-sm text-white/60 mb-2">2. Guarde seus códigos de backup (use se perder o app):</p>
+                <div className="grid grid-cols-2 gap-1.5 p-3 rounded-xl bg-[#080c14] border border-white/8">
+                  {setupData.backupCodes.map((c) => (
+                    <span key={c} className="text-xs font-mono text-white/60">{c}</span>
+                  ))}
+                </div>
+                <button
+                  onClick={copyBackupCodes}
+                  className="mt-2 w-full flex items-center justify-center gap-1.5 text-xs text-blue-400/70 hover:text-blue-400 transition-colors"
+                >
+                  <Copy className="w-3 h-3" /> Copiar códigos
+                </button>
+                <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={codesSaved}
+                    onChange={(e) => setCodesSaved(e.target.checked)}
+                    className="w-4 h-4 rounded accent-blue-500"
+                  />
+                  <span className="text-xs text-white/50">Salvei meus códigos de backup em local seguro</span>
+                </label>
+              </div>
+
+              <div>
+                <p className="text-sm text-white/60 mb-2">3. Digite o código de 6 dígitos do app:</p>
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  className="w-full px-3 py-3 bg-[#080c14] border border-white/8 rounded-xl text-center text-lg font-mono tracking-[0.3em] text-white outline-none focus:border-blue-500/40 transition-colors"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="px-6 pb-6">
+              <button
+                onClick={confirmSetup}
+                disabled={loading || code.length !== 6 || !codesSaved}
+                className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:bg-white/5 disabled:text-white/20 text-white text-sm font-semibold transition-all"
+              >
+                {loading ? "Ativando..." : "Confirmar e ativar"}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Disable modal */}
+      {disableOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="glass border border-white/10 rounded-2xl w-full max-w-sm shadow-glass overflow-hidden"
+          >
+            <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
+              <h3 className="text-base font-bold text-white">Desativar 2FA</h3>
+              <button onClick={() => { setDisableOpen(false); setDisablePw(""); }} className="text-white/30 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-3">
+              <p className="text-sm text-white/50">Confirme sua senha para desativar a autenticação em dois fatores.</p>
+              <input
+                type="password"
+                value={disablePw}
+                onChange={(e) => setDisablePw(e.target.value)}
+                placeholder="Sua senha"
+                className="w-full px-3 py-2.5 bg-[#080c14] border border-white/8 rounded-xl text-sm text-white outline-none focus:border-blue-500/40 transition-colors"
+                autoFocus
+              />
+            </div>
+            <div className="px-6 pb-6">
+              <button
+                onClick={handleDisable}
+                disabled={loading || !disablePw}
+                className="w-full py-2.5 rounded-xl bg-red-500/90 hover:bg-red-500 disabled:bg-white/5 disabled:text-white/20 text-white text-sm font-semibold transition-all"
+              >
+                {loading ? "Desativando..." : "Desativar 2FA"}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
 
 function SecuritySection() {
   const [showChangePass, setShowChangePass] = useState(false);
@@ -410,17 +561,8 @@ function SecuritySection() {
         )}
       </div>
 
-      {/* 2FA — coming soon */}
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-white/5 opacity-50">
-        <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-          <Shield className="w-4 h-4 text-white/50" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-white/80">Autenticação em dois fatores</p>
-          <p className="text-xs text-white/30 mt-0.5">Em breve</p>
-        </div>
-        <span className="text-[10px] text-white/30 border border-white/10 px-2 py-1 rounded-full">Em breve</span>
-      </div>
+      {/* 2FA */}
+      <TwoFactorBlock />
 
       {/* Delete account */}
       <div className="pt-4 border-t border-white/5 space-y-3">
@@ -530,10 +672,9 @@ export default function ConfiguracoesPage() {
 
           {/* Content */}
           <div className="md:col-span-3">
-            {activeSection === "profile"       && <ProfileSection />}
-            {activeSection === "notifications" && <NotificationsSection />}
-            {activeSection === "billing"       && <BillingSection />}
-            {activeSection === "security"      && <SecuritySection />}
+            {activeSection === "profile"  && <ProfileSection />}
+            {activeSection === "billing"  && <BillingSection />}
+            {activeSection === "security" && <SecuritySection />}
           </div>
         </div>
       </motion.div>

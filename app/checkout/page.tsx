@@ -19,7 +19,10 @@ const CYCLES: { id: BillingCycle; label: string; save: string | null }[] = [
 function CheckoutForm() {
   const searchParams = useSearchParams();
   const canceled = searchParams.get("canceled") === "true";
-  const initialCycle = (searchParams.get("cycle") ?? "monthly") as BillingCycle;
+  const cycleParam = searchParams.get("cycle") ?? "monthly";
+  // Guard against malformed ?cycle= values that would break PRO_PLAN.cycles lookup
+  const initialCycle: BillingCycle =
+    cycleParam === "semestral" || cycleParam === "annual" ? cycleParam : "monthly";
 
   const [cycle, setCycle]               = useState<BillingCycle>(initialCycle);
   const [paymentMode, setPaymentMode]   = useState<PaymentMode>("monthly");

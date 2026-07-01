@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE, parseSessionToken } from "@/lib/auth";
+
+const AUTH_COOKIE = "rn1000_session";
 
 const PUBLIC_PATHS = ["/sign-in", "/api/auth/login", "/landing.html", "/checkout"];
+
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  "X-XSS-Protection": "1; mode=block",
+  "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+};
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Permitir rotas públicas e assets
+  const res = NextResponse.next();
+  Object.entries(SECURITY_HEADERS).forEach(([k, v]) => res.headers.set(k, v));
+
+  // Allow public paths, static assets, stripe webhook
   if (
     pathname === "/" ||
     PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
@@ -14,20 +27,20 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/stripe/webhook") ||
     pathname.match(/\.(ico|png|svg|jpg|jpeg|css|js|woff|woff2)$/)
   ) {
-    return NextResponse.next();
+    return res;
   }
 
-  // Verificar sessão
-  const token = req.cookies.get(AUTH_COOKIE)?.value;
-  const user = token ? parseSessionToken(token) : null;
-
-  if (!user) {
-    const signInUrl = new URL("/sign-in", req.url);
-    signInUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(signInUrl);
+  // Protect dashboard pages — cookie presence check (HMAC validated in API routes)
+  if (!pathname.startsWith("/api")) {
+    const hasCookie = !!req.cookies.get(AUTH_COOKIE)?.value;
+    if (!hasCookie) {
+      const signInUrl = new URL("/sign-in", req.url);
+      signInUrl.searchParams.set("from", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
   }
 
-  return NextResponse.next();
+  return res;
 }
 
 export const config = {
