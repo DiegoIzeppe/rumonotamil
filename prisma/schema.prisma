@@ -1,4 +1,10 @@
 // Prisma Schema — Rumo à Nota 1000
+//
+// Maps onto the tables created by supabase/schema.sql — that SQL file is the
+// source of truth for the real database (includes RLS policies, triggers for
+// auto-provisioning profiles on signup, and seed data). This file must stay
+// in sync with it: table/column names below use @@map/@map to match the
+// snake_case Postgres schema while keeping camelCase field names in code.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,32 +17,31 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(cuid())
-  clerkId        String   @unique
+  id             String   @id @db.Uuid
   email          String   @unique
   name           String?
-  avatarUrl      String?
+  avatarUrl      String?  @map("avatar_url")
   role           Role     @default(STUDENT)
   xp             Int      @default(0)
   level          Int      @default(1)
-  streakDays     Int      @default(0)
-  lastActivityAt DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  streakDays     Int      @default(0) @map("streak_days")
+  lastActivityAt DateTime @default(now()) @map("last_activity_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  subscription     Subscription?
-  essays           EssaySubmission[]
-  progress         LessonProgress[]
-  studyPlans       StudyPlan[]
-  notifications    Notification[]
-  achievements     UserAchievement[]
-  streaks          Streak[]
-  bookmarks        Bookmark[]
-  notes            Note[]
-  rankingEntries   RankingEntry[]
+  subscription  Subscription?
+  essays        EssaySubmission[]
+  progress      LessonProgress[]
+  studyPlans    StudyPlan[]
+  notifications Notification[]
+  achievements  UserAchievement[]
+  streaks       Streak[]
+  bookmarks     Bookmark[]
+  notes         Note[]
+  rankingEntries RankingEntry[]
 
-  @@index([clerkId])
   @@index([email])
+  @@map("profiles")
 }
 
 enum Role {
@@ -46,20 +51,22 @@ enum Role {
 }
 
 model Subscription {
-  id                   String             @id @default(cuid())
-  userId               String             @unique
-  stripeCustomerId     String?            @unique
-  stripeSubscriptionId String?            @unique
-  stripePriceId        String?
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String             @unique @map("user_id") @db.Uuid
+  stripeCustomerId     String?            @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  stripePriceId        String?            @map("stripe_price_id")
   plan                 SubscriptionPlan   @default(FREE)
   status               SubscriptionStatus @default(ACTIVE)
-  currentPeriodStart   DateTime?
-  currentPeriodEnd     DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }
 
 enum SubscriptionPlan {
@@ -78,22 +85,23 @@ enum SubscriptionStatus {
 }
 
 model Lesson {
-  id              String       @id @default(cuid())
-  title           String
-  slug            String       @unique
-  description     String?
-  content         String       @db.Text
-  category        LessonCategory
-  competency      Int?         // 1-5 for ENEM competencies
-  difficulty      Difficulty   @default(INTERMEDIATE)
-  readingTime     Int          @default(10) // minutes
-  order           Int          @default(0)
-  published       Boolean      @default(false)
-  featured        Boolean      @default(false)
-  thumbnailUrl    String?
-  tags            String[]
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String
+  slug              String   @unique
+  description       String?
+  content           String?
+  category          String // C1..C5, DICAS
+  competency        Int?
+  difficulty        Difficulty @default(INTERMEDIATE)
+  readingTime       Int      @default(10) @map("reading_time")
+  order             Int      @default(0) @map("order_index")
+  published         Boolean  @default(false)
+  featured          Boolean  @default(false)
+  thumbnailUrl      String?  @map("thumbnail_url")
+  tags              String[]
+  practicalQuestion String?  @map("practical_question")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   progress  LessonProgress[]
   bookmarks Bookmark[]
@@ -101,20 +109,7 @@ model Lesson {
 
   @@index([slug])
   @@index([category])
-}
-
-enum LessonCategory {
-  COMPETENCIA_1
-  COMPETENCIA_2
-  COMPETENCIA_3
-  COMPETENCIA_4
-  COMPETENCIA_5
-  REPERTORIO
-  INTRODUCAO
-  DESENVOLVIMENTO
-  CONCLUSAO
-  MODELOS
-  TECNICAS_AVANCADAS
+  @@map("lessons")
 }
 
 enum Difficulty {
@@ -124,40 +119,41 @@ enum Difficulty {
 }
 
 model LessonProgress {
-  id          String   @id @default(cuid())
-  userId      String
-  lessonId    String
-  completed   Boolean  @default(false)
-  progress    Float    @default(0) // 0-100
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  lessonId    String    @map("lesson_id") @db.Uuid
+  completed   Boolean   @default(false)
+  progress    Float     @default(0)
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+  @@map("lesson_progress")
 }
 
-
 model EssaySubmission {
-  id         String           @id @default(cuid())
-  userId     String
+  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
   title      String?
-  content    String           @db.Text
+  content    String
   theme      String?
-  wordCount  Int              @default(0)
+  wordCount  Int              @default(0) @map("word_count")
   status     SubmissionStatus @default(PENDING)
-  isSimMode  Boolean          @default(false)
-  timeTaken  Int?             // seconds
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  isSimMode  Boolean          @default(false) @map("is_sim_mode")
+  timeTaken  Int?             @map("time_taken")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
 
-  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   aiFeedback AIFeedback?
 
   @@index([userId])
   @@index([status])
+  @@map("essay_submissions")
 }
 
 enum SubmissionStatus {
@@ -168,63 +164,69 @@ enum SubmissionStatus {
 }
 
 model AIFeedback {
-  id               String   @id @default(cuid())
-  submissionId     String   @unique
-  score            Int      // 0-1000
-  competency1Score Int      // 0-200
-  competency2Score Int
-  competency3Score Int
-  competency4Score Int
-  competency5Score Int
-  c1Feedback       String   @db.Text
-  c2Feedback       String   @db.Text
-  c3Feedback       String   @db.Text
-  c4Feedback       String   @db.Text
-  c5Feedback       String   @db.Text
-  generalFeedback  String   @db.Text
-  strengths        String[]
-  weaknesses       String[]
-  suggestions      String[]
-  paragraphNotes   Json?    // inline annotations per paragraph
-  rewriteSuggestion String? @db.Text
-  promptVersion    String   @default("v1")
-  modelUsed        String   @default("gpt-4o")
-  tokensUsed       Int?
-  createdAt        DateTime @default(now())
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submissionId      String   @unique @map("submission_id") @db.Uuid
+  score             Int
+  competency1Score  Int      @map("competency1_score")
+  competency2Score  Int      @map("competency2_score")
+  competency3Score  Int      @map("competency3_score")
+  competency4Score  Int      @map("competency4_score")
+  competency5Score  Int      @map("competency5_score")
+  c1Feedback        String   @map("c1_feedback")
+  c2Feedback        String   @map("c2_feedback")
+  c3Feedback        String   @map("c3_feedback")
+  c4Feedback        String   @map("c4_feedback")
+  c5Feedback        String   @map("c5_feedback")
+  generalFeedback   String   @map("general_feedback")
+  strengths         String[]
+  weaknesses        String[]
+  suggestions       String[]
+  paragraphNotes    Json?    @map("paragraph_notes")
+  rewriteSuggestion String?  @map("rewrite_suggestion")
+  promptVersion     String   @default("v1") @map("prompt_version")
+  modelUsed         String   @default("llama-3.3-70b-versatile") @map("model_used")
+  tokensUsed        Int?     @map("tokens_used")
+  createdAt         DateTime @default(now()) @map("created_at")
 
   submission EssaySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("ai_feedback")
 }
 
 model StudyPlan {
-  id          String   @id @default(cuid())
-  userId      String
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
   title       String
   description String?
-  startDate   DateTime
-  endDate     DateTime?
-  isActive    Boolean  @default(true)
-  aiGenerated Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  startDate   DateTime  @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  isActive    Boolean   @default(true) @map("is_active")
+  aiGenerated Boolean   @default(false) @map("ai_generated")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks StudyPlanTask[]
+
+  @@map("study_plans")
 }
 
 model StudyPlanTask {
-  id          String    @id @default(cuid())
-  planId      String
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  planId      String    @map("plan_id") @db.Uuid
   title       String
   description String?
-  dueDate     DateTime?
+  dueDate     DateTime? @map("due_date") @db.Date
   completed   Boolean   @default(false)
-  completedAt DateTime?
-  order       Int       @default(0)
+  completedAt DateTime? @map("completed_at")
+  order       Int       @default(0) @map("order_index")
   type        TaskType  @default(LESSON)
-  referenceId String?
-  createdAt   DateTime  @default(now())
+  referenceId String?   @map("reference_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   plan StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("study_plan_tasks")
 }
 
 enum TaskType {
@@ -235,16 +237,18 @@ enum TaskType {
 }
 
 model Achievement {
-  id          String   @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   key         String   @unique
   title       String
   description String
-  iconUrl     String?
-  xpReward    Int      @default(0)
+  iconUrl     String?  @map("icon_url")
+  xpReward    Int      @default(0) @map("xp_reward")
   rarity      Rarity   @default(COMMON)
-  createdAt   DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at")
 
   users UserAchievement[]
+
+  @@map("achievements")
 }
 
 enum Rarity {
@@ -256,42 +260,45 @@ enum Rarity {
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
-  userId        String
-  achievementId String
-  unlockedAt    DateTime @default(now())
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  achievementId String   @map("achievement_id") @db.Uuid
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
+  @@map("user_achievements")
 }
 
 model Streak {
-  id        String   @id @default(cuid())
-  userId    String
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
   date      DateTime @db.Date
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
   @@index([userId])
+  @@map("streaks")
 }
 
 model Notification {
-  id        String           @id @default(cuid())
-  userId    String
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
   title     String
   message   String
   type      NotificationType @default(INFO)
   read      Boolean          @default(false)
   link      String?
-  createdAt DateTime         @default(now())
+  createdAt DateTime         @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
+  @@map("notifications")
 }
 
 enum NotificationType {
@@ -304,64 +311,73 @@ enum NotificationType {
 }
 
 model Bookmark {
-  id          String   @id @default(cuid())
-  userId      String
-  lessonId    String?
-  createdAt   DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson      Lesson?     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-}
-
-model Note {
-  id        String   @id @default(cuid())
-  userId    String
-  lessonId  String?
-  content   String   @db.Text
-  highlight String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  lessonId String?  @map("lesson_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("bookmarks")
+}
+
+model Note {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  lessonId  String?  @map("lesson_id") @db.Uuid
+  content   String
+  highlight String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
 }
 
 model RankingEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  period    String   // "2024-W01", "2024-01", "all-time"
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  period    String
   xp        Int      @default(0)
   essays    Int      @default(0)
-  avgScore  Float    @default(0)
+  avgScore  Float    @default(0) @map("avg_score")
   position  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, period])
   @@index([period, xp])
+  @@map("ranking_entries")
 }
 
 model WeeklyTheme {
-  id          String   @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
-  description String   @db.Text
-  week        String   // "2024-W01"
+  description String
+  week        String   @unique
   active      Boolean  @default(false)
   tags        String[]
   repertoires String[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("weekly_themes")
 }
 
 model PromptTemplate {
-  id          String   @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   key         String   @unique
   name        String
   description String?
-  content     String   @db.Text
+  content     String
   version     String   @default("v1")
   active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("prompt_templates")
 }

@@ -72,7 +72,16 @@
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('base64'\\)\\)\")",
       "Bash(grep -c \"^.env$\" .gitignore)",
       "Bash(grep -i \"^\\\\?\\\\? \\\\.env$\\\\|^ M \\\\.env$\")",
-      "Bash(grep -i \"^\\\\.env$\")"
+      "Bash(grep -i \"^\\\\.env$\")",
+      "Bash(git commit -m ' *)",
+      "Bash(git ls-remote *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://github.com/DiegoIzeppe/rumonotamil)",
+      "Bash(where gh *)",
+      "Bash(gh auth *)",
+      "Bash(git remote *)",
+      "Bash(git credential *)",
+      "Bash(rm -f /tmp/cred_out.txt)",
+      "Bash(npx prisma *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\diego\\Desktop\\rumo-a-nota1000\\app\\(auth)\\sign-in\\[[...sign-in]]",

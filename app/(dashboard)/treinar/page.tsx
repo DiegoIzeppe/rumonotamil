@@ -346,15 +346,16 @@ function Editor({ selectedTheme, onBack }: { selectedTheme: string; onBack: () =
       setCurrentTheme(selectedTheme);
       // Capture metadata for achievement tracking
       const themeObj = TRENDING_THEMES.find((t) => t.title === selectedTheme);
+      const wasSimulado = timerActive || timerSeconds < 3600; // timer was started
       setPendingEssayMeta({
-        wasSimulado: timerActive || timerSeconds < 3600, // timer was started
+        wasSimulado,
         usedAssistant,
         themeDifficulty: themeObj?.difficulty ?? "Médio",
       });
       const res = await fetch("/api/ai/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, theme: selectedTheme }),
+        body: JSON.stringify({ content, theme: selectedTheme, wasSimulado }),
       });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error ?? "Erro ao corrigir redação"); return; }

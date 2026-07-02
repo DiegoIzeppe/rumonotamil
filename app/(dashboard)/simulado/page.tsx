@@ -198,7 +198,7 @@ export default function SimuladoPage() {
       const res = await fetch("/api/ai/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, theme: selectedTheme.title }),
+        body: JSON.stringify({ content, theme: selectedTheme.title, wasSimulado: true }),
       });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error ?? "Erro ao corrigir redação"); return; }
