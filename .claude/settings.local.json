@@ -81,7 +81,8 @@
       "Bash(git remote *)",
       "Bash(git credential *)",
       "Bash(rm -f /tmp/cred_out.txt)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "Bash(vercel whoami *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\diego\\Desktop\\rumo-a-nota1000\\app\\(auth)\\sign-in\\[[...sign-in]]",

@@ -13,11 +13,8 @@ export function getStripe(): Stripe {
 }
 
 // ── Plano único PRO ───────────────────────────────────────────────────────────
-// Cada ciclo tem dois modos de pagamento:
-//   "upfront" = paga todo o período de uma vez
-//   "monthly"  = paga mês a mês ao preço do ciclo
-//
-// Stripe: crie 5 preços diferentes no dashboard e cole os IDs abaixo.
+// 3 preços no Stripe: mensal (cobrança recorrente mensal), semestral e anual
+// (cobrança única à vista, sem opção de parcelar mês a mês).
 
 export const PRO_PLAN = {
   name: "Pro",
@@ -37,9 +34,8 @@ export const PRO_PLAN = {
       monthlyPrice: 49,
       save: null,
       months: 1,
-      // Um único preço: R$49/mês
       prices: {
-        monthly: {
+        upfront: {
           label: "R$49/mês",
           priceId: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "",
           totalLabel: null,
@@ -52,15 +48,10 @@ export const PRO_PLAN = {
       save: "–20%",
       months: 6,
       prices: {
-        monthly: {
-          label: "R$39/mês",
-          priceId: process.env.STRIPE_PRICE_PRO_SEMESTRAL_MONTHLY ?? "",
-          totalLabel: "6 × R$39 = R$234 no total",
-        },
         upfront: {
           label: "R$234 à vista",
           priceId: process.env.STRIPE_PRICE_PRO_SEMESTRAL_UPFRONT ?? "",
-          totalLabel: "Equivale a R$39/mês · cobrado uma vez",
+          totalLabel: "Equivale a R$39/mês · cobrado uma vez a cada 6 meses",
         },
       },
     },
@@ -70,15 +61,10 @@ export const PRO_PLAN = {
       save: "–41%",
       months: 12,
       prices: {
-        monthly: {
-          label: "R$29/mês",
-          priceId: process.env.STRIPE_PRICE_PRO_ANNUAL_MONTHLY ?? "",
-          totalLabel: "12 × R$29 = R$348 no total",
-        },
         upfront: {
           label: "R$348 à vista",
           priceId: process.env.STRIPE_PRICE_PRO_ANNUAL_UPFRONT ?? "",
-          totalLabel: "Equivale a R$29/mês · cobrado uma vez",
+          totalLabel: "Equivale a R$29/mês · cobrado uma vez ao ano",
         },
       },
     },
@@ -86,11 +72,10 @@ export const PRO_PLAN = {
 } as const;
 
 export type BillingCycle = keyof typeof PRO_PLAN.cycles;
-export type PaymentMode = "monthly" | "upfront";
+export type PaymentMode = "upfront";
 
-export function getPriceId(cycle: BillingCycle, mode: PaymentMode): string {
-  const prices = PRO_PLAN.cycles[cycle].prices as Record<string, { priceId: string }>;
-  return (prices[mode] ?? prices["monthly"]).priceId;
+export function getPriceId(cycle: BillingCycle): string {
+  return PRO_PLAN.cycles[cycle].prices.upfront.priceId;
 }
 
 // Legacy export — usado em configuracoes/page.tsx

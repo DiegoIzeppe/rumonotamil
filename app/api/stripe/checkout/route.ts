@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createCheckoutSession, getPriceId, type BillingCycle, type PaymentMode } from "@/lib/stripe";
+import { createCheckoutSession, getPriceId, type BillingCycle } from "@/lib/stripe";
 import { AUTH_COOKIE, parseSessionToken } from "@/lib/auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -18,14 +18,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const cycle: BillingCycle = body.cycle ?? "monthly";
-    const mode: PaymentMode = body.paymentMode ?? "monthly";
     const customerEmail: string | undefined = body.email;
 
     // Usuário autenticado (opcional)
     const token = req.cookies.get(AUTH_COOKIE)?.value;
     const user = token ? parseSessionToken(token) : null;
 
-    const priceId = getPriceId(cycle, mode);
+    const priceId = getPriceId(cycle);
     if (!priceId) {
       return NextResponse.json(
         { error: "Configure STRIPE_PRICE_ID_PRO_* no .env" },

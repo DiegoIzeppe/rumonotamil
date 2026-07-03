@@ -2,12 +2,12 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   CheckCircle2, Lock, ArrowRight, Loader2,
-  AlertCircle, Star, Shield, CreditCard, Calendar,
+  AlertCircle, Star, Shield, CreditCard,
 } from "lucide-react";
-import { PRO_PLAN, type BillingCycle, type PaymentMode } from "@/lib/stripe";
+import { PRO_PLAN, type BillingCycle } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
 const CYCLES: { id: BillingCycle; label: string; save: string | null }[] = [
@@ -25,26 +25,16 @@ function CheckoutForm() {
     cycleParam === "semestral" || cycleParam === "annual" ? cycleParam : "monthly";
 
   const [cycle, setCycle]               = useState<BillingCycle>(initialCycle);
-  const [paymentMode, setPaymentMode]   = useState<PaymentMode>("monthly");
   const [email, setEmail]               = useState("");
   const [loading, setLoading]           = useState(false);
   const [error, setError]               = useState(canceled ? "Pagamento cancelado. Tente novamente." : "");
 
   const cycleMeta  = PRO_PLAN.cycles[cycle];
-  const prices     = cycleMeta.prices as Record<PaymentMode, { label: string; priceId: string; totalLabel: string | null }>;
-  const hasUpfront = cycle !== "monthly";
-  const activePrice = prices[paymentMode] ?? prices.monthly;
 
-  // Computed totals
-  const monthlyAmt  = cycleMeta.monthlyPrice;
-  const months      = cycleMeta.months;
-  const upfrontAmt  = monthlyAmt * months;
-
-  // When cycle changes to monthly, reset payment mode
-  const handleCycleChange = (c: BillingCycle) => {
-    setCycle(c);
-    if (c === "monthly") setPaymentMode("monthly");
-  };
+  // Computed totals — each cycle is a single upfront charge (or monthly recurring for the "monthly" cycle)
+  const monthlyAmt = cycleMeta.monthlyPrice;
+  const months     = cycleMeta.months;
+  const totalAmt   = monthlyAmt * months;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +45,7 @@ function CheckoutForm() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cycle, paymentMode, email }),
+        body: JSON.stringify({ cycle, email }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
@@ -92,7 +82,7 @@ function CheckoutForm() {
           {CYCLES.map((c) => (
             <button
               key={c.id}
-              onClick={() => handleCycleChange(c.id)}
+              onClick={() => setCycle(c.id)}
               className={cn(
                 "flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5",
                 cycle === c.id
@@ -113,86 +103,20 @@ function CheckoutForm() {
           ))}
         </div>
 
-        {/* ── Payment mode toggle (semestral/annual only) ── */}
-        <AnimatePresence>
-          {hasUpfront && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Como prefere pagar?
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Mensal no ciclo */}
-                  <button
-                    onClick={() => setPaymentMode("monthly")}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
-                      paymentMode === "monthly"
-                        ? "border-blue-500/40 bg-blue-500/10"
-                        : "border-white/8 hover:border-white/15"
-                    )}
-                  >
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-white/50" />
-                      <span className="text-xs font-bold text-white/70">Mensal</span>
-                    </div>
-                    <p className="text-lg font-black text-white">R${monthlyAmt}<span className="text-sm font-normal text-white/40">/mês</span></p>
-                    <p className="text-[11px] text-white/35 mt-1">Cobrado todo mês</p>
-                  </button>
-
-                  {/* À vista */}
-                  <button
-                    onClick={() => setPaymentMode("upfront")}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all relative",
-                      paymentMode === "upfront"
-                        ? "border-green-500/40 bg-green-500/8"
-                        : "border-white/8 hover:border-white/15"
-                    )}
-                  >
-                    <div className="absolute -top-2 right-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/25">
-                        Mais fácil
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <CreditCard className="w-3.5 h-3.5 text-white/50" />
-                      <span className="text-xs font-bold text-white/70">À vista</span>
-                    </div>
-                    <p className="text-lg font-black text-white">R${upfrontAmt}</p>
-                    <p className="text-[11px] text-white/35 mt-1">
-                      {months === 6 ? "Cobrado 1× a cada 6 meses" : "Cobrado 1× por ano"}
-                    </p>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Price display */}
         <div className="glass rounded-2xl border border-blue-500/20 p-5 bg-blue-500/3">
           <div className="flex items-end gap-2 mb-1">
             <span className="text-white/50 text-base font-semibold">R$</span>
             <span className="text-4xl font-black text-white">
-              {paymentMode === "upfront" && hasUpfront ? upfrontAmt : monthlyAmt}
+              {cycle === "monthly" ? monthlyAmt : totalAmt}
             </span>
             <span className="text-white/40 text-sm mb-1.5">
-              {paymentMode === "upfront" && hasUpfront
-                ? months === 6 ? "a cada 6 meses" : "por ano"
-                : "/mês"}
+              {cycle === "monthly" ? "/mês" : months === 6 ? "a cada 6 meses" : "por ano"}
             </span>
           </div>
           {cycle !== "monthly" && (
             <p className="text-xs text-green-400 font-medium mb-2">
-              {paymentMode === "monthly"
-                ? `${months} × R$${monthlyAmt} = R$${upfrontAmt} no total`
-                : `Equivale a R$${monthlyAmt}/mês · economize ${cycleMeta.save}`}
+              Equivale a R${monthlyAmt}/mês · economize {cycleMeta.save} · cobrado uma vez
             </p>
           )}
           <div className="flex items-center gap-2 text-xs text-white/40">
@@ -253,11 +177,11 @@ function CheckoutForm() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/60">
                   Plano Pro · {cycleMeta.label}
-                  {hasUpfront && paymentMode === "upfront" ? " à vista" : ""}
+                  {cycle !== "monthly" ? " à vista" : ""}
                 </span>
                 <span className="text-white font-semibold">
-                  R${paymentMode === "upfront" && hasUpfront ? upfrontAmt : monthlyAmt}
-                  {paymentMode === "monthly" || !hasUpfront ? "/mês" : ""}
+                  R${cycle === "monthly" ? monthlyAmt : totalAmt}
+                  {cycle === "monthly" ? "/mês" : ""}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs text-green-400">
@@ -267,8 +191,8 @@ function CheckoutForm() {
               <div className="border-t border-white/8 pt-2 flex items-center justify-between text-sm font-bold">
                 <span className="text-white/70">Total hoje</span>
                 <span className="text-white">
-                  R${paymentMode === "upfront" && hasUpfront ? upfrontAmt : monthlyAmt}
-                  {paymentMode === "monthly" || !hasUpfront ? "/mês" : ""}
+                  R${cycle === "monthly" ? monthlyAmt : totalAmt}
+                  {cycle === "monthly" ? "/mês" : ""}
                 </span>
               </div>
             </div>
